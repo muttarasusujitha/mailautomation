@@ -12,6 +12,22 @@
       "summary": "For Java developers new to Spring. Covers creating Spring Boot projects, dependency injection, configuration, REST controllers, validation, Spring Data JPA, migrations, transactions, testing, logging, Actuator, security, calling other services, API documentation, scheduled work and running the service in Docker.",
       "prerequisites": ["Writes core Java confidently: classes, interfaces, collections, exceptions and lambdas", "Knows basic SQL queries", "Has used Maven or Gradle to build a project"],
       "outcomes": ["Build REST APIs with Spring Boot backed by a relational database", "Configure, validate, secure and document a service", "Write unit and slice tests for Spring components", "Package a service and run it in Docker"],
+      "course_outcomes": [
+        {"outcome": "Set up a Spring Boot project and wire beans with dependency injection", "topics": ["Spring Boot Setup and Project Structure", "Dependency Injection and Spring Beans"]},
+        {"outcome": "Configure applications with properties and profiles", "topics": ["Configuration Properties and Profiles"]},
+        {"outcome": "Build REST controllers with request validation and clear error responses", "topics": ["Building a First REST Controller", "Request Validation and Error Responses"]},
+        {"outcome": "Store data with Spring Data JPA repositories, entity relationships and queries", "topics": ["Data Access with Spring Data JPA Repositories", "Entity Relationships and Queries"]},
+        {"outcome": "Version the database schema with Flyway", "topics": ["Database Migrations with Flyway"]},
+        {"outcome": "Write a transactional service layer with DTOs and page, sort and filter APIs", "topics": ["Service Layer, Transactions and DTOs", "Paging, Sorting and Filtering APIs"]},
+        {"outcome": "Test Spring Boot applications", "topics": ["Testing Spring Boot Applications"]},
+        {"outcome": "Log, debug and monitor applications with Actuator health and metrics", "topics": ["Logging and Debugging in Spring Boot", "Actuator Health and Metrics"]},
+        {"outcome": "Secure APIs with Spring Security", "topics": ["Securing APIs with Spring Security"]},
+        {"outcome": "Call other services with RestClient and document APIs with springdoc OpenAPI", "topics": ["Calling Other Services with RestClient", "API Documentation with springdoc OpenAPI"]},
+        {"outcome": "Handle file uploads, static content and CORS", "topics": ["File Uploads, Static Content and CORS"]},
+        {"outcome": "Run scheduled and asynchronous tasks", "topics": ["Scheduling and Asynchronous Tasks"]},
+        {"outcome": "Package and run Spring Boot in Docker", "topics": ["Packaging and Running Spring Boot in Docker"]},
+        {"outcome": "Deliver a library lending REST API", "topics": ["Beginner Capstone: Library Lending REST API"]}
+      ],
       "days": [
         {
           "topic": "Spring Boot Setup and Project Structure",
@@ -20,7 +36,7 @@
           "lab_task": "Generate a Spring Boot project with the web, validation and actuator starters, organise packages by feature, change the server port in application.yml and run it from the IDE and with the Maven wrapper.",
           "deliverable": "Project in Git with a README explaining how to run it",
           "checks": [["Run ./mvnw spring-boot:run", "Application starts on the configured port", "Console log"], ["Call /actuator/health", "Response shows status UP", "curl output"], ["Review the package layout", "Packages grouped by feature, not by layer", "Project tree"]],
-          "objectives": ["Create a Spring Boot project", "Understand starters and the main class", "Run the application"]
+          "objectives": ["Create a Spring Boot project", "Explain starters and the main class", "Run the application"]
         },
         {
           "topic": "Dependency Injection and Spring Beans",
@@ -199,6 +215,23 @@
       "summary": "For developers who have built Spring Boot REST services. Covers how auto-configuration works, JPA performance, caching, token-based security and OAuth2, messaging with Kafka and RabbitMQ, Testcontainers, API design, reactive endpoints, Spring Batch, observability, resilience, Spring Cloud, MongoDB, events and the outbox pattern, CI and running on Kubernetes.",
       "prerequisites": ["Has built a Spring Boot REST API with Spring Data JPA", "Writes tests with JUnit and MockMvc", "Uses Docker for local development"],
       "outcomes": ["Build secure, observable Spring Boot microservices that communicate through APIs and messages", "Tune data access and caching", "Test against real infrastructure with Testcontainers", "Build and run services in CI and on Kubernetes"],
+      "course_outcomes": [
+        {"outcome": "Explain auto-configuration and write a custom starter", "topics": ["How Auto-Configuration Works and Custom Starters"]},
+        {"outcome": "Fix JPA performance problems such as N+1 queries", "topics": ["JPA Performance: Fetching, N+1 and Batching"]},
+        {"outcome": "Cache with Spring Cache and Redis", "topics": ["Caching with Spring Cache and Redis"]},
+        {"outcome": "Secure services with JWT, method security, OAuth2 login and resource servers", "topics": ["JWT Authentication and Method Security", "OAuth2 Login and Resource Servers"]},
+        {"outcome": "Exchange messages with Kafka and RabbitMQ", "topics": ["Messaging with Spring for Apache Kafka", "RabbitMQ with Spring AMQP"]},
+        {"outcome": "Write integration tests with Testcontainers", "topics": ["Integration Testing with Testcontainers"]},
+        {"outcome": "Design APIs with versioning, contracts and idempotency", "topics": ["API Design: Versioning, Contracts and Idempotency"]},
+        {"outcome": "Build reactive endpoints with WebFlux and batch jobs with Spring Batch", "topics": ["Reactive Endpoints with Spring WebFlux", "Batch Processing with Spring Batch"]},
+        {"outcome": "Trace and monitor services with Micrometer and Prometheus", "topics": ["Observability with Micrometer Tracing and Prometheus"]},
+        {"outcome": "Make services resilient", "topics": ["Resilience in Spring Boot Services"]},
+        {"outcome": "Use Spring Cloud Config, service discovery and Spring Cloud Gateway", "topics": ["Spring Cloud Config and Service Discovery", "API Gateway with Spring Cloud Gateway"]},
+        {"outcome": "Store document data with Spring Data MongoDB", "topics": ["Document Data with Spring Data MongoDB"]},
+        {"outcome": "Publish domain events reliably with the transactional outbox", "topics": ["Domain Events and the Transactional Outbox"]},
+        {"outcome": "Build CI pipelines and run Spring Boot on Kubernetes", "topics": ["CI Pipelines for Spring Boot Services", "Running Spring Boot on Kubernetes"]},
+        {"outcome": "Deliver an event-driven order platform", "topics": ["Intermediate Capstone: Event-Driven Order Platform"]}
+      ],
       "days": [
         {
           "topic": "How Auto-Configuration Works and Custom Starters",
@@ -386,6 +419,22 @@
       "summary": "For senior developers and architects running Spring Boot in production. Covers performance tuning, virtual threads, native images, multi-tenancy, authorisation servers, sagas, event sourcing, modular monoliths, database scaling, Kafka Streams, zero-downtime releases, cloud platforms, SLOs, supply-chain security, chaos testing, Spring AI, GraphQL, upgrades and production troubleshooting.",
       "prerequisites": ["Has built and run Spring Boot microservices in production", "Knows Kafka, Docker and Kubernetes at a working level", "Understands JPA performance and Spring Security configuration"],
       "outcomes": ["Design and tune Spring Boot systems for performance, scale and reliability", "Choose between microservices, modular monoliths, sagas and event sourcing", "Release safely and secure the software supply chain", "Diagnose and fix production problems quickly"],
+      "course_outcomes": [
+        {"outcome": "Profile and tune Spring Boot performance", "topics": ["Spring Boot Performance Tuning and Profiling"]},
+        {"outcome": "Use virtual threads and build GraalVM native images with Spring AOT", "topics": ["Virtual Threads and Concurrency in Spring Boot", "Native Images with GraalVM and Spring AOT"]},
+        {"outcome": "Build multi-tenant applications", "topics": ["Multi-Tenancy in Spring Boot Applications"]},
+        {"outcome": "Run an authorization server with fine-grained access control", "topics": ["Advanced Spring Security: Authorization Server and Fine-Grained Access"]},
+        {"outcome": "Coordinate distributed transactions with sagas, event sourcing and CQRS", "topics": ["Sagas and Distributed Transactions", "Event Sourcing and CQRS with Spring"]},
+        {"outcome": "Structure a modular monolith with Spring Modulith", "topics": ["Modular Monoliths with Spring Modulith"]},
+        {"outcome": "Scale databases with connection pools, read replicas and partitioning", "topics": ["Database Scaling: Pools, Read Replicas and Partitioning"]},
+        {"outcome": "Process streams with Kafka Streams", "topics": ["Stream Processing with Kafka Streams and Spring"]},
+        {"outcome": "Release without downtime, including database changes", "topics": ["Zero-Downtime Releases and Database Changes"]},
+        {"outcome": "Run Spring Boot on AWS and Azure with SLOs, dashboards and alerts", "topics": ["Spring Boot on AWS and Azure", "Production Observability: SLOs, Dashboards and Alerting"]},
+        {"outcome": "Secure the software supply chain and run chaos tests", "topics": ["Securing the Software Supply Chain for Spring Boot", "Chaos Testing and Failure Injection"]},
+        {"outcome": "Add AI features with Spring AI and GraphQL APIs with Spring for GraphQL", "topics": ["AI Features with Spring AI", "GraphQL APIs with Spring for GraphQL"]},
+        {"outcome": "Upgrade Spring Boot versions and troubleshoot production issues", "topics": ["Upgrading and Migrating Spring Boot Versions", "Troubleshooting Production Spring Boot Issues"]},
+        {"outcome": "Deliver a production-ready Spring Boot platform", "topics": ["Advanced Capstone: Production-Ready Spring Boot Platform"]}
+      ],
       "days": [
         {
           "topic": "Spring Boot Performance Tuning and Profiling",
@@ -556,7 +605,7 @@
           "lab_task": "Diagnose four injected production problems (a deadlock, a memory leak, pool exhaustion and a slow query) using only production-safe tools, fix each and write a post-incident review for one.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Find the deadlock", "Threads and locks named from the thread dump", "Diagnosis notes"], ["Find the leak", "Leaking object identified in the heap dump", "MAT report"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose production problems", "Use dumps and telemetry", "Learn from incidents"]
+          "objectives": ["Diagnose production problems", "Use dumps and telemetry", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Production-Ready Spring Boot Platform",

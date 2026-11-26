@@ -38,7 +38,7 @@
           "lab_task": "Watch a switch build its MAC address table, clear it and watch it relearn, cause a duplex mismatch and find it from interface counters, and trace ARP requests and replies.",
           "deliverable": "MAC table output, interface counters and notes",
           "checks": [["Show the MAC table", "Each PC's MAC on the right port", "show mac address-table output"], ["Find the duplex mismatch", "Errors seen in counters and fixed", "show interfaces output"], ["Trace ARP", "Request broadcast and reply unicast", "Simulation screenshot"]],
-          "objectives": ["Explain Ethernet switching", "Read interface counters", "Understand ARP"]
+          "objectives": ["Explain Ethernet switching", "Read interface counters", "Explain ARP"]
         },
         {
           "topic": "IPv4 Addressing",
@@ -47,7 +47,7 @@
           "lab_task": "Address a three-network lab by hand, configure hosts and router interfaces, convert ten addresses between binary and decimal and fix a host with the wrong gateway.",
           "deliverable": "Addressing table, configuration and conversions",
           "checks": [["Ping across networks", "Replies from every network", "Command output"], ["Convert addresses", "All ten correct", "Worksheet"], ["Fix the gateway", "Host reaches other networks after the fix", "Command output"]],
-          "objectives": ["Understand IPv4 addresses", "Configure addresses", "Fix addressing faults"]
+          "objectives": ["Explain IPv4 addresses", "Configure addresses", "Fix addressing faults"]
         },
         {
           "topic": "Subnetting IPv4 Networks",
@@ -333,7 +333,7 @@
           "lab_task": "Use the Catalyst Center sandbox to view inventory and health, provision a template, read assurance issues and pull device data through its API.",
           "deliverable": "Screenshots, template and API script",
           "checks": [["Read device health", "Health scores shown", "Screenshot"], ["Pull inventory through the API", "Device list returned", "Script output"], ["Explain the controller model", "Underlay, overlay and intent explained", "Written note"]],
-          "objectives": ["Understand controller networking", "Use Catalyst Center", "Use its APIs"]
+          "objectives": ["Explain controller networking", "Use Catalyst Center", "Use its APIs"]
         },
         {
           "topic": "SD-WAN Concepts and Operation",
@@ -369,7 +369,7 @@
           "lab_task": "Take a timed practice exam, review wrong answers, rebuild the weak topics in Packet Tracer and take a second practice exam with simulations.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first practice exam", "Score recorded by topic", "Score sheet"], ["Rebuild weak topics", "Each weak topic practised in a lab", "Lab files"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the CCNA exam", "Close gaps", "Reach a passing score"]
+          "objectives": ["Explain the CCNA exam", "Close gaps", "Reach a passing score"]
         },
         {
           "topic": "Intermediate Capstone: Redundant Campus and Branch Network",
@@ -547,7 +547,7 @@
           "lab_task": "Diagnose five hard faults (intermittent MTU drops, asymmetric routing through a firewall, a BGP flap, high control plane CPU and a QoS misclassification), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Find the MTU problem", "Path MTU issue proven with a capture", "Capture and notes"], ["Fix the asymmetric routing", "Return path corrected", "traceroute output"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose complex faults", "Use evidence", "Learn from incidents"]
+          "objectives": ["Diagnose complex faults", "Use evidence", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "CCNP Enterprise ENCOR Preparation",
@@ -556,7 +556,7 @@
           "lab_task": "Take a timed ENCOR practice exam, review wrong answers by domain, lab the weak topics and take a second practice exam.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first practice exam", "Score recorded by domain", "Score sheet"], ["Lab the weak topics", "Each weak topic practised", "Lab files"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the ENCOR exam", "Close gaps", "Reach a passing score"]
+          "objectives": ["Explain the ENCOR exam", "Close gaps", "Reach a passing score"]
         },
         {
           "topic": "Advanced Capstone: Enterprise Network Design and Delivery",

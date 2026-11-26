@@ -12,6 +12,22 @@
       "summary": "For JavaScript developers and freshers starting back-end work. Covers the Node.js runtime and tooling, JavaScript for the server, CommonJS and ES modules, npm, the event loop and async code, files, streams and buffers, events and configuration, the http module, REST APIs with Express, middleware and errors, request validation, databases with Prisma, password hashing and JWT, calling other APIs, testing with the built-in test runner, logging and debugging, command-line tools and running Node.js in containers.",
       "prerequisites": ["Knows JavaScript variables, functions, arrays and objects", "Comfortable with a terminal and Git", "Understands HTTP requests and JSON at a basic level"],
       "outcomes": ["Build REST APIs with Node.js and Express", "Write correct asynchronous code with promises and streams", "Store data, secure endpoints and test APIs", "Debug, log and ship a Node.js service in a container"],
+      "course_outcomes": [
+        {"outcome": "Set up Node.js and write modern JavaScript for it", "topics": ["Node.js Overview, Installation and Tooling Setup", "JavaScript Essentials for Node.js Developers"]},
+        {"outcome": "Organise code with CommonJS and ES modules and manage dependencies with npm", "topics": ["Modules: CommonJS and ES Modules", "npm, package.json and Dependency Management"]},
+        {"outcome": "Write asynchronous code with the event loop, promises and async/await", "topics": ["The Event Loop, Callbacks, Promises and async/await"]},
+        {"outcome": "Work with files, paths, streams and buffers", "topics": ["Working with Files and Paths", "Streams and Buffers"]},
+        {"outcome": "Use events, the process object and environment configuration", "topics": ["Events, Process and Environment Configuration"]},
+        {"outcome": "Build an HTTP server and a REST API with Express", "topics": ["Building an HTTP Server with the http Module", "Building REST APIs with Express"]},
+        {"outcome": "Add middleware, routing and error handling, and validate requests with Zod", "topics": ["Middleware, Routing and Error Handling in Express", "Validating Requests with Zod"]},
+        {"outcome": "Store data with Prisma and PostgreSQL", "topics": ["Persisting Data with Prisma and PostgreSQL"]},
+        {"outcome": "Protect routes with password hashing and JWT", "topics": ["Password Hashing, JWT and Protected Routes"]},
+        {"outcome": "Call external APIs with fetch", "topics": ["Calling External APIs with fetch"]},
+        {"outcome": "Test with the Node.js test runner and Supertest", "topics": ["Testing with the Node.js Test Runner and Supertest"]},
+        {"outcome": "Log, debug and build command-line tools", "topics": ["Logging and Debugging Node.js Applications", "Command-Line Tools with Node.js"]},
+        {"outcome": "Run Node.js in production with Docker", "topics": ["Packaging and Running Node.js in Production with Docker"]},
+        {"outcome": "Deliver a task management REST API", "topics": ["Beginner Capstone: Task Management REST API"]}
+      ],
       "days": [
         {
           "topic": "Node.js Overview, Installation and Tooling Setup",
@@ -92,7 +108,7 @@
           "lab_task": "Build a small JSON API with the http module only, with GET, POST and DELETE routes, correct status codes, JSON body parsing and static file serving.",
           "deliverable": "HTTP server and a list of pain points for frameworks to solve",
           "checks": [["Call each route", "Correct status codes for success and errors", "curl output"], ["Send bad JSON", "Server returns 400 instead of crashing", "Response"], ["Serve a static file", "File downloads with the correct content type", "Response headers"]],
-          "objectives": ["Understand HTTP in Node.js", "Build a server without a framework", "Explain what frameworks add"]
+          "objectives": ["Explain HTTP in Node.js", "Build a server without a framework", "Explain what frameworks add"]
         },
         {
           "topic": "Building REST APIs with Express",
@@ -199,6 +215,22 @@
       "summary": "For developers who already build Node.js APIs. Covers TypeScript for services, layered architecture, Fastify, NestJS, OpenAPI documentation, database transactions and pools, Mongoose in production, Redis caching, BullMQ jobs, Socket.IO, OAuth 2.0 and OpenID Connect, OWASP risks, worker threads, stream backpressure, integration testing with containers, observability with OpenTelemetry, profiling and memory leaks, GraphQL with Apollo Server and CI/CD.",
       "prerequisites": ["Has built a REST API with Express or a similar framework", "Writes async/await code confidently", "Knows SQL or MongoDB basics"],
       "outcomes": ["Design maintainable Node.js services with TypeScript and clear layers", "Use Fastify or NestJS with caching, queues and real-time features", "Secure, observe and profile services in production", "Test and deliver services through CI/CD"],
+      "course_outcomes": [
+        {"outcome": "Write Node.js services in TypeScript with a layered structure", "topics": ["TypeScript for Node.js Services", "Project Structure and Layered Architecture for Node.js APIs"]},
+        {"outcome": "Build APIs with Fastify and NestJS", "topics": ["Fastify for High-Performance APIs", "NestJS Modules, Providers and Dependency Injection"]},
+        {"outcome": "Document APIs with OpenAPI", "topics": ["API Documentation with OpenAPI"]},
+        {"outcome": "Use database transactions, migrations, connection pools and Mongoose", "topics": ["Database Transactions, Migrations and Connection Pools", "Mongoose Schemas, Population and Transactions"]},
+        {"outcome": "Cache with Redis and run background jobs with BullMQ", "topics": ["Caching with Redis", "Background Jobs with BullMQ"]},
+        {"outcome": "Scale real-time features with Socket.IO", "topics": ["Socket.IO Rooms, Namespaces and Scaling"]},
+        {"outcome": "Sign users in with OAuth 2.0 and OpenID Connect", "topics": ["OAuth 2.0 and OpenID Connect in Node.js"]},
+        {"outcome": "Secure APIs against the OWASP Top 10", "topics": ["Securing Node.js APIs Against the OWASP Top 10"]},
+        {"outcome": "Handle CPU-bound work with worker threads and stream data with backpressure", "topics": ["Worker Threads and CPU-Bound Work", "Streams in Depth: Backpressure and Pipelines"]},
+        {"outcome": "Write integration tests with Testcontainers and mocks", "topics": ["Integration Testing with Testcontainers and Mocks"]},
+        {"outcome": "Add observability and profile performance and memory leaks", "topics": ["Observability with Pino, OpenTelemetry and Metrics", "Performance Profiling: Flame Graphs and Memory Leaks"]},
+        {"outcome": "Build GraphQL APIs with Apollo Server", "topics": ["GraphQL APIs with Apollo Server"]},
+        {"outcome": "Deliver Node.js services through CI/CD", "topics": ["CI/CD for Node.js Services"]},
+        {"outcome": "Deliver a production order service", "topics": ["Intermediate Capstone: Production Order Service"]}
+      ],
       "days": [
         {
           "topic": "TypeScript for Node.js Services",
@@ -386,6 +418,23 @@
       "summary": "For senior Node.js engineers and technical leads. Covers Node.js internals, microservice boundaries, event-driven services with Kafka and RabbitMQ, scaling and statelessness, resilience patterns, supply chain security and the permission model, multi-tenant APIs, serverless Node.js, Node.js on Kubernetes, native addons and WebAssembly, advanced diagnostics, HTTP/2 and gRPC, data-intensive processing, federated GraphQL and BFFs, monorepos, runtime choices, large upgrades, incident troubleshooting and architecture leadership.",
       "prerequisites": ["Several years building production Node.js services", "Comfortable with TypeScript, databases and containers", "Has worked with queues or distributed systems"],
       "outcomes": ["Design and scale distributed Node.js systems", "Diagnose deep performance and reliability problems", "Secure the Node.js supply chain and runtime", "Lead architecture and upgrade decisions for Node.js teams"],
+      "course_outcomes": [
+        {"outcome": "Explain V8, libuv and the event loop phases", "topics": ["Node.js Internals: V8, libuv and Event Loop Phases"]},
+        {"outcome": "Design microservices that communicate through Kafka and RabbitMQ", "topics": ["Microservices with Node.js: Boundaries and Communication", "Event-Driven Node.js with Kafka and RabbitMQ"]},
+        {"outcome": "Scale Node.js and make it resilient with timeouts, retries and circuit breakers", "topics": ["Scaling Node.js: Clustering, Load Balancing and Statelessness", "Resilience Patterns: Timeouts, Retries, Circuit Breakers and Bulkheads"]},
+        {"outcome": "Secure the supply chain with the permission model and secret handling", "topics": ["Supply Chain Security, the Permission Model and Secrets"]},
+        {"outcome": "Design multi-tenant APIs", "topics": ["Multi-Tenant API Design in Node.js"]},
+        {"outcome": "Run Node.js serverless and on Kubernetes", "topics": ["Serverless Node.js on AWS Lambda and Azure Functions", "Node.js on Kubernetes: Graceful Shutdown, Probes and Autoscaling"]},
+        {"outcome": "Write native addons with Node-API and WebAssembly", "topics": ["Native Addons with Node-API and WebAssembly"]},
+        {"outcome": "Diagnose problems with heap snapshots and core dumps", "topics": ["Advanced Diagnostics: Heap Snapshots, Core Dumps and diagnostics_channel"]},
+        {"outcome": "Build HTTP/2, gRPC and streaming APIs", "topics": ["HTTP/2, gRPC and Streaming APIs"]},
+        {"outcome": "Process data with streams", "topics": ["Data-Intensive Node.js: Batch Processing and ETL with Streams"]},
+        {"outcome": "Build federated GraphQL and backend-for-frontend services", "topics": ["Federated GraphQL and BFF Services in Node.js"]},
+        {"outcome": "Run monorepos with shared libraries and choose between Node.js, Deno and Bun", "topics": ["Monorepos and Shared Libraries for Node.js Teams", "Runtime Choices: Node.js, Deno and Bun"]},
+        {"outcome": "Upgrade Node.js and dependencies at scale and troubleshoot production incidents", "topics": ["Upgrading Node.js Versions and Dependencies at Scale", "Troubleshooting Production Node.js Incidents"]},
+        {"outcome": "Lead Node.js architecture reviews", "topics": ["Node.js Architecture Reviews and Technical Leadership"]},
+        {"outcome": "Deliver an event-driven microservices platform", "topics": ["Advanced Capstone: Event-Driven Microservices Platform in Node.js"]}
+      ],
       "days": [
         {
           "topic": "Node.js Internals: V8, libuv and Event Loop Phases",
@@ -547,7 +596,7 @@
           "lab_task": "Work through four simulated incidents: an event loop stall, a memory leak, pool exhaustion and a crash loop, restore service in each and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Find root causes", "Each root cause proven with evidence", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
-          "objectives": ["Triage Node.js incidents", "Find root causes under pressure", "Learn from incidents"]
+          "objectives": ["Triage Node.js incidents", "Find root causes under pressure", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Node.js Architecture Reviews and Technical Leadership",

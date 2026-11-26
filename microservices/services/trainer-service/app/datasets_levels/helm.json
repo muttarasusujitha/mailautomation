@@ -56,7 +56,7 @@
           "lab_task": "Deploy the course chart to dev and prod with separate values files, override one setting with --set, show the merge order and store the values files in Git.",
           "deliverable": "Environment values files and merge explanation",
           "checks": [["Override", "Dev and prod releases use their own values", "helm get values output"], ["Merge", "The merge order is shown with an example", "Notes"], ["Version", "Values files are committed to Git", "Repository"]],
-          "objectives": ["Configure charts with values", "Understand merge order", "Manage values in Git"]
+          "objectives": ["Configure charts with values", "Explain merge order", "Manage values in Git"]
         },
         {
           "topic": "Chart Structure: Chart.yaml, values.yaml and templates",
@@ -173,7 +173,7 @@
           "lab_task": "Install a release with server-side apply, change a field with kubectl, upgrade and observe the ownership conflict, then use readiness waiting to catch a failing rollout.",
           "deliverable": "Server-side apply experiment and notes",
           "checks": [["Apply", "The release uses server-side apply", "Managed fields output"], ["Conflict", "The ownership conflict is shown and explained", "Upgrade output"], ["Wait", "The failing rollout is detected by waiting", "Upgrade output"]],
-          "objectives": ["Understand server-side apply in Helm", "Handle field ownership", "Wait for ready releases"]
+          "objectives": ["Explain server-side apply in Helm", "Handle field ownership", "Wait for ready releases"]
         },
         {
           "topic": "Helm in a CI Pipeline",
@@ -457,7 +457,7 @@
           "lab_task": "Build a Helm-based operator from the course chart, create custom resources that set values, and show reconciliation after a manual change.",
           "deliverable": "Helm-based operator with tests",
           "checks": [["Build", "The operator deploys and watches its resource", "Operator logs"], ["Map", "Custom resource fields become chart values", "Rendered resources"], ["Reconcile", "Manual changes are reverted", "Operator logs"]],
-          "objectives": ["Build Helm-based operators", "Map resources to values", "Understand reconciliation"]
+          "objectives": ["Build Helm-based operators", "Map resources to values", "Explain reconciliation"]
         },
         {
           "topic": "Large-Scale Release Management with Argo CD ApplicationSets",

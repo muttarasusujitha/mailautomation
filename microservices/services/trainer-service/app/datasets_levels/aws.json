@@ -12,6 +12,10 @@
   ],
   "tools": ["AWS Management Console", "AWS CLI", "CloudFormation", "Terraform"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "AWS Well-Architected Framework", "url": "https://docs.aws.amazon.com/wellarchitected/latest/framework/framework.html", "checked": "Found in a web search on 2026-11-24; page not opened"},
+    {"title": "What is AWS Well-Architected?", "url": "https://docs.aws.amazon.com/wellarchitected/latest/userguide/intro.html", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "No cloud experience assumed. Participants learn the core AWS services for compute, storage, networking, databases, identity and monitoring, and deploy a small web application.",
@@ -25,6 +29,23 @@
         "Launch and secure EC2 instances, S3 buckets, RDS databases and a VPC",
         "Control access with IAM users, groups, roles and policies",
         "Deploy, monitor and cost-control a simple web application on AWS"
+      ],
+      "course_outcomes": [
+        {"outcome": "Explain cloud service models, AWS Regions and Availability Zones, and the shared responsibility model", "topics": ["Cloud Computing Concepts and the AWS Global Infrastructure"]},
+        {"outcome": "Control access with IAM users, groups and policies", "topics": ["IAM Users, Groups and Policies"]},
+        {"outcome": "Launch EC2 instances and manage their EBS volumes, snapshots and AMIs", "topics": ["EC2 Instances and Key Pairs", "EBS Volumes, Snapshots and AMIs"]},
+        {"outcome": "Store and protect objects in Amazon S3", "topics": ["Amazon S3 Storage"]},
+        {"outcome": "Build a VPC with subnets and route tables", "topics": ["VPC Networking: Subnets and Route Tables"]},
+        {"outcome": "Make a workload highly available with Elastic Load Balancing and Auto Scaling", "topics": ["Elastic Load Balancing and Auto Scaling"]},
+        {"outcome": "Run relational and NoSQL data on Amazon RDS and DynamoDB", "topics": ["Amazon RDS Relational Databases", "Amazon DynamoDB NoSQL"]},
+        {"outcome": "Serve an application globally with Route 53 and CloudFront", "topics": ["Route 53 and CloudFront"]},
+        {"outcome": "Monitor resources with CloudWatch metrics and alarms", "topics": ["CloudWatch Monitoring and Alarms"]},
+        {"outcome": "Automate tasks with the AWS CLI and deploy infrastructure with CloudFormation", "topics": ["AWS CLI and Scripting", "Infrastructure as Code with CloudFormation"]},
+        {"outcome": "Build a serverless API with Lambda and API Gateway and connect services with SQS and SNS", "topics": ["AWS Lambda Serverless Functions", "API Gateway with Lambda", "Messaging with SQS and SNS"]},
+        {"outcome": "Run containers from ECR on ECS Fargate", "topics": ["Containers on AWS: ECR and ECS Fargate"]},
+        {"outcome": "Protect data and record activity with KMS, Secrets Manager and CloudTrail", "topics": ["Cloud Security Services: KMS, Secrets Manager and CloudTrail"]},
+        {"outcome": "Control costs and review a design against the Well-Architected Framework", "topics": ["Cost Management and the Well-Architected Framework"]},
+        {"outcome": "Deliver a highly available web application on AWS with monitoring and cost controls", "topics": ["Beginner Capstone: Highly Available Web Application on AWS"]}
       ],
       "days": [
         {
@@ -222,6 +243,23 @@
         "Build infrastructure with Terraform and the AWS CDK",
         "Run containers on EKS and serverless workflows with Step Functions and EventBridge",
         "Deliver workloads through CI/CD with monitoring, tracing and cost controls"
+      ],
+      "course_outcomes": [
+        {"outcome": "Set up a governed multi-account environment with AWS Organizations, IAM Identity Center, Control Tower and tagging", "topics": ["Multi-Account Structure with AWS Organizations and IAM Identity Center", "Governance with Control Tower and Tagging Strategy"]},
+        {"outcome": "Write least-privilege IAM policies with conditions, permission boundaries and roles", "topics": ["IAM Policy Design: Conditions, Boundaries and Roles"]},
+        {"outcome": "Connect VPCs with peering, Transit Gateway and PrivateLink", "topics": ["Advanced VPC: Peering, Transit Gateway and PrivateLink"]},
+        {"outcome": "Build infrastructure with Terraform and the AWS CDK in Python", "topics": ["Terraform for AWS", "AWS CDK with Python"]},
+        {"outcome": "Run containerised workloads on Amazon EKS", "topics": ["Amazon EKS Clusters"]},
+        {"outcome": "Build serverless workflows with Step Functions and EventBridge", "topics": ["Serverless Workflows with Step Functions and EventBridge"]},
+        {"outcome": "Use Aurora, ElastiCache and S3 data lakes for application data", "topics": ["Data Services: Aurora, ElastiCache and S3 Data Lakes"]},
+        {"outcome": "Deliver through CodePipeline or GitHub Actions with blue/green and canary deployments", "topics": ["CI/CD on AWS with CodePipeline and GitHub Actions", "Deployment Strategies: Blue/Green and Canary on AWS"]},
+        {"outcome": "Trace and monitor workloads with CloudWatch, X-Ray and OpenTelemetry", "topics": ["Observability with CloudWatch, X-Ray and OpenTelemetry"]},
+        {"outcome": "Protect workloads with WAF, Shield and Security Hub", "topics": ["Workload Security: WAF, Shield and Security Hub"]},
+        {"outcome": "Design backup and multi-Region disaster recovery and operate servers with Systems Manager", "topics": ["Backup, Disaster Recovery and Multi-Region Design", "Systems Manager for Operations"]},
+        {"outcome": "Cut the running cost of AWS workloads with measured changes", "topics": ["Cost Optimisation for Running Workloads"]},
+        {"outcome": "Plan hybrid connectivity and migration", "topics": ["Hybrid Connectivity and Migration Services"]},
+        {"outcome": "Stream events with Kinesis and Amazon MSK", "topics": ["Event Streaming with Kinesis and MSK"]},
+        {"outcome": "Deliver a serverless order platform on AWS", "topics": ["Intermediate Capstone: Serverless Order Platform on AWS"]}
       ],
       "days": [
         {
@@ -438,6 +476,22 @@
         "Build internal platforms and guardrails that teams can self-serve",
         "Run security, cost and reliability programmes with measurable results",
         "Lead architecture reviews and justify trade-offs with evidence"
+      ],
+      "course_outcomes": [
+        {"outcome": "Design an enterprise landing zone for many accounts", "topics": ["Enterprise Landing Zone Design"]},
+        {"outcome": "Design multi-Region active-active architectures and test their resilience with AWS FIS", "topics": ["Multi-Region Active-Active Architecture", "Resilience Engineering and Chaos Testing with AWS FIS"]},
+        {"outcome": "Run detection, response and forensics at scale", "topics": ["Security at Scale: Detection, Response and Forensics"]},
+        {"outcome": "Design encryption and zero-trust networking", "topics": ["Data Protection and Encryption Architecture", "Zero-Trust Networking on AWS"]},
+        {"outcome": "Build a self-service platform with Service Catalog golden paths, EKS multi-tenancy with Karpenter and GitOps progressive delivery", "topics": ["Platform Engineering with Service Catalog and Golden Paths", "EKS at Scale: Multi-Tenancy and Karpenter", "GitOps and Progressive Delivery on EKS"]},
+        {"outcome": "Design serverless and event-driven architectures within service limits", "topics": ["Serverless at Scale: Concurrency, Cold Starts and Limits", "Event-Driven Architecture Patterns at Enterprise Scale"]},
+        {"outcome": "Design a lakehouse analytics platform", "topics": ["Data Architecture: Lakehouse and Analytics Platforms"]},
+        {"outcome": "Run a FinOps practice on AWS", "topics": ["FinOps Practice on AWS"]},
+        {"outcome": "Automate compliance evidence for audits", "topics": ["Compliance Automation and Audit Readiness"]},
+        {"outcome": "Find and fix performance bottlenecks in AWS workloads", "topics": ["Performance Engineering for AWS Workloads"]},
+        {"outcome": "Run generative AI workloads on Amazon Bedrock", "topics": ["Generative AI Workloads on Amazon Bedrock"]},
+        {"outcome": "Plan a large-scale migration and modernisation", "topics": ["Large-Scale Migration and Modernisation Strategy"]},
+        {"outcome": "Run SRE practice with SLOs and error budgets, and lead architecture reviews that justify trade-offs", "topics": ["SRE Practice on AWS with SLOs, Error Budgets and Incident Command", "Architecture Reviews and Trade-off Decisions"]},
+        {"outcome": "Deliver a multi-Region enterprise platform design on AWS", "topics": ["Advanced Capstone: Multi-Region Enterprise Platform on AWS"]}
       ],
       "days": [
         {

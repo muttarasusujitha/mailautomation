@@ -342,7 +342,7 @@
           "lab_task": "Analyse a week of capacity use, explain smoothing and a throttling event, size capacity for next year and decide which workloads need their own capacity.",
           "deliverable": "Capacity plan",
           "checks": [["Explain throttling", "Throttling event explained from metrics", "Metrics screenshot"], ["Size capacity", "SKU recommended with headroom", "Capacity plan"], ["Separate workloads", "Workloads assigned to capacities with reasons", "Capacity plan"]],
-          "objectives": ["Plan Fabric capacity", "Understand smoothing and throttling", "Separate workloads"]
+          "objectives": ["Plan Fabric capacity", "Explain smoothing and throttling", "Separate workloads"]
         },
         {
           "topic": "Cost Monitoring and Optimisation",
@@ -556,7 +556,7 @@
           "lab_task": "Work through four incidents: capacity throttling, a broken incremental load, a Direct Lake fallback and a permission change that hid data, restore service and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by metrics or logs", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
-          "objectives": ["Troubleshoot Fabric in production", "Find root causes", "Learn from incidents"]
+          "objectives": ["Troubleshoot Fabric in production", "Find root causes", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Enterprise Analytics Platform on Fabric",

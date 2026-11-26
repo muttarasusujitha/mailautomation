@@ -12,6 +12,22 @@
       "summary": "For office staff and analysts who use Excel occasionally. Covers workbook basics, formulas and references, essential functions, tables, sorting and filtering, charts, conditional formatting, data validation, lookups and a first pivot table, ending with a monthly report built from raw data.",
       "prerequisites": ["Can use Windows or macOS and a mouse and keyboard", "Has opened a spreadsheet before", "Microsoft 365 Excel installed"],
       "outcomes": ["Build clean workbooks with correct formulas and references", "Use the essential text, date, logical and lookup functions", "Summarise data with tables, charts and pivot tables", "Protect, print and share workbooks safely"],
+      "course_outcomes": [
+        {"outcome": "Navigate workbooks and write formulas with relative and absolute references", "topics": ["Excel Setup, Workbook Basics and Navigation", "Formulas, Operators and Cell References"]},
+        {"outcome": "Summarise data with SUM, AVERAGE, COUNT, MIN and MAX", "topics": ["Essential Functions: SUM, AVERAGE, COUNT, MIN and MAX"]},
+        {"outcome": "Apply logic with IF, AND, OR and IFS and work with text and dates", "topics": ["Logical Functions: IF, AND, OR and IFS", "Text and Date Functions"]},
+        {"outcome": "Format numbers and highlight data with conditional formatting", "topics": ["Formatting, Number Formats and Conditional Formatting"]},
+        {"outcome": "Sort and filter data in Excel tables", "topics": ["Excel Tables, Sorting and Filtering"]},
+        {"outcome": "Present data with charts and sparklines", "topics": ["Charts and Sparklines"]},
+        {"outcome": "Look up values with VLOOKUP and XLOOKUP and summarise with SUMIFS and COUNTIFS", "topics": ["Lookup Functions: VLOOKUP and XLOOKUP", "Conditional Aggregation: SUMIFS, COUNTIFS and AVERAGEIFS"]},
+        {"outcome": "Control input with data validation and drop-down lists", "topics": ["Data Validation and Drop-Down Lists"]},
+        {"outcome": "Summarise data with a first pivot table", "topics": ["Pivot Tables: First Steps"]},
+        {"outcome": "Clean data and combine files with Power Query", "topics": ["Cleaning and Preparing Data", "Combining Files with Power Query"]},
+        {"outcome": "Print, export to PDF, protect and share workbooks", "topics": ["Printing, Page Layout and PDF Export", "Protecting and Sharing Workbooks"]},
+        {"outcome": "Calculate percentages and growth and link sheets and workbooks", "topics": ["Percentages, Growth and Business Calculations", "Working with Multiple Sheets and Workbooks"]},
+        {"outcome": "Use Copilot in Excel", "topics": ["Copilot and AI Features in Excel"]},
+        {"outcome": "Deliver a monthly sales report workbook", "topics": ["Beginner Capstone: Monthly Sales Report Workbook"]}
+      ],
       "days": [
         {
           "topic": "Excel Setup, Workbook Basics and Navigation",
@@ -199,6 +215,22 @@
       "summary": "For regular Excel users who want advanced skills. Covers INDEX/MATCH and XLOOKUP patterns, dynamic arrays, LET and LAMBDA, advanced pivot tables, Power Query transformations, Power Pivot and DAX, dashboards, what-if analysis, Solver, statistics, financial functions and recorded macros.",
       "prerequisites": ["Uses formulas, IF, VLOOKUP or XLOOKUP and SUMIFS", "Builds simple pivot tables and charts", "Comfortable with tables and data validation"],
       "outcomes": ["Solve complex problems with modern Excel functions", "Build data models with Power Query and Power Pivot", "Create interactive dashboards", "Use what-if analysis, Solver and simple macros"],
+      "course_outcomes": [
+        {"outcome": "Look up data with INDEX, MATCH and XLOOKUP patterns", "topics": ["Advanced Lookups: INDEX, MATCH and XLOOKUP Patterns"]},
+        {"outcome": "Use dynamic arrays and write reusable formulas with LET and LAMBDA", "topics": ["Dynamic Arrays: FILTER, SORT, UNIQUE and SEQUENCE", "LET, LAMBDA and Reusable Formulas"]},
+        {"outcome": "Build advanced pivot tables", "topics": ["Advanced Pivot Tables"]},
+        {"outcome": "Transform data with Power Query", "topics": ["Power Query Transformations"]},
+        {"outcome": "Model data with Power Pivot and DAX measures", "topics": ["Power Pivot and the Data Model", "DAX Measures in Power Pivot"]},
+        {"outcome": "Build interactive dashboards and advanced charts", "topics": ["Interactive Dashboards in Excel", "Advanced Charts"]},
+        {"outcome": "Run what-if analysis and optimise with Solver", "topics": ["What-If Analysis: Goal Seek, Scenarios and Data Tables", "Optimisation with Solver"]},
+        {"outcome": "Apply business statistics and financial functions", "topics": ["Statistics for Business in Excel", "Financial Functions"]},
+        {"outcome": "Automate simple tasks with recorded macros", "topics": ["Recording Macros and Automating Simple Tasks"]},
+        {"outcome": "Design input forms with advanced data validation", "topics": ["Advanced Data Validation and Form Design"]},
+        {"outcome": "Audit formulas and find errors", "topics": ["Error Checking and Formula Auditing"]},
+        {"outcome": "Co-author workbooks and work with Excel Online", "topics": ["Collaboration, Co-Authoring and Excel Online"]},
+        {"outcome": "Connect Excel with Power BI and analyse with Copilot and Python in Excel", "topics": ["Excel with Power BI and Other Tools", "Copilot and Python in Excel for Analysis"]},
+        {"outcome": "Deliver an interactive business dashboard", "topics": ["Intermediate Capstone: Interactive Business Dashboard and Model"]}
+      ],
       "days": [
         {
           "topic": "Advanced Lookups: INDEX, MATCH and XLOOKUP Patterns",
@@ -386,6 +418,22 @@
       "summary": "For power users, analysts and finance professionals who automate Excel. Covers VBA programming, user forms, automation across files, Office Scripts and Power Automate, financial modelling standards, forecasting and simulation, advanced LAMBDA, Python in Excel, large data, integration with databases and APIs, and spreadsheet risk management.",
       "prerequisites": ["Uses dynamic arrays, pivot tables, Power Query and Power Pivot", "Has recorded and run macros", "Builds models used by other people"],
       "outcomes": ["Write maintainable VBA and Office Scripts automations", "Build robust financial and forecasting models", "Connect Excel to databases, APIs and Power Automate", "Manage spreadsheet risk and build Excel tools for teams"],
+      "course_outcomes": [
+        {"outcome": "Write VBA procedures with control flow, loops and error handling", "topics": ["VBA Programming: Procedures, Data Types and the Object Model", "VBA Control Flow, Loops and Error Handling"]},
+        {"outcome": "Automate work across workbooks and files", "topics": ["Automating Across Workbooks and Files"]},
+        {"outcome": "Build user forms and maintainable VBA with classes and collections", "topics": ["User Forms and Custom Interfaces", "Classes, Collections and Maintainable VBA"]},
+        {"outcome": "Automate Outlook, Word and PowerPoint from Excel", "topics": ["Automating Outlook, Word and PowerPoint from Excel"]},
+        {"outcome": "Automate Excel with Office Scripts and Power Automate", "topics": ["Office Scripts and Power Automate for Excel"]},
+        {"outcome": "Structure financial models to a standard", "topics": ["Financial Modelling Standards and Structure"]},
+        {"outcome": "Build three-statement and DCF valuation models with scenarios", "topics": ["Three-Statement Financial Models", "Valuation Models: DCF and Scenario Analysis"]},
+        {"outcome": "Forecast and run Monte Carlo risk analysis", "topics": ["Forecasting Methods in Excel", "Monte Carlo Simulation and Risk Analysis"]},
+        {"outcome": "Engineer advanced LAMBDA formulas and analyse data with Python in Excel", "topics": ["Advanced LAMBDA and Formula Engineering", "Python in Excel for Advanced Analysis"]},
+        {"outcome": "Handle large data efficiently and connect Excel to databases and APIs", "topics": ["Working with Large Data and Performance", "Connecting Excel to Databases and APIs"]},
+        {"outcome": "Control spreadsheet risk with governance", "topics": ["Spreadsheet Risk, Controls and Governance"]},
+        {"outcome": "Build Excel tools and add-ins for teams", "topics": ["Building Excel Tools and Add-ins for Teams"]},
+        {"outcome": "Repair broken workbooks and macros", "topics": ["Troubleshooting Broken Workbooks and Macros"]},
+        {"outcome": "Deliver an automated financial planning model", "topics": ["Advanced Capstone: Automated Financial Planning Model"]}
+      ],
       "days": [
         {
           "topic": "VBA Programming: Procedures, Data Types and the Object Model",

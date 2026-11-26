@@ -12,6 +12,23 @@
       "summary": "For developers, support engineers, SREs and operations staff who are new to Cisco AppDynamics, now sold and documented as Splunk AppDynamics after Cisco acquired Splunk. Covers the Controller and agent architecture on SaaS and on-premises, the application, tier and node model, installing the Java, .NET, Node.js, Python and Machine Agents, business transaction discovery, flow maps, the Metric Browser, snapshots and call graphs, errors, baselines, health rules, policies and actions, custom dashboards, browser real user monitoring, agent troubleshooting, and a three-tier instrumentation capstone.",
       "prerequisites": ["Can deploy and run a simple web application written in Java, .NET, Node.js or Python on Linux or Windows", "Understands HTTP requests, response codes, SQL databases and basic latency concepts such as averages and percentiles", "Has a lab Controller (a SaaS trial tenant or an on-premises demo Controller) with an access key and a Linux VM or laptop where agents can be installed"],
       "outcomes": ["Install and register Java, .NET, Node.js, Python and Machine Agents with correct application, tier and node names", "Read flow maps, business transaction metrics, snapshots and call graphs to locate a slow method or backend", "Create health rules on baselines and wire them to policies that send email and HTTP request actions", "Build a custom dashboard and enable browser real user monitoring for a monitored web application"],
+      "course_outcomes": [
+        {"outcome": "Explain the Controller, agents and application model and navigate the Controller UI", "topics": ["AppDynamics Platform Orientation: Controller, Agents and the Application Model", "Controller UI Navigation and the Application Dashboard"]},
+        {"outcome": "Install the Java agent and name applications, tiers and nodes consistently", "topics": ["Installing the Java Agent with -javaagent and controller-info.xml", "Applications, Tiers and Nodes Naming Strategy"]},
+        {"outcome": "Discover business transactions and entry points", "topics": ["Business Transaction Discovery and Entry Points"]},
+        {"outcome": "Read flow maps, backends and remote services", "topics": ["Flow Maps, Backends and Remote Services"]},
+        {"outcome": "Find metrics in the Metric Browser by metric path", "topics": ["Metric Browser and AppDynamics Metric Paths"]},
+        {"outcome": "Read transaction snapshots and call graphs", "topics": ["Transaction Snapshots and Call Graph Reading"]},
+        {"outcome": "Detect errors and configure exception handling", "topics": ["Error Detection and Exception Handling in AppDynamics"]},
+        {"outcome": "Set up the Machine Agent for server visibility", "topics": ["Machine Agent and Server Visibility Setup"]},
+        {"outcome": "Instrument .NET, Node.js and Python applications", "topics": [".NET Agent on Windows IIS", "Node.js Agent with require(\"appdynamics\").profile", "Python Agent with pyagent run"]},
+        {"outcome": "Alert on baselines and dynamic thresholds with a first health rule", "topics": ["AppDynamics Baselines and Dynamic Thresholds", "Writing a First Health Rule"]},
+        {"outcome": "Notify teams with policies, email actions and HTTP request templates", "topics": ["Policies, Email Actions and HTTP Request Templates"]},
+        {"outcome": "Build custom dashboards in the Controller", "topics": ["Custom Dashboards in the AppDynamics Controller"]},
+        {"outcome": "Monitor browser users with adrum.js", "topics": ["Browser Real User Monitoring with adrum.js"]},
+        {"outcome": "Fix agent registration errors from agent logs", "topics": ["Agent Logs and Common AppDynamics Agent Registration Errors"]},
+        {"outcome": "Deliver an instrumented three-tier application in AppDynamics", "topics": ["Beginner Capstone: Instrumenting a Three-Tier Application in AppDynamics"]}
+      ],
       "days": [
         {
           "topic": "AppDynamics Platform Orientation: Controller, Agents and the Application Model",
@@ -199,6 +216,23 @@
       "summary": "For engineers who already run AppDynamics agents and read flow maps, snapshots and health rules, and now need to tune and extend a deployment. Covers custom match rules and business transaction limits, data collectors, information points and custom metrics, Machine Agent extensions, Database Visibility, diagnostic sessions and slow thresholds, advanced health rule scope and schedules, actions suppression, the Controller REST API with API Clients, Transaction and Log Analytics with ADQL, Dash Studio, mobile RUM, browser synthetic jobs with Private Synthetic Agents, Kubernetes monitoring with the Cluster Agent and auto-instrumentation, and role-based access control, ending with an alerting and analytics capstone.",
       "prerequisites": ["Completed the beginner level or has installed and registered AppDynamics app agents and Machine Agents in a lab", "Can create health rules, policies and custom dashboards and read snapshots and call graphs", "Has kubectl and Helm access to a lab Kubernetes cluster and can run curl and jq against a REST API"],
       "outcomes": ["Shape business transactions and collect business data with custom match rules, data collectors and information points", "Monitor databases, Kubernetes clusters, mobile apps and synthetic user journeys in the same Controller", "Query Transaction and Log Analytics with ADQL and present results in Dash Studio", "Automate Controller tasks with API Clients and the REST API under least-privilege roles"],
+      "course_outcomes": [
+        {"outcome": "Tune business transaction detection with custom match rules and limits", "topics": ["Custom Match Rules and Business Transaction Limits"]},
+        {"outcome": "Capture request and method data with data collectors", "topics": ["Data Collectors: HTTP Request and Method Invocation"]},
+        {"outcome": "Report custom metrics with information points, Machine Agent extensions and the HTTP metric listener", "topics": ["Information Points and Custom Metrics from Code", "Machine Agent Extensions and the HTTP Metric Listener"]},
+        {"outcome": "Monitor databases with the Database Visibility agent and collectors", "topics": ["Database Visibility Agent and Collectors"]},
+        {"outcome": "Investigate slow transactions with diagnostic sessions and developer mode", "topics": ["Diagnostic Sessions, Developer Mode and Slow Transaction Thresholds"]},
+        {"outcome": "Schedule and scope health rules and suppress actions during maintenance windows", "topics": ["Health Rule Schedules, Affects Scope and Evaluation Windows", "Actions Suppression and Maintenance Windows in AppDynamics"]},
+        {"outcome": "Automate the Controller REST API with API clients and OAuth tokens", "topics": ["Controller REST API: Applications, Metrics and Events", "API Clients and OAuth Tokens for the Controller"]},
+        {"outcome": "Analyse transactions with the Events Service and ADQL", "topics": ["Transaction Analytics and the Events Service", "ADQL Queries for Transactions, Logs and Browser Records"]},
+        {"outcome": "Collect logs with source rules", "topics": ["Log Analytics with Source Rules"]},
+        {"outcome": "Build Dash Studio dashboards with ADQL and metric widgets", "topics": ["Dash Studio Dashboards with ADQL and Metric Widgets"]},
+        {"outcome": "Monitor mobile users on Android and iOS", "topics": ["Mobile Real User Monitoring for Android and iOS"]},
+        {"outcome": "Run browser synthetic jobs and private synthetic agents", "topics": ["Browser Synthetic Jobs and Private Synthetic Agents"]},
+        {"outcome": "Monitor Kubernetes and auto-instrument Java pods with the Cluster Agent", "topics": ["Kubernetes Monitoring with the AppDynamics Cluster Agent", "Cluster Agent Auto-Instrumentation of Java Pods"]},
+        {"outcome": "Control access with roles, groups and permissions", "topics": ["Roles, Groups and Permissions in the AppDynamics Controller"]},
+        {"outcome": "Deliver an alerting and analytics runbook for a retail checkout", "topics": ["Intermediate Capstone: Alerting and Analytics Runbook for a Retail Checkout"]}
+      ],
       "days": [
         {
           "topic": "Custom Match Rules and Business Transaction Limits",
@@ -386,6 +420,23 @@
       "summary": "For AppDynamics administrators, observability architects and senior SREs who own a production deployment. Covers on-premises Controller deployment with the Enterprise Console, Controller high availability, Events Service and EUM Server scaling, agent overhead and node properties, asynchronous and custom exit point instrumentation, anomaly detection and automated root cause analysis, Business iQ and Experience Level Management, advanced ADQL and the Analytics Events API, configuration as code, ITSM integrations, OpenTelemetry ingestion and combined agent modes, Cluster Agent at scale, Secure Application, licence rules, upgrades, fleet rollout, cross-signal performance analysis and Controller hardening, ending with an enterprise rollout capstone.",
       "prerequisites": ["Completed the intermediate level or administers AppDynamics agents, health rules, analytics and the Cluster Agent in a team", "Comfortable with Linux administration, TLS certificates, load balancers, Kubernetes and Helm", "Can script against REST APIs in Python or Bash and work with CI/CD pipelines and an ITSM tool such as ServiceNow"],
       "outcomes": ["Deploy, scale, make highly available and upgrade an on-premises AppDynamics platform, and plan SaaS tenant governance", "Instrument complex code paths and tune agents for low overhead across large fleets", "Use anomaly detection, Business iQ, advanced ADQL and custom analytics events for business and technical insight", "Manage AppDynamics configuration as code, integrate with ITSM and OpenTelemetry, and enforce licence, RBAC and hardening policies"],
+      "course_outcomes": [
+        {"outcome": "Deploy an on-premises Controller with the Enterprise Console and make it highly available", "topics": ["On-Premises Controller Deployment with the Enterprise Console", "Controller High Availability and Disaster Recovery"]},
+        {"outcome": "Scale the Events Service and EUM Server on-premises", "topics": ["Events Service and EUM Server Scaling On-Premises"]},
+        {"outcome": "Tune agent overhead and node properties", "topics": ["Agent Overhead, Node Properties and Tuning"]},
+        {"outcome": "Trace asynchronous transactions and correlate snapshots, database waits and server metrics", "topics": ["Asynchronous Transactions, Thread Correlation and Custom Exit Points", "Correlating Snapshots, Database Waits and Server Metrics in AppDynamics"]},
+        {"outcome": "Use anomaly detection and automated root cause analysis", "topics": ["Anomaly Detection and Automated Root Cause Analysis"]},
+        {"outcome": "Track business journeys and experience levels with Business iQ", "topics": ["Business iQ: Business Journeys and Experience Level Management"]},
+        {"outcome": "Write advanced ADQL and publish custom analytics events", "topics": ["Advanced ADQL: Funnels, Series and Percentiles", "Analytics Events API: Custom Schemas and Publishing"]},
+        {"outcome": "Export health rules, dashboards and policies as code", "topics": ["Configuration as Code: Exporting Health Rules, Dashboards and Policies"]},
+        {"outcome": "Trigger remediation actions and ITSM webhooks", "topics": ["Remediation Actions and Webhook Integrations with ITSM"]},
+        {"outcome": "Ingest OpenTelemetry data with hybrid agent mode", "topics": ["OpenTelemetry Ingestion and Hybrid Agent Mode in AppDynamics"]},
+        {"outcome": "Run the Cluster Agent across clusters and namespaces", "topics": ["Cluster Agent at Scale: Multi-Cluster, Namespaces and Infrastructure Visibility"]},
+        {"outcome": "Detect runtime vulnerabilities with Secure Application and harden the Controller with SAML SSO and audit history", "topics": ["Secure Application Runtime Vulnerability Detection", "SAML Single Sign-On, Audit History and Controller Hardening"]},
+        {"outcome": "Manage license rules and infrastructure-based licensing", "topics": ["License Rules and Infrastructure-Based Licensing in AppDynamics"]},
+        {"outcome": "Plan controller and agent upgrades and roll out agent fleets with Ansible and init containers", "topics": ["Upgrading Controllers and Agents with Compatibility Planning", "Agent Fleet Rollout with Ansible, Container Images and Init Containers"]},
+        {"outcome": "Deliver an enterprise AppDynamics rollout plan for a Kubernetes platform", "topics": ["Advanced Capstone: Enterprise AppDynamics Rollout Plan for a Kubernetes Platform"]}
+      ],
       "days": [
         {
           "topic": "On-Premises Controller Deployment with the Enterprise Console",

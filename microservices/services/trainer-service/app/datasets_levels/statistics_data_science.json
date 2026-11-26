@@ -288,7 +288,7 @@
           "lab_task": "Bootstrap a confidence interval for the median order value and for a ratio metric, run a permutation test for a difference in medians and compare with formula-based results.",
           "deliverable": "Resampling analysis",
           "checks": [["Bootstrap", "Intervals for the median and ratio are reported", "Notebook output"], ["Permute", "The permutation test result is reported", "Notebook output"], ["Compare", "Differences from formula methods are explained", "Notes"]],
-          "objectives": ["Use the bootstrap", "Run permutation tests", "Know when resampling fails"]
+          "objectives": ["Use the bootstrap", "Run permutation tests", "Decide when resampling fails"]
         },
         {
           "topic": "Bayesian Inference with Priors and Posteriors",

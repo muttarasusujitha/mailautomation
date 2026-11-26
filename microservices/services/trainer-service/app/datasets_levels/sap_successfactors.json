@@ -56,7 +56,7 @@
           "lab_task": "Create legal entities for India and Germany with business units, departments, locations and job classifications, link them with associations and import 50 cost centres.",
           "deliverable": "Foundation data and import log",
           "checks": [["Pick a department in a job record", "Only departments for the chosen division shown", "Screenshot"], ["Import cost centres", "50 records created", "Import log"], ["Change a department name effective next month", "Old name until the date", "Manage Data history"]],
-          "objectives": ["Create foundation data", "Use associations", "Understand effective dating"]
+          "objectives": ["Create foundation data", "Use associations", "Explain effective dating"]
         },
         {
           "topic": "Employee Central Data Model",
@@ -65,7 +65,7 @@
           "lab_task": "Review the data models, add a custom field to Job Information, make a field required for Germany only and add India-specific fields for PAN and Aadhaar with correct visibility.",
           "deliverable": "Data model changes and screenshots",
           "checks": [["Hire in Germany without the required field", "Save blocked", "Screenshot"], ["View the India fields", "Shown only for India employees", "Screenshot"], ["Review field permissions", "Sensitive IDs visible only to HR", "Permission test"]],
-          "objectives": ["Understand the EC data model", "Configure fields", "Handle country rules"]
+          "objectives": ["Explain the EC data model", "Configure fields", "Handle country rules"]
         },
         {
           "topic": "Hiring Employees and Managing Job Changes",
@@ -369,7 +369,7 @@
           "lab_task": "Take a timed practice exam for your chosen module, rebuild wrong answers in the instance, practise weak areas and take a second exam.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Rebuild wrong answers", "Each confirmed in the instance", "Notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the exams", "Close gaps", "Reach a passing score"]
+          "objectives": ["Describe each exam's format and domains", "Close gaps", "Reach a passing score"]
         },
         {
           "topic": "Intermediate Capstone: Global Talent and Pay Cycle",
@@ -547,7 +547,7 @@
           "lab_task": "Diagnose five injected issues (missing permissions, a stuck workflow, a failing rule, a broken integration and bad imported data), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the stuck workflow", "Workflow completes", "Workflow history"], ["Fix the integration", "Failed records reprocessed", "Monitoring log"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose production issues", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose production issues", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Programme Leadership and Application Management Support",

@@ -47,7 +47,7 @@
           "lab_task": "Train a linear regression model from scratch with tensors and manual gradient descent, try three learning rates and compare the result with scikit-learn.",
           "deliverable": "From-scratch training notebook",
           "checks": [["Train the model", "Loss falls steadily", "Loss curve"], ["Compare learning rates", "Effect of three learning rates explained", "Plot and notes"], ["Match scikit-learn", "Weights close to the scikit-learn solution", "Comparison output"]],
-          "objectives": ["Train a model from scratch", "Understand gradient descent", "Choose learning rates"]
+          "objectives": ["Train a model from scratch", "Explain gradient descent", "Choose learning rates"]
         },
         {
           "topic": "nn.Module, Layers and Loss Functions",
@@ -92,7 +92,7 @@
           "lab_task": "Train an MLP classifier on Fashion-MNIST and on a tabular dataset, plot confusion matrices and compare the tabular result with a gradient boosting model.",
           "deliverable": "MLP experiments with comparison",
           "checks": [["Train on images", "Fashion-MNIST accuracy above 85 percent", "Evaluation output"], ["Read errors", "Most confused classes identified", "Confusion matrix"], ["Compare models", "MLP compared with gradient boosting on tabular data", "Comparison table"]],
-          "objectives": ["Build classifiers with MLPs", "Evaluate with confusion matrices", "Know when deep learning helps"]
+          "objectives": ["Build classifiers with MLPs", "Evaluate with confusion matrices", "Decide when deep learning helps"]
         },
         {
           "topic": "Convolutional Neural Networks for Images",
@@ -421,7 +421,7 @@
           "lab_task": "Train a tokeniser and a small decoder-only language model on a domain corpus, track perplexity, try sampling strategies and write lessons for scaling up.",
           "deliverable": "Small language model and training report",
           "checks": [["Train the tokeniser", "Tokeniser trained on the corpus", "Tokeniser files"], ["Reduce perplexity", "Validation perplexity falls during training", "Training curves"], ["Sample text", "Samples compared across sampling settings", "Sample outputs"]],
-          "objectives": ["Train language models from scratch", "Evaluate with perplexity", "Understand scaling behaviour"]
+          "objectives": ["Train language models from scratch", "Evaluate with perplexity", "Explain scaling behaviour"]
         },
         {
           "topic": "Parameter-Efficient Fine-Tuning in PyTorch with LoRA, QLoRA and PEFT",

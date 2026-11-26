@@ -12,6 +12,22 @@
       "summary": "For developers who know JavaScript and are new to Angular. Covers the CLI and project set-up, components and templates, binding, control flow, signals, inputs and outputs, services and dependency injection, routing, template-driven and reactive forms, the HTTP client, pipes, directives, styling with Angular Material, RxJS, simple state, testing, lazy loading and deployment.",
       "prerequisites": ["Writes modern JavaScript: modules, arrow functions, classes and promises", "Knows HTML and CSS", "Basic TypeScript types are helpful"],
       "outcomes": ["Build Angular applications with standalone components, signals and the new control flow", "Fetch data, handle forms and route between pages", "Share state through services", "Test, build and deploy an Angular app"],
+      "course_outcomes": [
+        {"outcome": "Create an Angular project with the CLI and build components with templates", "topics": ["Angular Overview, CLI and Project Setup", "Components and Templates"]},
+        {"outcome": "Bind data, handle events and use the built-in control flow", "topics": ["Data Binding and Event Handling", "Built-In Control Flow: @if, @for, @switch and @defer"]},
+        {"outcome": "Manage reactive state with signals", "topics": ["Signals for Reactive State"]},
+        {"outcome": "Pass data between components with inputs, outputs and models", "topics": ["Component Communication: Inputs, Outputs and Models"]},
+        {"outcome": "Share logic through services and dependency injection", "topics": ["Services and Dependency Injection"]},
+        {"outcome": "Add routing and navigation", "topics": ["Routing and Navigation"]},
+        {"outcome": "Build template-driven and reactive forms", "topics": ["Template-Driven Forms", "Reactive Forms"]},
+        {"outcome": "Call APIs with HttpClient", "topics": ["Calling APIs with HttpClient"]},
+        {"outcome": "Format data with pipes and change behaviour with directives", "topics": ["Pipes for Formatting Data", "Directives"]},
+        {"outcome": "Style applications with Angular Material", "topics": ["Styling and Angular Material"]},
+        {"outcome": "Use RxJS and share state with services and signals", "topics": ["RxJS for Angular Developers", "Sharing State with Services and Signals"]},
+        {"outcome": "Test components and services", "topics": ["Testing Angular Components and Services"]},
+        {"outcome": "Lazy-load features and build and deploy the application", "topics": ["Lazy Loading and Application Structure", "Building and Deploying Angular Apps"]},
+        {"outcome": "Deliver a library management application", "topics": ["Beginner Capstone: Library Management Application"]}
+      ],
       "days": [
         {
           "topic": "Angular Overview, CLI and Project Setup",
@@ -29,7 +45,7 @@
           "lab_task": "Build header, book list and book card components, compose them into the app shell and log lifecycle hooks to see when each runs.",
           "deliverable": "Components and a lifecycle log",
           "checks": [["Render the book list", "Cards shown for each book", "Screenshot"], ["Read the lifecycle log", "Order of ngOnInit and ngOnDestroy explained", "Console output"], ["Change a component style", "Style does not leak to other components", "Screenshot"]],
-          "objectives": ["Build components", "Compose views", "Understand lifecycle hooks"]
+          "objectives": ["Build components", "Compose views", "Explain lifecycle hooks"]
         },
         {
           "topic": "Data Binding and Event Handling",
@@ -199,6 +215,23 @@
       "summary": "For developers who build Angular apps. Covers architecture, advanced signals and resources, advanced RxJS, NgRx Store and SignalStore, advanced forms, authentication with guards and interceptors, change detection and zoneless apps, SSR and hydration, internationalisation, accessibility, the CDK, end-to-end testing, HTTP caching and errors, PWAs, real-time data, Nx, CI/CD, security and upgrades.",
       "prerequisites": ["Builds Angular apps with components, services, routing and forms", "Uses signals and basic RxJS", "Writes unit tests"],
       "outcomes": ["Design maintainable Angular applications with clear state management", "Build fast apps with SSR, deferred loading and zoneless change detection", "Secure, test and internationalise production apps", "Upgrade and deliver apps through CI/CD"],
+      "course_outcomes": [
+        {"outcome": "Design the architecture of an Angular application", "topics": ["Angular Application Architecture"]},
+        {"outcome": "Use advanced signals and RxJS patterns", "topics": ["Advanced Signals: linkedSignal, resource and Signal Forms", "Advanced RxJS Patterns"]},
+        {"outcome": "Manage state with NgRx Store and SignalStore", "topics": ["State Management with NgRx Store and SignalStore"]},
+        {"outcome": "Build custom form controls and dynamic forms", "topics": ["Advanced Forms: Custom Controls and Dynamic Forms"]},
+        {"outcome": "Protect routes with authentication, guards and interceptors", "topics": ["Authentication, Guards and Interceptors"]},
+        {"outcome": "Tune change detection with OnPush and zoneless Angular", "topics": ["Change Detection, OnPush and Zoneless Angular"]},
+        {"outcome": "Render on the server with hydration and prerendering", "topics": ["Server-Side Rendering, Hydration and Prerendering"]},
+        {"outcome": "Internationalise and make applications accessible", "topics": ["Internationalising Angular Apps with i18n and Locale Data", "Accessibility in Angular Applications"]},
+        {"outcome": "Build components with the Angular CDK", "topics": ["Building with the Angular CDK"]},
+        {"outcome": "Write end-to-end tests with Playwright", "topics": ["End-to-End Testing with Playwright"]},
+        {"outcome": "Handle HTTP caching and errors and add offline support with service workers", "topics": ["HTTP Caching, Errors and Resilience", "Progressive Web Apps and Service Workers"]},
+        {"outcome": "Add real-time features with WebSockets and SignalR", "topics": ["Real-Time Features with WebSockets and SignalR"]},
+        {"outcome": "Run monorepos with Nx and deliver through CI/CD", "topics": ["Monorepos with Nx", "CI/CD for Angular Applications"]},
+        {"outcome": "Secure and upgrade Angular applications", "topics": ["Security for Angular Applications", "Upgrading Angular Versions"]},
+        {"outcome": "Deliver a production Angular portal", "topics": ["Intermediate Capstone: Production Angular Portal"]}
+      ],
       "days": [
         {
           "topic": "Angular Application Architecture",
@@ -261,7 +294,7 @@
           "lab_task": "Profile a slow list, switch components to OnPush with signals, enable zoneless change detection, fix the parts that break and compare render times.",
           "deliverable": "Profiles before and after and migration notes",
           "checks": [["Profile the slow list", "Excess change detection cycles found", "Angular DevTools profile"], ["Enable zoneless", "App works after fixes", "Screenshot"], ["Compare render times", "Faster after the changes", "Profile comparison"]],
-          "objectives": ["Understand change detection", "Use OnPush", "Go zoneless"]
+          "objectives": ["Explain change detection", "Use OnPush", "Go zoneless"]
         },
         {
           "topic": "Server-Side Rendering, Hydration and Prerendering",
@@ -386,6 +419,22 @@
       "summary": "For senior front-end developers and architects. Covers large-scale architecture, micro-frontends with Native Federation, design systems, performance engineering, signal-first architecture, rendering strategies, state at scale, library and schematic authoring, testing strategy, front-end observability, security, AI features, accessibility programmes, migrations from AngularJS, build tooling, offline-first sync, data-heavy interfaces, technical leadership and production troubleshooting.",
       "prerequisites": ["Builds production Angular apps with SSR, state management and CI/CD", "Writes advanced RxJS and signals code", "Leads or reviews other developers' work"],
       "outcomes": ["Design Angular platforms for many teams and apps", "Make large apps fast, accessible and secure", "Build shared libraries, design systems and tools", "Lead migrations and technical direction"],
+      "course_outcomes": [
+        {"outcome": "Architect large Angular applications and micro-frontends with Native Federation", "topics": ["Large-Scale Angular Architecture", "Micro-Frontends with Native Federation"]},
+        {"outcome": "Build design systems for Angular at scale", "topics": ["Design Systems for Angular at Scale"]},
+        {"outcome": "Engineer performance with a signal-first, zoneless architecture", "topics": ["Performance Engineering for Angular", "Signal-First and Zoneless Architecture"]},
+        {"outcome": "Choose SSR, SSG or edge rendering for each route", "topics": ["Rendering Strategies: SSR, SSG and Edge Rendering"]},
+        {"outcome": "Design state architecture at scale", "topics": ["State Architecture at Scale"]},
+        {"outcome": "Author libraries and schematics", "topics": ["Authoring Libraries and Schematics"]},
+        {"outcome": "Set a testing strategy and front-end observability", "topics": ["Testing Strategy for Large Angular Codebases", "Front-End Observability"]},
+        {"outcome": "Secure enterprise front ends", "topics": ["Enterprise Front-End Security"]},
+        {"outcome": "Add AI features and run an accessibility programme", "topics": ["AI Features in Angular Applications", "Accessibility Programmes for Angular Product Teams"]},
+        {"outcome": "Plan migrations from AngularJS and legacy Angular", "topics": ["Migrating from AngularJS and Legacy Angular"]},
+        {"outcome": "Customise build tooling with esbuild and Vite", "topics": ["Build Tooling: esbuild, Vite and Custom Builders"]},
+        {"outcome": "Build offline-first and data-heavy interfaces", "topics": ["Offline-First Apps and Data Sync", "Data-Heavy Interfaces: Grids, Charts and Large Forms"]},
+        {"outcome": "Lead front-end teams and troubleshoot production issues", "topics": ["Front-End Technical Leadership", "Troubleshooting Production Angular Issues"]},
+        {"outcome": "Deliver an enterprise Angular platform", "topics": ["Advanced Capstone: Enterprise Angular Platform"]}
+      ],
       "days": [
         {
           "topic": "Large-Scale Angular Architecture",
@@ -556,7 +605,7 @@
           "lab_task": "Diagnose five injected issues (a memory leak, a hydration mismatch, chunk load errors after deploy, an infinite change detection loop and a slow route), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the memory leak", "Heap stable over repeated navigation", "Memory profile"], ["Fix chunk load errors", "Users recover after deploy", "Test results"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose front-end issues", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose front-end issues", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Enterprise Angular Platform",

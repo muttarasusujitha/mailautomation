@@ -7,11 +7,29 @@
   "certifications": ["Meta Front-End Developer Professional Certificate", "No official React certification; assessed by capstone project", "OpenJS JSNSD for Node.js work alongside React"],
   "tools": ["React 19", "Vite", "TypeScript", "VS Code", "React Testing Library", "Chrome DevTools"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "React: Installation", "url": "https://react.dev/learn/installation", "checked": "Found in a web search on 2026-11-24; page not opened"},
+    {"title": "React versions", "url": "https://react.dev/versions", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "For developers with basic HTML, CSS and JavaScript. Covers modern JavaScript for React, components and JSX, props and state, events, lists, forms, effects, fetching data, routing, styling, context and testing, ending with a complete single-page application.",
       "prerequisites": ["Writes basic HTML and CSS", "Knows JavaScript variables, functions, arrays and objects", "Can use a terminal and npm"],
       "outcomes": ["Build React components with props, state and hooks", "Fetch, display and update data from APIs", "Add routing, forms and styling to single-page apps", "Test components and deploy a React application"],
+      "course_outcomes": [
+        {"outcome": "Set up a React project and write components with JSX and props", "topics": ["React Setup and Modern JavaScript Refresher", "Components and JSX", "Props and Component Communication"]},
+        {"outcome": "Manage component state with useState and respond to events with conditional rendering", "topics": ["State with useState", "Events and Conditional Rendering"]},
+        {"outcome": "Render lists with stable keys and build controlled forms", "topics": ["Lists and Keys", "Forms and Controlled Inputs"]},
+        {"outcome": "Fetch and display API data with useEffect, handling loading and error states", "topics": ["Side Effects with useEffect", "Fetching Data from APIs"]},
+        {"outcome": "Add client-side routing with React Router and style components", "topics": ["Routing with React Router", "Styling React Applications"]},
+        {"outcome": "Share and manage complex state with Context and useReducer", "topics": ["Sharing State with Context", "useReducer for Complex State"]},
+        {"outcome": "Work with the DOM through refs and reuse logic with custom hooks", "topics": ["Refs and Working with the DOM", "Custom Hooks"]},
+        {"outcome": "Test components and their user interactions", "topics": ["Testing React Components"]},
+        {"outcome": "Measure and fix slow renders", "topics": ["Measuring and Improving Performance"]},
+        {"outcome": "Make components usable with a keyboard and a screen reader", "topics": ["Accessibility in React"]},
+        {"outcome": "Build and deploy a React application", "topics": ["Building and Deploying React Apps"]},
+        {"outcome": "Deliver a single-page shop application", "topics": ["Beginner Capstone: Single-Page Shop Application"]}
+      ],
       "days": [
         {
           "topic": "React Setup and Modern JavaScript Refresher",
@@ -47,7 +65,7 @@
           "lab_task": "Build a shopping cart with add, remove and quantity change, keep items in state immutably and show the total, then fix a provided bug caused by mutating state.",
           "deliverable": "Cart component and bug fix note",
           "checks": [["Change quantities", "Total updates correctly", "Screenshot"], ["Fix the mutation bug", "UI updates after the fix", "Code diff"], ["Click add three times quickly", "Count increases by three with functional updates", "Screenshot"]],
-          "objectives": ["Manage state", "Update state immutably", "Understand re-rendering"]
+          "objectives": ["Manage state", "Update state immutably", "Explain re-rendering"]
         },
         {
           "topic": "Events and Conditional Rendering",
@@ -199,6 +217,21 @@
       "summary": "For React developers who build apps with hooks. Covers TypeScript patterns, state management with TanStack Query and Zustand or Redux Toolkit, advanced forms, Next.js with the App Router and Server Components, authentication, performance, design systems, testing at every level, internationalisation and CI/CD.",
       "prerequisites": ["Builds React apps with hooks, routing and data fetching", "Uses TypeScript at a basic level", "Has written component tests"],
       "outcomes": ["Structure medium and large React codebases", "Manage server and client state cleanly", "Build full applications with Next.js, Server Components and server actions", "Test, optimise and ship React apps through CI/CD"],
+      "course_outcomes": [
+        {"outcome": "Structure a React codebase with TypeScript patterns", "topics": ["Project Structure and TypeScript Patterns for React"]},
+        {"outcome": "Manage server state with TanStack Query and client state with Zustand or Redux Toolkit", "topics": ["Server State with TanStack Query", "Client State with Zustand and Redux Toolkit"]},
+        {"outcome": "Build complex forms with validation", "topics": ["Advanced Forms and Validation"]},
+        {"outcome": "Build pages with the Next.js App Router, React Server Components and server actions", "topics": ["Next.js App Router Essentials", "React Server Components and Server Actions"]},
+        {"outcome": "Add authentication and authorisation to a React app", "topics": ["Authentication and Authorisation in React Apps"]},
+        {"outcome": "Apply component design patterns and document components in Storybook", "topics": ["Component Design Patterns", "Design Systems and Storybook"]},
+        {"outcome": "Find and fix performance problems with profiling", "topics": ["Performance Optimisation in Depth"]},
+        {"outcome": "Call GraphQL and typed APIs and handle errors without breaking the UI", "topics": ["GraphQL and Typed API Clients in React", "Error Handling and Resilience in the UI"]},
+        {"outcome": "Write integration and end-to-end tests", "topics": ["Integration and End-to-End Testing"]},
+        {"outcome": "Localise an application and add animations", "topics": ["Internationalisation and Localisation", "Animations and Interaction Design"]},
+        {"outcome": "Add real-time updates and offline support", "topics": ["Real-Time Features", "Progressive Web Apps and Offline Support"]},
+        {"outcome": "Ship React and Next.js apps through CI/CD with front-end security controls", "topics": ["CI/CD for React and Next.js", "Security for Front-End Applications"]},
+        {"outcome": "Deliver a production Next.js commerce app", "topics": ["Intermediate Capstone: Production Next.js Commerce App"]}
+      ],
       "days": [
         {
           "topic": "Project Structure and TypeScript Patterns for React",
@@ -386,6 +419,20 @@
       "summary": "For senior front-end engineers and architects. Covers React internals and concurrent rendering, advanced Server Components and caching, large-scale architecture and micro-frontends, monorepos, design systems at scale, advanced performance, state architecture, testing strategy, observability, security, accessibility programmes, React Native in brief and front-end leadership.",
       "prerequisites": ["Ships production React or Next.js applications", "Knows Server Components, testing and CI/CD", "Leads code reviews or technical decisions"],
       "outcomes": ["Explain React internals and design for concurrent rendering", "Architect large front ends with monorepos, micro-frontends and design systems", "Engineer performance, security and observability at scale", "Lead front-end strategy and teams"],
+      "course_outcomes": [
+        {"outcome": "Explain Fiber, reconciliation and concurrent rendering and use them to fix rendering problems", "topics": ["React Internals: Fibre, Reconciliation and Concurrent Rendering"]},
+        {"outcome": "Design data and caching architecture with Server Components", "topics": ["Advanced Server Components, Caching and Data Architecture"]},
+        {"outcome": "Architect large front ends with monorepos, micro-frontends and a shared design system", "topics": ["Front-End Architecture for Large Applications", "Monorepos for Front-End Teams", "Micro-Frontends", "Design Systems at Scale"]},
+        {"outcome": "Engineer performance and synchronise state across a large application", "topics": ["Advanced Performance Engineering", "State Architecture and Data Synchronisation"]},
+        {"outcome": "Set a testing strategy and observability for front ends at scale", "topics": ["Testing Strategy at Scale", "Observability for Front Ends"]},
+        {"outcome": "Secure front ends and run an accessibility programme", "topics": ["Advanced Front-End Security", "Accessibility Programmes for Product Teams"]},
+        {"outcome": "Build data-heavy tables, dashboards and large forms that stay responsive", "topics": ["Data-Heavy Interfaces: Tables, Dashboards and Large Forms"]},
+        {"outcome": "Choose a cross-platform and edge hosting strategy", "topics": ["React Native and Cross-Platform Strategy", "Server-Side Rendering at the Edge and Hosting Strategy"]},
+        {"outcome": "Plan migrations from class components, legacy state and older frameworks", "topics": ["Migrations: Class Components, Legacy State and Framework Upgrades"]},
+        {"outcome": "Add AI features to React applications", "topics": ["AI Features in React Applications"]},
+        {"outcome": "Lead front-end strategy and troubleshoot production front-end issues", "topics": ["Front-End Leadership and Technical Strategy", "Troubleshooting Production Front-End Issues"]},
+        {"outcome": "Deliver an enterprise front-end platform", "topics": ["Advanced Capstone: Enterprise Front-End Platform"]}
+      ],
       "days": [
         {
           "topic": "React Internals: Fibre, Reconciliation and Concurrent Rendering",

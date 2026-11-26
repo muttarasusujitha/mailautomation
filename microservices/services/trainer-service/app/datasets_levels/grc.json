@@ -92,7 +92,7 @@
           "lab_task": "Define an ISMS scope for the case company, draft a Statement of Applicability for ten Annex A controls with reasons and plan the certification steps.",
           "deliverable": "Scope statement, draft SoA and certification plan",
           "checks": [["Review the scope", "Boundaries and exclusions clear", "Scope statement"], ["Review the SoA", "Each control included or excluded with a reason", "SoA"], ["Plan certification", "Stage 1 and stage 2 audits explained", "Certification plan"]],
-          "objectives": ["Understand ISO 27001", "Define scope", "Draft a Statement of Applicability"]
+          "objectives": ["Explain ISO 27001", "Define scope", "Draft a Statement of Applicability"]
         },
         {
           "topic": "The NIST Cybersecurity Framework 2.0",
@@ -502,7 +502,7 @@
           "lab_task": "Run a crisis exercise for a ransomware attack with executives, make decisions on payment, disclosure and recovery and write the after-action report.",
           "deliverable": "Exercise log, decisions and after-action report",
           "checks": [["Run the exercise", "Decisions recorded with reasons", "Exercise log"], ["Draft communications", "Messages consistent and timely", "Drafts"], ["Write the after-action report", "Gaps and actions recorded", "Report"]],
-          "objectives": ["Lead crisis response", "Communicate in a crisis", "Learn from exercises"]
+          "objectives": ["Lead crisis response", "Communicate in a crisis", "Record the gaps an exercise found and the action for each"]
         },
         {
           "topic": "Risk Analytics and Data-Driven GRC",

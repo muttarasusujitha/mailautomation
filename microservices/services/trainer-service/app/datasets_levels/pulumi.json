@@ -270,7 +270,7 @@
           "lab_task": "Start a kind cluster, create a k8s.Provider from its kubeconfig and deploy a namespace, a Deployment with 3 replicas and a Service with typed resources. Then load an existing YAML manifest with k8s.yaml.v2.ConfigFile. Break the container image tag and run pulumi up to observe the await timeout, then fix it and confirm readiness with kubectl.",
           "deliverable": "Kubernetes program, a kubectl get all output and the await failure log",
           "checks": [["Run kubectl get deploy -n app", "READY shows 3/3", "kubectl output"], ["Deploy a nonexistent image tag", "The update waits and then fails reporting the Deployment did not become ready with ImagePullBackOff", "Update diagnostics"], ["Run kubectl get deploy -o yaml", "managedFields lists a manager for Pulumi from server-side apply", "kubectl output"]],
-          "objectives": ["Manage Kubernetes objects with the Pulumi provider", "Understand await behaviour", "Reuse existing YAML manifests"]
+          "objectives": ["Manage Kubernetes objects with the Pulumi provider", "Explain await behaviour", "Reuse existing YAML manifests"]
         },
         {
           "topic": "Helm Releases and Charts with Pulumi Kubernetes",
@@ -439,7 +439,7 @@
           "lab_task": "Write a dynamic provider in Python that manages a record in a supplied REST API. Implement create, read, update with a diff that replaces on key change, and delete. Use it in a stack, change a value and confirm an in-place update, change the key and confirm replacement, then delete the record outside Pulumi and run pulumi refresh.",
           "deliverable": "Dynamic provider code and a lifecycle test log",
           "checks": [["Change a value and run pulumi up", "The record shows ~ update and the API returns the new value", "Update output and API response"], ["Change the key and preview", "The record shows +- replace", "Preview output"], ["Delete the record via the API and run pulumi refresh", "The resource is removed from state", "Refresh output"]],
-          "objectives": ["Build dynamic providers", "Control diffs and replacements", "Know the limits of dynamic providers"]
+          "objectives": ["Build dynamic providers", "Control diffs and replacements", "Identify the limits of dynamic providers"]
         },
         {
           "topic": "Multi-Language Component Packages with pulumi package",

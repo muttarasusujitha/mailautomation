@@ -47,7 +47,7 @@
           "lab_task": "Map the course shop's dependencies in Smartscape, find every service that depends on the database and list them with a DQL query.",
           "deliverable": "Dependency map and DQL topology query",
           "checks": [["Map", "Dependencies across all layers are shown", "Smartscape screenshot"], ["Find", "Services that call the database are listed", "Service list"], ["Query", "The DQL query returns the same services", "Query result"]],
-          "objectives": ["Read Smartscape", "Understand entity relationships", "Query topology"]
+          "objectives": ["Read Smartscape", "Explain entity relationships", "Query topology"]
         },
         {
           "topic": "Services and Distributed Traces",
@@ -351,7 +351,7 @@
           "lab_task": "Analyse a month of consumption by capability and team, set a budget alert, find three savings and report the result.",
           "deliverable": "Consumption report with savings",
           "checks": [["Analyse", "Consumption is split by capability and team", "Usage report"], ["Alert", "A budget alert fires at the threshold", "Alert record"], ["Save", "Three savings are estimated", "Savings list"]],
-          "objectives": ["Understand Dynatrace consumption", "Allocate cost", "Optimise usage"]
+          "objectives": ["Explain Dynatrace consumption", "Allocate cost", "Optimise usage"]
         },
         {
           "topic": "Security Analytics in Grail: Investigations, Posture and Threat Observability",
@@ -556,7 +556,7 @@
           "lab_task": "Diagnose seeded problems, a data gap on a host group, an overloaded ActiveGate and queries hitting limits, fix them and write an incident review.",
           "deliverable": "Diagnoses, fixes and an incident review",
           "checks": [["Diagnose", "Each problem's cause is shown with evidence", "Analysis"], ["Fix", "Data and queries work within limits after the fixes", "Monitoring evidence"], ["Review", "The incident review lists actions", "Review document"]],
-          "objectives": ["Troubleshoot Dynatrace at scale", "Handle limits", "Learn from monitoring incidents"]
+          "objectives": ["Troubleshoot Dynatrace at scale", "Handle limits", "Write a post-incident review of a monitoring incident with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Enterprise Dynatrace Strategy and Autonomous Operations Design",

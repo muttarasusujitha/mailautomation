@@ -297,7 +297,7 @@
           "lab_task": "Use runZonedGuarded to wrap a program, store a requestId in zoneValues, and read it from three nested awaits. Throw from unawaited(Future.error('boom')) and catch it in the handler. Override print with ZoneSpecification to prefix each line with the id, and start an Isolate to show the id is lost.",
           "deliverable": "zones.dart with a log showing the id on every line except the isolate",
           "checks": [["Throw from an unawaited future inside runZonedGuarded", "The zone error handler receives boom", "Program output"], ["Read Zone.current[#requestId] after three awaits", "Returns the same id each time", "Program output"], ["Read the same zone value inside a spawned isolate", "Returns null", "Program output"]],
-          "objectives": ["Catch uncaught asynchronous errors", "Carry context with zone values", "Know the limits of zones"]
+          "objectives": ["Catch uncaught asynchronous errors", "Carry context with zone values", "Identify the limits of zones"]
         },
         {
           "topic": "JSON Serialization with json_serializable and build_runner",
@@ -511,7 +511,7 @@
           "lab_task": "Implement GET /health and GET /users/<id> in Dart Frog with a provided repository, run dart_frog dev and test with dart_frog_test. Run serverpod create demo and list the packages it generates. Write a one-page decision matrix comparing shelf, Dart Frog and Serverpod for a team of three building a CRUD API.",
           "deliverable": "A Dart Frog service, the Serverpod project tree and a decision matrix",
           "checks": [["Run dart_frog dev and request /users/42", "Returns JSON for user 42 supplied through the provider", "curl transcript"], ["Run serverpod create demo", "Creates demo_server, demo_client and demo_flutter packages", "Directory listing"], ["Run dart_frog build", "Produces a build folder with a server entry and Dockerfile", "Directory listing"]],
-          "objectives": ["Build a service with Dart Frog", "Understand Serverpod structure", "Choose a framework with criteria"]
+          "objectives": ["Build a service with Dart Frog", "Explain Serverpod structure", "Choose a framework with criteria"]
         },
         {
           "topic": "Containers and Cloud Run Deployment for Dart Servers",

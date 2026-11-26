@@ -208,6 +208,136 @@ def test_out_of_quota_model_moves_to_another_flash_model_and_never_the_live_one(
     assert client.generated == ["gemini-3.8-flash", "gemini-3.6-flash"]  # no lite, pro or live model after a quota stop
 
 
+def test_a_model_out_of_daily_quota_hands_over_to_the_next_flash_model(tmp_path, monkeypatch):
+    _, _, designs = _copy_courses(tmp_path, monkeypatch)
+    monkeypatch.setenv("LIVE_GEMINI_MODEL", "gemini-2.5-flash")
+    fake = _fake_post()
+
+    class Response:
+        def __init__(self, status, body):
+            self.status_code, self._body, self.headers = status, body, {}
+            self.is_error = status >= 400
+
+        def json(self):
+            return self._body
+
+    class Client:
+        """Each model answers a fixed number of calls a day, probes included, then returns the daily 429."""
+
+        def __init__(self, allowance):
+            self.allowance, self.generated = dict(allowance), []
+
+        async def get(self, url, headers=None, params=None):
+            return Response(200, {"models": [{"name": f"models/{name}", "supportedGenerationMethods": ["generateContent"]}
+                                             for name in ("gemini-2.5-flash", "gemini-3.8-flash", "gemini-3.6-flash",
+                                                          "gemini-3.8-flash-lite")]})
+
+        async def post(self, url, headers=None, json=None):
+            model = url.split("/models/")[1].split(":")[0]
+            self.generated.append(model)
+            if self.allowance.get(model, 0) <= 0:
+                return Response(429, {"error": {"message": "You exceeded your current quota", "details": [
+                    {"@type": "type.googleapis.com/google.rpc.QuotaFailure", "violations": [
+                        {"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier", "quotaValue": "20"}]}]}})
+            self.allowance[model] -= 1
+            user = json["contents"][0]["parts"][0]["text"]
+            text = await fake(INSTRUCTIONS, user) if '"modules"' in user else "{}"
+            return Response(200, {"candidates": [{"content": {"parts": [{"text": text}]}}]})
+
+    INSTRUCTIONS = drafts.INSTRUCTIONS
+    client = Client({"gemini-3.8-flash": 2, "gemini-3.6-flash": 3})  # 3.6: one probe and two batches
+    settings = {"provider": "gemini", "key": "k", "model": "gemini-3.8-flash"}
+    pending = drafts.inventory(["sap"])
+    summary = asyncio.run(drafts.run(pending, post=drafts.switching_post(client, settings, log=_quiet), model="gemini-3.8-flash",
+                                     limit=6, batch_size=1, concurrency=1, log=_quiet))
+
+    assert summary["accepted"] == 4
+    assert summary["models"] == ["gemini-3.8-flash", "gemini-3.6-flash"]
+    assert summary["error"].startswith("Daily Gemini quota reached for every model tried")
+    # Never the live app's model, and no lite model once a daily quota has been hit.
+    assert set(client.generated) == {"gemini-3.8-flash", "gemini-3.6-flash"}
+    stored = json.loads((designs / "sap.json").read_text(encoding="utf-8"))["designs"].values()
+    assert sorted(design["model"] for design in stored) == ["gemini-3.6-flash"] * 2 + ["gemini-3.8-flash"] * 2
+
+
+def test_a_per_minute_limit_while_probing_waits_and_tries_the_model_again(monkeypatch):
+    class Response:
+        def __init__(self, status, body):
+            self.status_code, self._body, self.headers = status, body, {}
+            self.is_error = status >= 400
+
+        def json(self):
+            return self._body
+
+    per_minute = Response(429, {"error": {"message": "Rate limited", "details": [
+        {"@type": "type.googleapis.com/google.rpc.QuotaFailure",
+         "violations": [{"quotaId": "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"}]},
+        {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "7s"}]}})
+
+    class Client:
+        def __init__(self, responses):
+            self.responses = list(responses)
+
+        async def post(self, url, headers=None, json=None):
+            return self.responses.pop(0)
+
+    waits = []
+
+    async def no_sleep(seconds):
+        waits.append(seconds)
+    monkeypatch.setattr(drafts.asyncio, "sleep", no_sleep)
+    settings = {"provider": "gemini", "key": "k", "model": "gemini-3.6-flash"}
+    ok = Response(200, {"candidates": []})
+    assert asyncio.run(drafts._probe(Client([per_minute, ok]), settings, "gemini-3.6-flash")) is True
+    assert waits == [7.0]
+    still = asyncio.run(drafts._probe(Client([per_minute, per_minute]), settings, "gemini-3.6-flash"))
+    assert isinstance(still, str) and "per-minute limit still reached" in still  # skipped, not a daily stop
+
+    busy = Response(503, {"error": {"message": "This model is currently experiencing high demand."}})
+    waits.clear()
+    assert asyncio.run(drafts._probe(Client([busy, ok]), settings, "gemini-3.6-flash")) is True
+    assert waits == [20.0]
+    assert "high demand" in asyncio.run(drafts._probe(Client([busy, busy]), settings, "gemini-3.6-flash"))
+
+
+def test_new_drafts_need_answers_mapped_to_outcomes_and_two_to_three_faults():
+    source = {"minutes": 420, "topic": "Docker Fundamentals", "capstone": False}
+    good = drafts.normalise(_good_design(), 420)
+    assert drafts.problems(good, source) == []
+    assert len(good["seeded_faults"]) == 3 and good["seeded_failure"] == good["seeded_faults"][0]
+    assert all(item["answer"] and isinstance(item["outcome"], int) for item in good["quiz"])
+
+    raw = _good_design()
+    raw["quiz"] = [{"question": "1. " + item["question"], "answer": item["answer"], "outcome": f"Outcome {item['outcome']}"}
+                   for item in raw["quiz"]]
+    cleaned = drafts.normalise(raw, 420)
+    assert [item["outcome"] for item in cleaned["quiz"]] == [item["outcome"] for item in good["quiz"]]
+    assert not cleaned["quiz"][0]["question"].startswith("1.")
+
+    questions_only = _good_design()
+    questions_only["quiz"] = [item["question"] for item in questions_only["quiz"]]
+    issues = " | ".join(drafts.problems(drafts.normalise(questions_only, 420), source))
+    assert "needs an answer" in issues and "number of the outcome" in issues
+
+    one_fault = _good_design()
+    one_fault["seeded_faults"] = one_fault["seeded_faults"][:1]
+    assert "2 to 3 seeded faults" in " | ".join(drafts.problems(drafts.normalise(one_fault, 420), source))
+
+    untested = _good_design()
+    untested["quiz"] = [{**item, "outcome": 1} for item in untested["quiz"]]  # outcome 5 is a knowledge-check outcome
+    assert any("need a question: 5" in issue for issue in drafts.problems(drafts.normalise(untested, 420), source))
+
+
+def test_drafting_order_follows_the_files_tocs_use():
+    every = drafts.all_courses()
+    levels = {path.stem for path in drafts.LEVEL_DIR.glob("*.json")}
+    assert every[:len(drafts.DEFAULT_COURSES)] == [name for name in drafts.DEFAULT_COURSES if name in levels]
+    first_compact = next(index for index, name in enumerate(every) if name not in levels)
+    assert all(name in levels for name in every[:first_compact])  # every level course before any compact file
+    shadowed = [index for index, name in enumerate(every) if name.endswith("_source") and name[:-7] in levels]
+    assert shadowed and shadowed == list(range(len(every) - len(shadowed), len(every)))  # those come last
+
+
 def test_course_selection_covers_every_course_once():
     every = drafts.select_courses("all")
     assert set(drafts.DEFAULT_COURSES) <= set(every)

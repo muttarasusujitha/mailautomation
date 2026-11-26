@@ -448,7 +448,7 @@
           "lab_task": "Plan and run a remote audit of Ledgerline's AWS operations as a virtual location: agree the feasibility checklist and recording rules, sample 10 IAM roles over screen share, and list the evidence that could not be verified remotely.",
           "deliverable": "Remote audit feasibility checklist, remote session notes and a verification limits list",
           "checks": [["Review the feasibility checklist", "Bandwidth, tools, confidentiality and recording consent are confirmed before the audit", "Checklist"], ["Sample IAM roles over screen share", "Each role's policies and last-used date are viewed live with the auditee driving", "Session notes"], ["Ask what could not be checked remotely", "Items such as the Pune server room are moved to an on-site visit", "Verification limits list"]],
-          "objectives": ["Apply the 2026 remote auditing guidance", "Audit a virtual location", "Know the limits of remote evidence"]
+          "objectives": ["Apply the 2026 remote auditing guidance", "Audit a virtual location", "Identify the limits of remote evidence"]
         },
         {
           "topic": "Writing and Grading Audit Findings",

@@ -7,11 +7,29 @@
   "certifications": ["AWS Certified DevOps Engineer - Professional", "Microsoft Certified: DevOps Engineer Expert", "Google Cloud Professional Cloud DevOps Engineer", "Certified Kubernetes Administrator (CKA)", "Certified Kubernetes Application Developer (CKAD)", "HashiCorp Certified: Terraform Associate", "GitHub Actions Certification"],
   "tools": ["Linux", "Git", "GitHub Actions", "GitLab CI", "Jenkins", "Docker", "Kubernetes", "Terraform", "Ansible", "Argo CD", "Prometheus", "Grafana", "Trivy", "Open Policy Agent"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "Google Cloud: Using the Four Keys to measure DevOps performance", "url": "https://cloud.google.com/blog/products/devops-sre/using-the-four-keys-to-measure-your-devops-performance", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "For developers, testers and system administrators who are new to DevOps practice and want to see how one change travels from a laptop to a running service. The course follows a single sample service, orders-api (a small Python web API with pytest tests), through the whole delivery path: DevOps culture and the CALMS model, value stream mapping, Linux and shell work, team branching and pull requests, build automation, a first CI pipeline in GitHub Actions, unit tests and coverage, artifacts and semantic versioning, container images and registries, a first continuous delivery to a test environment, configuration and secrets, infrastructure as code concepts, monitoring and logs, and team collaboration. Dedicated courses cover each tool in depth; here the focus is how the pieces fit together, ending in a capstone that takes the app from commit to running service.",
       "prerequisites": ["Has written and run small programs in any language and can read simple Python code", "Uses a terminal to change directories, run commands and edit text files", "Has a laptop with rights to install Git, Docker Desktop or Docker Engine, kind and kubectl, plus a free GitHub account"],
       "outcomes": ["Explain DevOps with the CALMS model and map a delivery value stream with lead time and wait time", "Build a CI pipeline that lints, tests, versions and packages a service as a container image on every push", "Deliver the image automatically to a test environment with configuration and secrets kept out of the code", "Monitor the delivered service with health checks, metrics, logs and an alert, and trace a failed delivery to its cause"],
+      "course_outcomes": [
+        {"outcome": "Explain DevOps with the CALMS model and map a delivery value stream with lead time and wait time", "topics": ["DevOps Culture and the CALMS Model", "Mapping the Delivery Value Stream from Idea to Production"]},
+        {"outcome": "Use the Linux shell for delivery tasks", "topics": ["Linux and Shell Skills for Delivery Work"]},
+        {"outcome": "Work in a team branching workflow with pull request reviews", "topics": ["Team Branching Workflows and Pull Request Reviews"]},
+        {"outcome": "Automate builds and run a CI pipeline with unit tests and coverage on every push", "topics": ["Build Automation with Make and Language Build Tools", "Your First CI Pipeline on Every Push", "Running Unit Tests and Coverage in CI"]},
+        {"outcome": "Version build artifacts with semantic versioning and release tags", "topics": ["Build Artifacts, Semantic Versioning and Release Tags"]},
+        {"outcome": "Package an application as a container image and publish it from CI to a registry", "topics": ["Packaging the App as a Container Image for Delivery", "Publishing Container Images from CI to a Registry"]},
+        {"outcome": "Run the whole stack locally with the same setup as production", "topics": ["Dev-Prod Parity: Running the Whole Stack Locally"]},
+        {"outcome": "Deliver automatically to a test environment with configuration kept outside the code", "topics": ["First Continuous Delivery to a Test Environment", "Twelve-Factor Configuration Across Environments"]},
+        {"outcome": "Keep secrets out of code, images and logs", "topics": ["Keeping Secrets Out of Code, Images and Logs"]},
+        {"outcome": "Explain desired state, plans and drift, and configure servers with idempotent playbooks", "topics": ["Infrastructure as Code Concepts: Desired State, Plans and Drift", "Configuring Servers as Code with Idempotent Playbooks"]},
+        {"outcome": "Monitor a delivered service with health checks, metrics and an alert, and use logs to find why a delivery failed", "topics": ["Monitoring a Delivered Service: Health, Metrics and Alerts", "Logs and Diagnosing a Failed Delivery"]},
+        {"outcome": "Share operational ownership with ChatOps and runbooks", "topics": ["Collaboration Practices: ChatOps, Runbooks and Shared Ownership"]},
+        {"outcome": "Deliver one application from commit to a running, monitored service", "topics": ["Beginner Capstone: One App from Commit to Running Service"]}
+      ],
       "days": [
         {
           "topic": "DevOps Culture and the CALMS Model",
@@ -239,6 +257,21 @@
       "summary": "For engineers who already run a working CI pipeline and a first automated deployment and now need delivery that is fast, safe and measurable for a team. Using orders-api, a second service and a local kind cluster, the course covers trunk-based development and feature flags, pipeline design and quality gates, the test pyramid inside a pipeline, DevSecOps with SAST, software composition analysis, secrets scanning and container scanning, environment promotion, rolling, blue-green and canary releases, a GitOps workflow with Argo CD, infrastructure pipelines with OPA policy checks, Kubernetes delivery, observability-driven releases, incident response with postmortems, and DORA metrics. Each tool appears as an example of a practice; dedicated courses go deeper on each one.",
       "prerequisites": ["Has built a CI workflow in GitHub Actions or GitLab CI that tests code and pushes a container image", "Can deploy and inspect a workload on Kubernetes with kubectl apply, get, describe and logs", "Has written a small Terraform configuration and read a terraform plan"],
       "outcomes": ["Design a pipeline with stages, caching, reusable workflows and quality gates that keeps feedback under 10 minutes", "Add SAST, dependency, secrets and image scanning to the pipeline with clear block-or-warn rules", "Promote one immutable image through environments with GitOps and release it with rolling, blue-green or canary strategies", "Measure delivery with DORA metrics and run incidents and postmortems that feed improvements back into the pipeline"],
+      "course_outcomes": [
+        {"outcome": "Work with trunk-based development and separate deploy from release with feature flags", "topics": ["Trunk-Based Development with Short-Lived Branches", "Feature Flags: Separating Deploy from Release"]},
+        {"outcome": "Design a pipeline with stages, parallel jobs, caching and reusable workflows", "topics": ["Pipeline Design: Stages, Parallelism, Caching and Reuse"]},
+        {"outcome": "Add quality gates and run the test pyramid inside the pipeline", "topics": ["Quality Gates: Lint, Coverage Thresholds and Static Analysis", "The Test Pyramid Inside the Pipeline"]},
+        {"outcome": "Scan code, dependencies and secrets in pull requests with clear block-or-warn rules", "topics": ["Shift-Left Code Scanning with SAST in Pull Requests", "Dependency Risk with Software Composition Analysis", "Secrets Scanning and Push Protection"]},
+        {"outcome": "Scan container images and use hardened base images", "topics": ["Container Image Scanning and Hardened Base Images"]},
+        {"outcome": "Build an image once and promote the same image through every environment", "topics": ["Environment Promotion: Build Once, Promote Many"]},
+        {"outcome": "Release with rolling, blue-green and canary strategies and roll back on bad metrics", "topics": ["Rolling and Blue-Green Deployment Strategies", "Canary Releases with Metric-Based Analysis"]},
+        {"outcome": "Deliver to Kubernetes with GitOps from an environment repository", "topics": ["GitOps Workflow: Pull-Based Delivery from an Environment Repository", "Delivering to Kubernetes: Manifests, Overlays and Readiness"]},
+        {"outcome": "Run infrastructure changes through pull request plans and policy checks with OPA and Conftest", "topics": ["Infrastructure Pipelines: Plan on Pull Request, Apply on Merge", "Policy Checks for Infrastructure Code with OPA and Conftest"]},
+        {"outcome": "Gate releases on SLOs and mark releases on dashboards", "topics": ["Observability-Driven Releases: Release Markers and SLO Gates"]},
+        {"outcome": "Run incidents and postmortems that feed improvements back into the pipeline", "topics": ["Incident Response and Postmortems for Delivery Teams"]},
+        {"outcome": "Measure delivery performance with DORA metrics", "topics": ["Measuring Delivery Performance with DORA Metrics"]},
+        {"outcome": "Deliver a secure GitOps pipeline with canary releases", "topics": ["Intermediate Capstone: Secure GitOps Delivery Pipeline with Canary Releases"]}
+      ],
       "days": [
         {
           "topic": "Trunk-Based Development with Short-Lived Branches",
@@ -466,6 +499,20 @@
       "summary": "For senior DevOps engineers, tech leads and engineering managers who run delivery for many teams and must make it faster, safer, cheaper and auditable at organisation scale. The course covers platform engineering and internal developer platforms with Backstage, golden paths, software supply chain security with SBOMs, SLSA provenance and Sigstore signing, progressive delivery automation, multi-cloud and multi-region delivery, monorepos and pipeline performance, FinOps in the delivery flow, chaos engineering in pipelines, compliance as code and audit evidence, AI-assisted DevOps with guardrails, value stream management, organisational transformation and maturity assessment. Labs extend the orders-api estate to several services, clusters and teams, and the capstone produces a delivery platform design with working evidence.",
       "prerequisites": ["Has run a GitOps pipeline with security scans and progressive releases for at least one production service", "Is comfortable with Kubernetes, Terraform, Argo CD and GitHub Actions or GitLab CI at working level", "Has taken part in incident response and knows the DORA delivery metrics"],
       "outcomes": ["Design an internal developer platform with golden paths that lets a new service reach production in under a day", "Secure the software supply chain with SBOMs, SLSA provenance, signatures and admission-time verification", "Scale delivery across repositories, clouds and regions while controlling pipeline time and cost", "Produce audit evidence automatically and lead a measured DevOps transformation using flow and maturity data"],
+      "course_outcomes": [
+        {"outcome": "Replace ticket queues with a self-service developer portal built on Backstage", "topics": ["From Ticket Queues to Self-Service Delivery", "Building an Internal Developer Portal with Backstage"]},
+        {"outcome": "Create golden path templates that take a new service to production", "topics": ["Golden Path Templates for New Services"]},
+        {"outcome": "Generate SBOMs, SLSA build provenance and signatures, and verify them at admission", "topics": ["Software Bills of Materials in the Delivery Pipeline", "SLSA Build Provenance and Hardened Builders", "Signing Artifacts and Verifying Them at Admission"]},
+        {"outcome": "Automate progressive delivery across many services, clouds and regions with regional rollback", "topics": ["Progressive Delivery Automation Across Many Services", "Delivering One Service to Several Clouds", "Multi-Region Releases: Waves, Bake Times and Regional Rollback"]},
+        {"outcome": "Build only affected projects in a monorepo and cut pipeline queue time with caching and runner choices", "topics": ["Monorepo Delivery: Affected-Only Builds and Ownership", "Pipeline Performance Engineering: Queue Time, Caching and Runners"]},
+        {"outcome": "Show the cost of each change in the delivery flow", "topics": ["FinOps in the Delivery Flow: Cost Feedback on Every Change"]},
+        {"outcome": "Use chaos experiments as an automated release gate", "topics": ["Chaos Experiments as an Automated Release Gate"]},
+        {"outcome": "Map compliance controls to pipeline policies and produce audit evidence automatically", "topics": ["Compliance as Code: Mapping Controls to Pipeline Policies", "Audit Evidence Automation: Change Records and Attestations"]},
+        {"outcome": "Use AI assistants in DevOps work with guardrails", "topics": ["AI-Assisted DevOps with Guardrails"]},
+        {"outcome": "Use flow metrics to decide where to improve across teams", "topics": ["Flow Metrics for Value Stream Decisions Across Teams"]},
+        {"outcome": "Plan a DevOps transformation and assess maturity with evidence", "topics": ["Leading a DevOps Transformation: Operating Model and Change Plan", "Assessing and Improving DevOps Maturity"]},
+        {"outcome": "Deliver an enterprise delivery platform with supply chain security and compliance evidence", "topics": ["Advanced Capstone: Enterprise Delivery Platform with Supply Chain and Compliance Evidence"]}
+      ],
       "days": [
         {
           "topic": "From Ticket Queues to Self-Service Delivery",

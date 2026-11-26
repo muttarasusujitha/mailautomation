@@ -12,6 +12,23 @@
       "summary": "For developers, data engineers and operators new to Kafka. Covers event streaming concepts, set-up with KRaft, topics and partitions, the command-line tools, producers, consumers and groups, offsets, keys and ordering, serialisation, Schema Registry, delivery guarantees, retention and compaction, Kafka Connect, basic Kafka Streams, ksqlDB, monitoring, security and client errors.",
       "prerequisites": ["Programs in Java or Python", "Comfortable with Docker and the command line", "Understands basic client-server applications"],
       "outcomes": ["Explain how Kafka stores and delivers events", "Write reliable producers and consumers with schemas", "Move data in and out with Kafka Connect and process it with Kafka Streams or ksqlDB", "Run and secure a small cluster and read its health"],
+      "course_outcomes": [
+        {"outcome": "Explain event streaming and set up Kafka with KRaft", "topics": ["Event Streaming Overview and Kafka Setup with KRaft"]},
+        {"outcome": "Create topics with partitions and replication", "topics": ["Topics, Partitions and Replication"]},
+        {"outcome": "Send events reliably with producers", "topics": ["Producers: Sending Events Reliably"]},
+        {"outcome": "Consume events with consumer groups and manage offsets, commits and lag", "topics": ["Consumers and Consumer Groups", "Offsets, Commits and Consumer Lag"]},
+        {"outcome": "Design message keys and partitions for ordering", "topics": ["Message Keys, Ordering and Partitioning Design"]},
+        {"outcome": "Serialise events with JSON, Avro and Protobuf and evolve schemas with Schema Registry", "topics": ["Serialisation: JSON, Avro and Protobuf", "Schema Registry and Schema Evolution"]},
+        {"outcome": "Choose delivery guarantees, including exactly-once", "topics": ["Delivery Guarantees and Exactly-Once Semantics"]},
+        {"outcome": "Configure retention, compaction and storage", "topics": ["Retention, Compaction and Storage"]},
+        {"outcome": "Move data with Kafka Connect and capture database changes with Debezium", "topics": ["Kafka Connect: Source and Sink Connectors", "Change Data Capture with Debezium"]},
+        {"outcome": "Process streams with Kafka Streams and ksqlDB", "topics": ["Kafka Streams Essentials", "Stream Processing with ksqlDB"]},
+        {"outcome": "Monitor Kafka clusters and clients", "topics": ["Monitoring Kafka Clusters and Clients"]},
+        {"outcome": "Secure Kafka with TLS, SASL and ACLs", "topics": ["Securing Kafka: TLS, SASL and ACLs"]},
+        {"outcome": "Handle consumer errors with retries and dead-letter topics and design events and topic names", "topics": ["Handling Errors, Retries and Dead-Letter Topics in Consumers", "Event Design and Topic Naming"]},
+        {"outcome": "Compare managed Kafka on Confluent Cloud, Amazon MSK and Azure Event Hubs", "topics": ["Managed Kafka: Confluent Cloud, Amazon MSK and Azure Event Hubs"]},
+        {"outcome": "Deliver an event-driven online shop", "topics": ["Beginner Capstone: Event-Driven Online Shop"]}
+      ],
       "days": [
         {
           "topic": "Event Streaming Overview and Kafka Setup with KRaft",
@@ -29,7 +46,7 @@
           "lab_task": "Create topics with different partition and replica settings, stop a broker and watch leaders move, and show writes failing when in-sync replicas fall below the minimum.",
           "deliverable": "Topic settings and failover notes",
           "checks": [["Stop a broker", "Leaders move to other brokers", "kafka-topics describe output"], ["Drop below min.insync.replicas", "Producer with acks=all fails", "Producer error"], ["Increase partitions", "New partitions created and keys remapped noted", "Command output"]],
-          "objectives": ["Configure topics", "Understand replication", "See failover"]
+          "objectives": ["Configure topics", "Explain replication", "See failover"]
         },
         {
           "topic": "Producers: Sending Events Reliably",
@@ -101,7 +118,7 @@
           "lab_task": "Set short retention on a topic and watch segments deleted, use a compacted topic for customer profiles, delete a key with a tombstone and inspect segment files.",
           "deliverable": "Topic settings, file listings and notes",
           "checks": [["Wait past retention", "Old segments deleted", "File listing"], ["Write several values per key to a compacted topic", "Latest value kept after compaction", "Consumer output"], ["Send a tombstone", "Key removed after compaction", "Consumer output"]],
-          "objectives": ["Manage retention", "Use compaction", "Understand storage"]
+          "objectives": ["Manage retention", "Use compaction", "Explain storage"]
         },
         {
           "topic": "Kafka Connect: Source and Sink Connectors",
@@ -199,6 +216,23 @@
       "summary": "For developers and operators who run Kafka. Covers cluster sizing, broker configuration, producer and consumer tuning, Kafka Streams state, joins and windows, interactive queries, Connect clusters and custom connectors, Schema Registry governance, Spring for Apache Kafka, Flink with Kafka, multi-cluster replication, tiered storage, operating on Kubernetes with Strimzi, upgrades, client observability, testing, quotas, performance testing and the developer certification.",
       "prerequisites": ["Writes Kafka producers and consumers with schemas", "Uses Kafka Connect and basic stream processing", "Runs Kafka with Docker or a managed service"],
       "outcomes": ["Size, configure and tune Kafka clusters and clients", "Build stateful stream processing with Kafka Streams and Flink", "Run Connect, Schema Registry and replication across clusters", "Operate Kafka on Kubernetes and pass the developer certification"],
+      "course_outcomes": [
+        {"outcome": "Size clusters and configure and tune brokers", "topics": ["Cluster Sizing and Capacity Planning", "Broker Configuration and Tuning"]},
+        {"outcome": "Tune producer and consumer performance", "topics": ["Producer and Consumer Performance Tuning"]},
+        {"outcome": "Build Kafka Streams apps with state, joins and windows and scale them with interactive queries", "topics": ["Kafka Streams State, Joins and Windows", "Interactive Queries and Scaling Kafka Streams"]},
+        {"outcome": "Run Kafka Connect clusters and build custom connectors", "topics": ["Kafka Connect Clusters and Custom Connectors"]},
+        {"outcome": "Govern schemas with data contracts", "topics": ["Schema Governance and Data Contracts"]},
+        {"outcome": "Build Kafka applications with Spring for Apache Kafka", "topics": ["Spring for Apache Kafka"]},
+        {"outcome": "Process Kafka streams with Apache Flink", "topics": ["Stream Processing with Apache Flink and Kafka"]},
+        {"outcome": "Replicate between clusters with MirrorMaker 2 and Cluster Linking", "topics": ["Multi-Cluster Replication with MirrorMaker 2 and Cluster Linking"]},
+        {"outcome": "Keep long retention with tiered storage", "topics": ["Tiered Storage and Long Retention"]},
+        {"outcome": "Run Kafka on Kubernetes with Strimzi", "topics": ["Operating Kafka on Kubernetes with Strimzi"]},
+        {"outcome": "Reassign partitions, replace brokers and migrate from ZooKeeper to KRaft", "topics": ["Kafka Administration: Partition Reassignment, Broker Replacement and Balancing", "Upgrades and Migrating from ZooKeeper to KRaft"]},
+        {"outcome": "Observe and test event-driven applications", "topics": ["Observability for Event-Driven Applications", "Testing Kafka Applications"]},
+        {"outcome": "Set quotas and topic governance for shared clusters and benchmark performance", "topics": ["Quotas, Multi-Tenancy and Topic Governance", "Performance Testing and Benchmarking Kafka"]},
+        {"outcome": "Prepare for the Confluent Certified Developer (CCDAK) exam", "topics": ["Confluent Certified Developer (CCDAK) Preparation"]},
+        {"outcome": "Deliver a real-time order and fraud platform", "topics": ["Intermediate Capstone: Real-Time Order and Fraud Platform"]}
+      ],
       "days": [
         {
           "topic": "Cluster Sizing and Capacity Planning",
@@ -369,7 +403,7 @@
           "lab_task": "Take a timed practice exam, check wrong answers by running small experiments, practise weak areas and take a second exam.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Test wrong answers", "Each confirmed with an experiment", "Notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the exam", "Close gaps", "Reach a passing score"]
+          "objectives": ["Describe the exam format and domains", "Close gaps", "Reach a passing score"]
         },
         {
           "topic": "Intermediate Capstone: Real-Time Order and Fraud Platform",
@@ -386,6 +420,23 @@
       "summary": "For senior engineers, platform owners and architects. Covers broker internals, replication and KRaft controller internals, event-driven architecture, event sourcing and CQRS, sagas, large-scale design, multi-region strategies, platform engineering for Kafka, security at scale, compliance, very high throughput, low latency, Kafka for analytics and AI, streaming databases, cost, migrations, incident troubleshooting and Kafka strategy.",
       "prerequisites": ["Runs Kafka clusters and stream processing in production", "Tunes brokers and clients", "Builds services with Kafka Streams, Connect and Schema Registry"],
       "outcomes": ["Design event-driven systems and Kafka platforms for many teams", "Run Kafka across regions with high throughput, low latency and strong security", "Use Kafka for analytics and AI workloads", "Diagnose incidents and lead streaming strategy"],
+      "course_outcomes": [
+        {"outcome": "Trace broker log storage, replication and KRaft metadata management", "topics": ["Broker Internals: Log Storage, Requests and Replication", "KRaft Controller Internals and Metadata Management"]},
+        {"outcome": "Apply event-driven architecture patterns", "topics": ["Event-Driven Architecture Patterns"]},
+        {"outcome": "Implement event sourcing, CQRS and sagas with Kafka", "topics": ["Event Sourcing and CQRS with Kafka", "Sagas and Distributed Transactions over Kafka"]},
+        {"outcome": "Design Kafka for large organisations", "topics": ["Designing Kafka for Large Organisations"]},
+        {"outcome": "Plan multi-region and disaster recovery strategies", "topics": ["Multi-Region and Disaster Recovery Strategies"]},
+        {"outcome": "Offer Kafka as a self-service platform", "topics": ["Kafka Platform Engineering and Self-Service"]},
+        {"outcome": "Secure Kafka at scale with OAuth, RBAC and encryption", "topics": ["Security at Scale: OAuth, RBAC and Encryption"]},
+        {"outcome": "Meet compliance, data retention and privacy requirements on Kafka", "topics": ["Compliance, Data Retention and Privacy on Kafka"]},
+        {"outcome": "Tune Kafka for very high throughput and low latency", "topics": ["Very High Throughput Kafka", "Low-Latency Kafka"]},
+        {"outcome": "Feed analytics, lakehouses, streaming databases and real-time ML from Kafka", "topics": ["Kafka for Analytics, Lakehouses and Streaming Databases", "Kafka for AI and Real-Time Machine Learning"]},
+        {"outcome": "Compare Kafka with Pulsar, Redpanda and cloud services and plan migrations between platforms", "topics": ["Kafka and Its Alternatives: Pulsar, Redpanda and Cloud Messaging Services", "Migrating to Kafka and Between Platforms"]},
+        {"outcome": "Manage Kafka costs", "topics": ["Cost Management for Kafka"]},
+        {"outcome": "Troubleshoot production Kafka incidents", "topics": ["Troubleshooting Production Kafka Incidents"]},
+        {"outcome": "Set streaming strategy and team practices", "topics": ["Streaming Strategy and Team Practices"]},
+        {"outcome": "Deliver an enterprise event streaming platform", "topics": ["Advanced Capstone: Enterprise Event Streaming Platform"]}
+      ],
       "days": [
         {
           "topic": "Broker Internals: Log Storage, Requests and Replication",
@@ -394,7 +445,7 @@
           "lab_task": "Inspect segment and index files, trace a produce request through request metrics, cause a leader change and explain how leader epochs prevent data loss.",
           "deliverable": "Annotated internals notes",
           "checks": [["Dump a segment", "Record batches and offsets shown", "kafka-dump-log output"], ["Trace a produce request", "Time per stage from request metrics", "Metrics breakdown"], ["Explain leader epochs", "Truncation behaviour explained", "Written note"]],
-          "objectives": ["Understand broker internals", "Explain replication", "Read low-level data"]
+          "objectives": ["Explain broker internals", "Explain replication", "Read low-level data"]
         },
         {
           "topic": "KRaft Controller Internals and Metadata Management",
@@ -403,7 +454,7 @@
           "lab_task": "Inspect the metadata log and snapshots, fail the active controller and measure election time, and add a controller to the quorum.",
           "deliverable": "Metadata inspection notes and failover timings",
           "checks": [["Read the metadata log", "Topic creation records found", "metadata shell output"], ["Fail the active controller", "New leader elected and the time recorded", "Quorum status"], ["Add a controller", "Quorum grows without downtime", "Quorum status"]],
-          "objectives": ["Understand KRaft", "Manage the controller quorum", "Troubleshoot metadata"]
+          "objectives": ["Explain KRaft", "Manage the controller quorum", "Troubleshoot metadata"]
         },
         {
           "topic": "Event-Driven Architecture Patterns",
@@ -421,7 +472,7 @@
           "lab_task": "Event-source a wallet service on Kafka, build two projections, rebuild one from the start of the topic and handle an event schema change.",
           "deliverable": "Event model, projections and rebuild evidence",
           "checks": [["Rebuild a projection", "Matches the live projection", "Comparison output"], ["Change an event schema", "Old and new events read correctly", "Test output"], ["Write the limits", "Cases where Kafka is a poor event store listed", "Written note"]],
-          "objectives": ["Apply event sourcing", "Build projections", "Know the limits"]
+          "objectives": ["Apply event sourcing", "Build projections", "Identify the limits"]
         },
         {
           "topic": "Sagas and Distributed Transactions over Kafka",
@@ -493,7 +544,7 @@
           "lab_task": "Tune a trading-style flow to under 10 ms p99 end to end, measure the cost in throughput and durability and find what causes the slowest one percent.",
           "deliverable": "Tuning steps and latency report",
           "checks": [["Measure p99", "Under 10 ms end to end", "Latency report"], ["Record trade-offs", "Throughput and durability effects stated", "Latency report"], ["Find tail causes", "Causes of p99.9 spikes identified", "Analysis notes"]],
-          "objectives": ["Tune for latency", "Understand trade-offs", "Reduce tail latency"]
+          "objectives": ["Tune for latency", "Explain trade-offs", "Reduce tail latency"]
         },
         {
           "topic": "Kafka for Analytics, Lakehouses and Streaming Databases",
@@ -520,7 +571,7 @@
           "lab_task": "Run the shop workload on Kafka, Redpanda and one cloud service, compare compatibility, latency, operations effort and cost, and write a recommendation for three use cases.",
           "deliverable": "Benchmark results, comparison and recommendation",
           "checks": [["Run the Kafka clients against Redpanda", "Clients work without code changes", "Client output"], ["Compare latency and cost", "Results recorded for each platform", "Comparison table"], ["Write the recommendation", "Platform chosen for each use case with reasons", "Recommendation"]],
-          "objectives": ["Compare streaming platforms", "Know Kafka's alternatives", "Choose platforms by use case"]
+          "objectives": ["Compare streaming platforms", "Compare Kafka's alternatives", "Choose platforms by use case"]
         },
         {
           "topic": "Cost Management for Kafka",
@@ -547,7 +598,7 @@
           "lab_task": "Diagnose five injected incidents (a rebalance storm, a full broker disk, a slow follower, producer timeouts from throttling and a stuck consumer), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the rebalance storm", "Cause found and rebalances stop", "Consumer logs"], ["Free the full disk", "Retention or reassignment fixes it", "Broker metrics"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose Kafka incidents", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose Kafka incidents", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Streaming Strategy and Team Practices",

@@ -333,7 +333,7 @@
           "lab_task": "Rewrite five vague non-functional requirements so they can be tested, design simple checks for each and identify which need specialist performance or security testing.",
           "deliverable": "Testable requirements, checks and specialist test list",
           "checks": [["Rewrite", "Each requirement is measurable", "Requirements"], ["Design checks", "Each requirement has a test approach", "Test approach"], ["Escalate", "Specialist testing needs are listed with reasons", "Specialist list"]],
-          "objectives": ["Understand non-functional testing", "Write testable requirements", "Know when to involve specialists"]
+          "objectives": ["Explain non-functional testing", "Write testable requirements", "Decide when to involve specialists"]
         },
         {
           "topic": "Testing ERP and Business Process Applications",

@@ -12,6 +12,23 @@
       "summary": "For team members, new Scrum Masters and Product Owners. Covers agile values, the Scrum framework, roles, events and artefacts, writing and refining user stories, estimation, sprint planning and tracking, reviews and retrospectives, Kanban basics and tools, ending with a simulated set of sprints.",
       "prerequisites": ["Has worked in a team that delivers work to customers", "No agile experience needed", "Access to Jira or a similar board tool"],
       "outcomes": ["Explain agile values and the Scrum framework", "Work in Scrum roles and run every Scrum event", "Write, refine and estimate user stories", "Track sprints with boards and charts and improve through retrospectives"],
+      "course_outcomes": [
+        {"outcome": "Explain agile values and the Scrum framework", "topics": ["Agile Overview and the Agile Manifesto", "The Scrum Framework Overview"]},
+        {"outcome": "Describe the Product Owner, Scrum Master and Developer accountabilities", "topics": ["Scrum Roles: Product Owner, Scrum Master and Developers"]},
+        {"outcome": "Write user stories and refine and prioritise the backlog", "topics": ["Product Backlog and User Stories", "Backlog Refinement and Prioritisation"]},
+        {"outcome": "Estimate with story points and plan a sprint", "topics": ["Agile Estimation: Story Points and Planning Poker", "Sprint Planning"]},
+        {"outcome": "Run the Daily Scrum and apply a Definition of Done", "topics": ["Daily Scrum and Sprint Execution", "Definition of Done and Quality"]},
+        {"outcome": "Run a sprint review and a retrospective", "topics": ["Sprint Review", "Sprint Retrospective"]},
+        {"outcome": "Track progress with burndown, burn-up and velocity", "topics": ["Tracking Progress: Burndown, Burn-Up and Velocity"]},
+        {"outcome": "Manage flow with Kanban", "topics": ["Kanban Essentials"]},
+        {"outcome": "Apply Extreme Programming practices", "topics": ["Extreme Programming and Technical Agility"]},
+        {"outcome": "Run agile work in Jira, Azure Boards and Confluence", "topics": ["Agile Tools: Jira, Azure Boards and Confluence"]},
+        {"outcome": "Build self-managing teams with psychological safety", "topics": ["Agile Teams: Collaboration, Self-Management and Psychological Safety"]},
+        {"outcome": "Describe the target users with personas and journeys and define an MVP", "topics": ["Agile Requirements: Personas, Journeys and Minimum Viable Products"]},
+        {"outcome": "Apply agile in non-software teams", "topics": ["Agile in Non-Software Teams"]},
+        {"outcome": "Answer PSM I and CSM practice questions", "topics": ["Certification Preparation: PSM I and CSM"]},
+        {"outcome": "Run a three-sprint product simulation", "topics": ["Beginner Capstone: Three-Sprint Product Simulation"]}
+      ],
       "days": [
         {
           "topic": "Agile Overview and the Agile Manifesto",
@@ -164,7 +181,7 @@
           "lab_task": "Create two personas and a journey map for the app, define an MVP and two hypotheses with success measures, and test a paper prototype with users.",
           "deliverable": "Personas, journey map, MVP definition and test results",
           "checks": [["Review the MVP", "Smallest release that tests the main hypothesis", "MVP definition"], ["Review hypotheses", "Each has a measurable success criterion", "Hypothesis sheet"], ["Test the prototype", "Findings recorded from at least three users", "Test notes"]],
-          "objectives": ["Understand users", "Define an MVP", "Test hypotheses"]
+          "objectives": ["Describe the target users with personas and journeys", "Define an MVP", "Test hypotheses"]
         },
         {
           "topic": "Agile in Non-Software Teams",
@@ -199,6 +216,23 @@
       "summary": "For practising Scrum Masters, Product Owners and agile team members. Covers facilitation and coaching, advanced product ownership, product discovery, metrics and flow, technical agility, agile at team-of-teams scale, stakeholder management, agile contracts and budgeting, and PSM II and PSPO level judgement.",
       "prerequisites": ["Has worked in a Scrum or Kanban team for six months or more", "Knows the Scrum Guide well", "Uses Jira or a similar tool"],
       "outcomes": ["Facilitate and coach teams through difficult situations", "Own products with clear goals, discovery and value measures", "Use flow metrics and forecasting to improve delivery", "Work across several teams and with the wider organisation"],
+      "course_outcomes": [
+        {"outcome": "Facilitate Scrum events and coach agile teams", "topics": ["Facilitation Skills for Scrum Masters", "Coaching Agile Teams"]},
+        {"outcome": "Set a product vision, strategy and roadmap", "topics": ["Advanced Product Ownership: Vision, Strategy and Roadmaps"]},
+        {"outcome": "Run product discovery and experiments", "topics": ["Product Discovery and Experimentation"]},
+        {"outcome": "Manage value with evidence-based management", "topics": ["Value and Evidence-Based Management"]},
+        {"outcome": "Manage complex backlogs", "topics": ["Advanced Backlog Management"]},
+        {"outcome": "Forecast with flow metrics and probabilistic methods", "topics": ["Flow Metrics and Probabilistic Forecasting"]},
+        {"outcome": "Support technical agility", "topics": ["Technical Agility for Agile Leaders"]},
+        {"outcome": "Run Scrum with multiple teams", "topics": ["Scrum with Multiple Teams"]},
+        {"outcome": "Manage stakeholders and remote teams", "topics": ["Stakeholder Management and Collaboration", "Remote and Distributed Scrum Teams"]},
+        {"outcome": "Lead organisational change as a Scrum Master", "topics": ["The Scrum Master as Organisational Change Agent"]},
+        {"outcome": "Set up agile contracts, budgets and governance", "topics": ["Agile Contracts, Budgeting and Governance"]},
+        {"outcome": "Handle team dysfunctions and difficult situations", "topics": ["Dealing with Dysfunctions and Difficult Situations"]},
+        {"outcome": "Apply Kanban at service level and integrate UX into delivery", "topics": ["Kanban at Team and Service Level", "User Experience and Agile Delivery"]},
+        {"outcome": "Report with agile metrics and gain management support", "topics": ["Agile Metrics Dashboards and Reporting", "Agile Leadership and Management Support"]},
+        {"outcome": "Answer PSM II and PSPO I practice questions and deliver a product and team improvement plan", "topics": ["Certification Preparation: PSM II and PSPO I", "Intermediate Capstone: Product and Team Improvement Engagement"]}
+      ],
       "days": [
         {
           "topic": "Facilitation Skills for Scrum Masters",
@@ -386,6 +420,23 @@
       "summary": "For agile coaches, senior Scrum Masters, product leaders and transformation leads. Covers enterprise agile coaching, organisation design, scaling frameworks, lean portfolio management, agile transformation strategy, culture and leadership development, business agility, metrics at scale, coaching certifications and leading change.",
       "prerequisites": ["Has worked as a Scrum Master, Product Owner or agile coach for two years or more", "Has worked with several teams", "Knows Scrum, Kanban and flow metrics well"],
       "outcomes": ["Coach teams, leaders and organisations", "Design organisations and choose scaling approaches", "Lead agile transformations with measures", "Develop leaders and build business agility"],
+      "course_outcomes": [
+        {"outcome": "Apply enterprise agile coaching competencies", "topics": ["Enterprise Agile Coaching Competencies"]},
+        {"outcome": "Design organisations for agility and compare scaling frameworks", "topics": ["Organisation Design for Agility", "Scaling Frameworks Compared: SAFe, LeSS, Nexus and Scrum@Scale"]},
+        {"outcome": "Run lean portfolio management", "topics": ["Lean Portfolio Management"]},
+        {"outcome": "Set a transformation strategy and lead culture change", "topics": ["Agile Transformation Strategy and Roadmaps", "Change Management and Culture for Agility"]},
+        {"outcome": "Develop agile leaders who apply lean thinking", "topics": ["Developing Agile Leaders", "Lean Thinking for Agile Leaders"]},
+        {"outcome": "Extend agility beyond IT", "topics": ["Business Agility Beyond IT"]},
+        {"outcome": "Measure agility at scale and optimise value streams", "topics": ["Agile Metrics and Measurement at Scale", "Value Stream Mapping and Flow Optimisation"]},
+        {"outcome": "Run agile in regulated industries", "topics": ["Agile at Scale in Regulated Industries"]},
+        {"outcome": "Coach product management", "topics": ["Agile Coaching for Product Management"]},
+        {"outcome": "Facilitate large groups and planning events", "topics": ["Facilitating Large Groups and Planning Events"]},
+        {"outcome": "Measure transformation return on investment", "topics": ["Agile Transformation Measurement and Return on Investment"]},
+        {"outcome": "Coach through conflict and politics", "topics": ["Coaching Through Conflict and Organisational Politics"]},
+        {"outcome": "Adopt AI in agile ways of working and plan coaching growth", "topics": ["Agile and AI: New Ways of Working", "Coaching Certifications and Professional Growth"]},
+        {"outcome": "Rescue struggling transformations", "topics": ["Troubleshooting Struggling Transformations"]},
+        {"outcome": "Deliver an enterprise agile transformation plan", "topics": ["Advanced Capstone: Enterprise Agile Transformation Plan"]}
+      ],
       "days": [
         {
           "topic": "Enterprise Agile Coaching Competencies",

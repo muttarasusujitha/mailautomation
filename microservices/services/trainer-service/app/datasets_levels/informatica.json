@@ -279,7 +279,7 @@
           "lab_task": "Design a customer master for a company with three systems, define match and survivorship rules for the golden record and plan stewardship.",
           "deliverable": "MDM design, rules and stewardship plan",
           "checks": [["Define match rules", "Rules find true duplicates in sample data", "Test results"], ["Define survivorship", "Golden record fields chosen with rules", "Rule table"], ["Plan stewardship", "Roles and processes defined", "Stewardship plan"]],
-          "objectives": ["Understand MDM", "Design golden records", "Plan stewardship"]
+          "objectives": ["Explain MDM", "Design golden records", "Plan stewardship"]
         },
         {
           "topic": "Metadata, Lineage and the Data Catalogue",
@@ -369,7 +369,7 @@
           "lab_task": "Take a timed practice exam, rebuild wrong answers in IDMC, practise weak areas and take a second exam.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Rebuild wrong answers", "Each confirmed in IDMC", "Notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the exam", "Close gaps", "Reach a passing score"]
+          "objectives": ["Describe the exam format and domains", "Close gaps", "Reach a passing score"]
         },
         {
           "topic": "Intermediate Capstone: Near-Real-Time Customer Data Hub",
@@ -511,7 +511,7 @@
           "lab_task": "Find the top IPU consumers, change three jobs to cheaper patterns, remove unused jobs and report monthly savings.",
           "deliverable": "Consumption report before and after",
           "checks": [["List top consumers", "Jobs ranked by IPUs", "Consumption report"], ["Change three jobs", "Lower IPUs with the same output", "Consumption report"], ["Report savings", "Monthly saving calculated", "Savings report"]],
-          "objectives": ["Understand IPU cost", "Reduce consumption", "Report by team"]
+          "objectives": ["Explain IPU cost", "Reduce consumption", "Report by team"]
         },
         {
           "topic": "AI in Informatica: CLAIRE and Generative AI Features",
@@ -547,7 +547,7 @@
           "lab_task": "Diagnose five injected incidents (an agent out of disk, a source password change, a slow lookup after data growth, CDC lag and a bad data load), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the agent disk problem", "Agent healthy and jobs resume", "Agent status"], ["Fix the slow lookup", "Run time back to normal", "Session statistics"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose integration incidents", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose integration incidents", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Integration Strategy and Centre of Excellence",

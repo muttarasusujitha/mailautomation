@@ -234,7 +234,7 @@
           "lab_task": "Create events(id, body, status, attempts, next_run_at) with a partial index on pending rows. Write a worker using SELECT id FROM events WHERE status='pending' AND next_run_at<=now() ORDER BY id LIMIT 10 FOR UPDATE SKIP LOCKED. Insert 10,000 rows, run 4 workers and prove that no event is processed twice by counting rows per id in a processed log.",
           "deliverable": "Postgres queue with four workers and a no-duplicate proof",
           "checks": [["Run 4 workers on 10,000 events", "All 10,000 rows reach done and the processed log has 10,000 distinct ids", "SQL counts"], ["Query rows processed more than once", "Zero rows are returned", "SQL output"], ["Run EXPLAIN on the claim query", "The plan uses the partial index rather than a sequential scan", "EXPLAIN output"]],
-          "objectives": ["Build a safe multi-worker queue in Postgres", "Use SKIP LOCKED for claiming", "Know when Postgres is no longer enough"]
+          "objectives": ["Build a safe multi-worker queue in Postgres", "Use SKIP LOCKED for claiming", "Decide when Postgres is no longer enough"]
         },
         {
           "topic": "Redis Streams and BullMQ Consumers",

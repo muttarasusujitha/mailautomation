@@ -12,6 +12,23 @@
       "summary": "For developers, build engineers and DevOps newcomers who must run or contribute to builds on Atlassian Bamboo Data Center. Covers the server, Bamboo home and first login, projects, plans, stages, jobs and tasks, linking Git and Bitbucket repositories, script, Maven and npm tasks, test result parsing, triggers, variables, artifacts, local and remote agents, capabilities and requirements, plan branches, build results and notifications, deployment projects, environments and releases, Jira and Bitbucket links, basic permissions and Docker tasks, ending with a build-and-deploy capstone configured through the Bamboo UI.",
       "prerequisites": ["Uses Git from the command line: clone, branch, commit, push and open a pull request", "Can build a Java project with Maven or a JavaScript project with npm on a laptop and read the console output", "Has a training Bamboo Data Center instance (or a laptop with a supported JDK, 8 GB RAM and Docker) plus a Bitbucket or GitHub account for sample repositories"],
       "outcomes": ["Create Bamboo projects and plans with stages, jobs and tasks that check out, build and test code from a linked repository", "Configure triggers, variables, artifacts, plan branches and job requirements so builds run on the right agent at the right time", "Set up a deployment project with environments and releases that deploys a plan artifact to test and staging targets", "Read build logs and test results, connect builds to Jira issues and Bitbucket commits, and grant users the plan permissions they need"],
+      "course_outcomes": [
+        {"outcome": "Set up Bamboo Data Center and find your way around the server", "topics": ["Bamboo Data Center Orientation: Server, Home Directory and First Login"]},
+        {"outcome": "Organise projects and plans and structure builds with stages, jobs and tasks", "topics": ["Projects, Plans and Plan Keys in Bamboo", "Stages, Jobs and Tasks: Bamboo Build Anatomy"]},
+        {"outcome": "Link Bitbucket and Git repositories to plans", "topics": ["Linking Bitbucket and Git Repositories to Bamboo Plans"]},
+        {"outcome": "Build with script, command, Maven and Node.js tasks", "topics": ["Script and Command Tasks on Bamboo Agents", "Building Maven and Node.js Projects with Bamboo Tasks"]},
+        {"outcome": "Parse test results and quarantine failing tests", "topics": ["Bamboo Test Results: JUnit Parser, Failing Tests and Quarantine"]},
+        {"outcome": "Trigger builds by polling, webhooks, cron and manual runs", "topics": ["Bamboo Triggers: Polling, Webhooks, Cron and Manual Runs"]},
+        {"outcome": "Use global, plan and build-time variables", "topics": ["Bamboo Variables: Global, Plan and Build-Time Values"]},
+        {"outcome": "Share artifacts between stages", "topics": ["Artifact Definitions and Sharing Between Bamboo Stages"]},
+        {"outcome": "Run local and remote agents and match jobs to agent capabilities", "topics": ["Local and Remote Bamboo Agents for Beginners", "Agent Capabilities and Job Requirements in Bamboo"]},
+        {"outcome": "Build feature branches with plan branches", "topics": ["Plan Branches for Feature Branch Builds in Bamboo"]},
+        {"outcome": "Read build results and logs and send notifications", "topics": ["Build Results, Logs and Notifications in Bamboo"]},
+        {"outcome": "Deploy releases to environments with deployment projects and triggers", "topics": ["First Deployment Project and Environments in Bamboo", "Releases and Deployment Triggers in Bamboo"]},
+        {"outcome": "Connect Bamboo to Jira and Bitbucket and set plan permissions", "topics": ["Connecting Bamboo to Jira Issues and Bitbucket Data Center", "Bamboo Users, Groups and Plan Permissions"]},
+        {"outcome": "Build with Docker tasks and the Docker runner", "topics": ["Docker Tasks and the Docker Runner in Bamboo"]},
+        {"outcome": "Deliver a build-and-deploy pipeline for a Java web app", "topics": ["Beginner Capstone: Bamboo Build-and-Deploy Pipeline for a Java Web App"]}
+      ],
       "days": [
         {
           "topic": "Bamboo Data Center Orientation: Server, Home Directory and First Login",
@@ -199,6 +216,23 @@
       "summary": "For build engineers and DevOps practitioners who already run Bamboo plans through the UI and now need to manage them as code at team scale. Covers Bamboo Specs in Java and YAML, repository-stored Specs, Specs permissions and scanning, exporting plans to Specs, branch merging with Branch Updater and Gatekeeper, pull request builds, plan dependencies, shared credentials and Specs encryption, deployment projects in Specs, release promotion rules, remote agents as services, dedicated agents, Elastic Bamboo on EC2, artifact handlers and build expiry, splitting tests across jobs, the REST API with personal access tokens, deeper Jira integration, global and project permissions and build troubleshooting.",
       "prerequisites": ["Has completed the beginner level or has built and deployed with Bamboo plans, artifacts, variables and deployment projects through the UI", "Reads and writes YAML and basic Java and can run Maven builds locally", "Has project admin rights on a training Bamboo Data Center instance, a Bitbucket or GitHub repository and, for the elastic agent day, an AWS sandbox account"],
       "outcomes": ["Define plans, plan permissions and deployment projects as Bamboo Specs in Java or YAML and store them in repositories with controlled access", "Design branch workflows with plan branches, pull request builds, Branch Updater, Gatekeeper and plan dependencies", "Operate agent pools with remote agents as services, dedicated agents and Elastic Bamboo, and manage artifact storage and build expiry", "Automate Bamboo with the REST API and personal access tokens, secure credentials, and troubleshoot failed builds and queues from logs and agent data"],
+      "course_outcomes": [
+        {"outcome": "Write plans as Java Specs and repository-stored YAML Specs", "topics": ["Bamboo Java Specs with the bamboo-specs Library", "Bamboo YAML Specs Syntax and Repository-Stored Specs"]},
+        {"outcome": "Control Specs permissions and export existing plans to Specs", "topics": ["Specs Permissions, Linked Repository Access and Specs Scanning Logs", "Exporting Existing Bamboo Plans to Specs and Reviewing Specs Changes"]},
+        {"outcome": "Merge branches with Branch Updater and Gatekeeper and build pull requests with Bitbucket status", "topics": ["Branch Merging Strategies: Branch Updater and Gatekeeper", "Pull Request Builds and Bitbucket Build Status in Bamboo"]},
+        {"outcome": "Chain plans with dependencies and child plans", "topics": ["Plan Dependencies and Child Plans in Bamboo"]},
+        {"outcome": "Protect credentials with shared credentials, masking and Specs encryption", "topics": ["Shared Credentials, Secret Masking and Specs Encryption in Bamboo"]},
+        {"outcome": "Define deployment projects in YAML Specs", "topics": ["Deployment Projects in YAML Specs"]},
+        {"outcome": "Control promotion with approvals, environment permissions and rules", "topics": ["Release Approval Status, Environment Permissions and Promotion Rules"]},
+        {"outcome": "Run remote agents as services and assign dedicated agents", "topics": ["Remote Agents as Services: Wrapper, Token Verification and Agent Approval", "Dedicated Agents, Agent Assignments and the Agent Matrix"]},
+        {"outcome": "Scale builds with Elastic Bamboo on Amazon EC2", "topics": ["Elastic Bamboo on Amazon EC2: Images and Instance Management"]},
+        {"outcome": "Store artifacts in S3 and expire old builds", "topics": ["Bamboo Artifact Handlers, S3 Storage and Build Expiry"]},
+        {"outcome": "Split tests across agents", "topics": ["Test Parallelism: Splitting Jobs Across Bamboo Agents"]},
+        {"outcome": "Automate Bamboo with the REST API and link builds to Jira issues and releases", "topics": ["Bamboo REST API and Personal Access Tokens", "Jira Development Panel, Release Builds and Issue Linking from Bamboo"]},
+        {"outcome": "Set global and project permissions with restricted admin", "topics": ["Bamboo Global and Project Permissions with Restricted Admin"]},
+        {"outcome": "Troubleshoot failed builds and stuck queues", "topics": ["Troubleshooting Failed Bamboo Builds and Stuck Queues"]},
+        {"outcome": "Deliver repository-stored Specs for a multi-branch service with gated releases", "topics": ["Intermediate Capstone: Repository-Stored Specs for a Multi-Branch Service with Gated Releases"]}
+      ],
       "days": [
         {
           "topic": "Bamboo Java Specs with the bamboo-specs Library",
@@ -386,6 +420,23 @@
       "summary": "For Bamboo administrators, platform engineers and CI/CD leads who run Bamboo Data Center for many teams or plan to move off it. Covers the server, database, shared home and agent communication architecture, active-standby high availability, ephemeral agents on Kubernetes, Atlassian Helm charts, JVM and database tuning, monitoring with JMX, logs and support zips, SSO and user directories, security hardening, audit logging, large Java Specs code bases, Bamboo apps with the Atlassian SDK, upgrades and agent updates, database and instance moves, backup and disaster recovery, advanced deployment patterns, agent caching, plan inventory and migration to Bitbucket Pipelines and GitHub Actions.",
       "prerequisites": ["Has completed the intermediate level or manages Bamboo plans as Specs with remote or elastic agents in a team setting", "Administers Linux servers, a relational database and Kubernetes clusters with kubectl and Helm", "Has system administrator access to a non-production Bamboo Data Center instance with a Data Center licence and to a Kubernetes cluster"],
       "outcomes": ["Design and operate Bamboo Data Center with high availability, ephemeral Kubernetes agents, monitoring, backups and tested disaster recovery", "Harden Bamboo with SSO, directory integration, agent authentication, Specs repository controls and audit logging", "Plan and carry out Bamboo upgrades, database moves and large-scale Specs refactoring with rollback options", "Inventory Bamboo plans and deployment projects and migrate selected pipelines to Bitbucket Pipelines or GitHub Actions with measured parity"],
+      "course_outcomes": [
+        {"outcome": "Map Bamboo Data Center architecture across server, database, shared home and agents", "topics": ["Bamboo Data Center Architecture: Server, Database, Shared Home and Agent Communication"]},
+        {"outcome": "Run active and standby nodes for high availability", "topics": ["High Availability with Active and Standby Bamboo Nodes"]},
+        {"outcome": "Run ephemeral agents on Kubernetes and deploy Bamboo with Atlassian Helm charts", "topics": ["Ephemeral Bamboo Agents on Kubernetes with Pod Templates", "Running Bamboo Server and Agents with Atlassian Helm Charts"]},
+        {"outcome": "Tune the JVM, database pool and build queue", "topics": ["Bamboo Performance Tuning: JVM, Database Pool and Build Queue"]},
+        {"outcome": "Monitor Bamboo with JMX, logs and support zips", "topics": ["Monitoring Bamboo with JMX, Logs and Support Zips"]},
+        {"outcome": "Connect SSO, Crowd and LDAP user directories", "topics": ["SSO, Crowd and LDAP User Directories for Bamboo"]},
+        {"outcome": "Harden agent authentication, Specs scope and build isolation and keep audit evidence", "topics": ["Bamboo Security Hardening: Agent Authentication, Specs Scope and Build Isolation", "Bamboo Audit Log, Compliance Evidence and Change Tracking"]},
+        {"outcome": "Scale Java Specs with shared modules and unit tests", "topics": ["Large-Scale Java Specs: Shared Modules, Reuse and Unit-Testing Specs"]},
+        {"outcome": "Upgrade Bamboo and migrate its database", "topics": ["Bamboo Upgrades: Backups, Upgrade Tasks and Agent Auto-Update", "Bamboo Database Migration and Instance Moves"]},
+        {"outcome": "Build custom tasks with the Atlassian Plugin SDK", "topics": ["Building Custom Bamboo Tasks with the Atlassian Plugin SDK"]},
+        {"outcome": "Release blue-green and canary from Bamboo environments", "topics": ["Advanced Deployment Patterns: Blue-Green and Canary Releases from Bamboo Environments"]},
+        {"outcome": "Cache builds and repositories on agents", "topics": ["Build Caching, Repository Caching and Workspace Strategies on Bamboo Agents"]},
+        {"outcome": "Plan disaster recovery and backups for Bamboo Data Center", "topics": ["Disaster Recovery and Backup Strategies for Bamboo Data Center"]},
+        {"outcome": "Assess the plan inventory and migrate plans to Bitbucket Pipelines and GitHub Actions", "topics": ["Bamboo Plan Inventory and Migration Assessment", "Migrating Bamboo Plans to Bitbucket Pipelines", "Migrating Bamboo Plans to GitHub Actions with GitHub Actions Importer"]},
+        {"outcome": "Deliver a Bamboo platform review and migration pilot", "topics": ["Advanced Capstone: Bamboo Data Center Platform Review and Migration Pilot"]}
+      ],
       "days": [
         {
           "topic": "Bamboo Data Center Architecture: Server, Database, Shared Home and Agent Communication",

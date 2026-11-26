@@ -333,7 +333,7 @@
           "lab_task": "Write a method decorator that logs timing, a validation decorator for class fields and a caching decorator, then compare them with plain higher-order functions.",
           "deliverable": "Decorators and comparison note",
           "checks": [["Call a decorated method", "Timing is logged", "Program output"], ["Set an invalid field", "Validation decorator rejects it", "Program output"], ["Call a cached method twice", "Second call returns from cache", "Program output"]],
-          "objectives": ["Write modern decorators", "Know the legacy differences", "Decide when decorators help"]
+          "objectives": ["Write modern decorators", "Explain how legacy decorators differ from standard decorators", "Decide when decorators help"]
         },
         {
           "topic": "Integration and End-to-End Testing for TypeScript Apps",

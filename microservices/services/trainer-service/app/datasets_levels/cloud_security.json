@@ -20,7 +20,7 @@
           "lab_task": "Set up AWS and Azure training accounts with budget alerts and MFA on the root and global admin accounts, and map five real cloud breaches to who was responsible for the failed control.",
           "deliverable": "Secured accounts and breach responsibility table",
           "checks": [["Sign in to the root and global admin accounts", "MFA required", "Screenshot"], ["Trigger a budget alert threshold", "Alert email received", "Email"], ["Map the five breaches", "Responsible party and failed control named", "Table"]],
-          "objectives": ["Explain shared responsibility", "Set up cloud accounts safely", "Learn from cloud breaches"]
+          "objectives": ["Explain shared responsibility", "Set up cloud accounts safely", "Explain the root cause of a cloud breach and the control that would have prevented it"]
         },
         {
           "topic": "Cloud Identity: Users, Groups and Roles",

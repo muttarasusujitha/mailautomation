@@ -394,7 +394,7 @@
           "lab_task": "Analyse three published architecture evolutions and two outage post-mortems, extract recurring patterns and anti-patterns and apply them to a design you own.",
           "deliverable": "Case study analysis and applied lessons",
           "checks": [["Analyse case studies", "Key decisions and their reasons extracted", "Analysis notes"], ["Learn from outages", "Design lessons drawn from each post-mortem", "Lessons table"], ["Apply lessons", "Own design updated with two lessons", "Updated design"]],
-          "objectives": ["Learn from large-scale systems", "Use post-mortems as design input", "Apply lessons to real designs"]
+          "objectives": ["Apply design lessons from large-scale systems to a new design", "Use post-mortems as design input", "Apply lessons to real designs"]
         },
         {
           "topic": "Designing Global Multi-Region Systems",

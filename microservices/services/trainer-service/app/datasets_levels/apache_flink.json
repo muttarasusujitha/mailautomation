@@ -12,6 +12,23 @@
       "summary": "For developers and data engineers who know Java or SQL and are new to stream processing. Covers a local Flink 2.x cluster, the DataStream API, keyed state, event time and watermarks, windows, late data, checkpoints and savepoints, reading and writing Kafka with the Flink connectors, Flink SQL and the Table API, job submission with the CLI and REST API, testing and metrics, and a clickstream analytics capstone.",
       "prerequisites": ["Writes working Java programs with Maven or Gradle, or has strong SQL skills and basic Java", "Uses a terminal and Docker confidently", "Has Java 17, Docker and an IDE installed on a laptop with at least 8 GB of memory"],
       "outcomes": ["Run, configure and monitor a Flink 2.x cluster and submit jobs from the CLI and REST API", "Build DataStream jobs with keyed state, event-time windows, watermarks and late data handling", "Write Flink SQL queries with time attributes, window table-valued functions and Kafka and file connectors", "Make jobs fault tolerant with checkpoints and savepoints and test them with unit and integration tests"],
+      "course_outcomes": [
+        {"outcome": "Explain stream processing concepts and where Flink fits", "topics": ["Stream Processing Concepts and Apache Flink Overview"]},
+        {"outcome": "Run a local Flink cluster and use the Web UI", "topics": ["Local Cluster Setup: Flink Distribution, config.yaml and the Web UI"]},
+        {"outcome": "Write a DataStream job with sources, transformations and sinks", "topics": ["Your First DataStream Job: Sources, Transformations and Sinks"]},
+        {"outcome": "Handle types, serialization and POJOs in Flink", "topics": ["Types, Serialization and POJOs in Flink"]},
+        {"outcome": "Aggregate keyed streams and write stateful ProcessFunctions", "topics": ["Keyed Streams, keyBy and Rolling Aggregations", "Stateless and Stateful Transformations with ProcessFunction Basics"]},
+        {"outcome": "Set parallelism, task slots and operator chaining", "topics": ["Parallelism, Task Slots and Operator Chaining"]},
+        {"outcome": "Assign event time and watermarks and apply tumbling, sliding, session and global windows", "topics": ["Event Time, Processing Time and Watermarks", "Windows: Tumbling, Sliding, Session and Global"]},
+        {"outcome": "Handle late data with allowed lateness and side outputs", "topics": ["Late Data, Allowed Lateness and Side Outputs"]},
+        {"outcome": "Use keyed state with state TTL", "topics": ["Keyed State and State TTL Introduction"]},
+        {"outcome": "Recover jobs with checkpoints, restart strategies and savepoints", "topics": ["Checkpoints, Restart Strategies and Fault Tolerance Fundamentals", "Savepoints: Stopping, Restarting and Changing Parallelism"]},
+        {"outcome": "Read and write Kafka with KafkaSource and KafkaSink", "topics": ["Reading and Writing Kafka with KafkaSource and KafkaSink"]},
+        {"outcome": "Query streams with the Table API and Flink SQL, including event-time windows", "topics": ["Table API and Flink SQL Fundamentals", "Flink SQL Event Time, Watermarks and Window Table-Valued Functions"]},
+        {"outcome": "Use the SQL Client with catalogs, connectors and formats", "topics": ["SQL Client, Catalogs, Connectors and Formats"]},
+        {"outcome": "Submit, monitor and unit test jobs and read job metrics", "topics": ["Submitting and Monitoring Jobs with the CLI and the REST API", "Unit Testing Flink Jobs and Reading Job Metrics"]},
+        {"outcome": "Deliver a real-time clickstream analytics pipeline", "topics": ["Beginner Capstone: Real-Time Clickstream Analytics Pipeline"]}
+      ],
       "days": [
         {
           "topic": "Stream Processing Concepts and Apache Flink Overview",
@@ -199,6 +216,23 @@
       "summary": "For engineers who have built basic Flink jobs and now run stateful pipelines in production. Covers ProcessFunction timers, state types and schema evolution, RocksDB tuning, checkpoint tuning, upgrades with savepoints, joins in DataStream and SQL, broadcast state, async I/O, changelogs and Top-N, UDFs, CEP, Kafka offsets and exactly-once sinks, file and lakehouse sinks, performance diagnosis, the Flink Kubernetes Operator, and a fraud detection capstone.",
       "prerequisites": ["Has built and run a DataStream or Flink SQL job with event time and checkpoints", "Understands Kafka topics, partitions and consumer groups at user level", "Can use kubectl and write basic Kubernetes manifests"],
       "outcomes": ["Build correct stateful logic with timers, state TTL and schema-safe state", "Tune state backends, checkpoints and SQL aggregations from measured metrics", "Run exactly-once Kafka pipelines and use CDC and lakehouse connectors", "Deploy and upgrade jobs on Kubernetes with the Flink Kubernetes Operator"],
+      "course_outcomes": [
+        {"outcome": "Write custom stateful logic with ProcessFunction timers", "topics": ["ProcessFunction Timers and Custom Stateful Logic"]},
+        {"outcome": "Choose state types and serializers and evolve state schemas safely", "topics": ["State Types, Serializers and State Schema Evolution"]},
+        {"outcome": "Tune the RocksDB state backend and managed memory", "topics": ["RocksDB State Backend and Managed Memory Tuning"]},
+        {"outcome": "Tune checkpoints, including unaligned checkpoints and timeouts", "topics": ["Checkpoint Tuning: Alignment, Unaligned Checkpoints and Timeouts"]},
+        {"outcome": "Upgrade jobs from savepoints with operator UIDs", "topics": ["Savepoint Compatibility, Operator UIDs and Job Upgrades"]},
+        {"outcome": "Join streams with window joins, interval joins and connected streams", "topics": ["DataStream Joins: Window Joins, Interval Joins and Connected Streams"]},
+        {"outcome": "Apply dynamic rules with broadcast state and enrich streams with asynchronous I/O", "topics": ["Broadcast State and Dynamic Rules", "Asynchronous I/O and Enrichment Patterns"]},
+        {"outcome": "Write Flink SQL joins, changelog queries, Top-N and deduplication", "topics": ["Flink SQL Joins: Regular, Interval, Temporal and Lookup", "Flink SQL Changelogs, Top-N and Deduplication"]},
+        {"outcome": "Tune Flink SQL aggregations with mini-batch and state TTL and write user-defined functions", "topics": ["Flink SQL Aggregations, Mini-Batch and State TTL Tuning", "User-Defined Functions in the Table API and SQL"]},
+        {"outcome": "Detect event patterns with MATCH_RECOGNIZE and FlinkCEP", "topics": ["Complex Event Processing with MATCH_RECOGNIZE and FlinkCEP"]},
+        {"outcome": "Manage Kafka offsets and watermark alignment and write exactly-once to Kafka", "topics": ["Kafka Source Offsets, Partition Discovery and Watermark Alignment", "Exactly-Once Kafka Sink, Transactions and read_committed"]},
+        {"outcome": "Use Avro, Debezium and upsert-kafka formats in Flink SQL and connect files, object storage and lakehouse tables", "topics": ["Kafka Formats in Flink SQL: Avro Registry, Debezium and upsert-kafka", "Files, Object Storage and Lakehouse Table Connectors"]},
+        {"outcome": "Diagnose backpressure, data skew and performance problems", "topics": ["Backpressure, Data Skew and Performance Diagnosis"]},
+        {"outcome": "Deploy jobs with the Flink Kubernetes Operator", "topics": ["Flink Kubernetes Operator: Installing and Deploying FlinkDeployment"]},
+        {"outcome": "Deliver stateful fraud detection from Kafka to Kafka", "topics": ["Intermediate Capstone: Stateful Fraud Detection from Kafka to Kafka"]}
+      ],
       "days": [
         {
           "topic": "ProcessFunction Timers and Custom Stateful Logic",
@@ -386,6 +420,23 @@
       "summary": "For senior data and platform engineers who own Flink platforms and critical streaming jobs. Covers runtime and network internals, checkpoint internals, disaggregated state, the State Processor API, custom sources, sinks and table connectors, planner internals and compiled plans, process table functions and model calls in SQL, batch execution, elastic scaling, the operator autoscaler, upgrades and rollbacks, high availability and disaster recovery, security, observability, troubleshooting, multi-tenancy, migration to Flink 2.x and a production platform capstone.",
       "prerequisites": ["Runs stateful Flink jobs with checkpoints, savepoints and Kafka in production", "Reads Flink logs, metrics and exception histories to find root causes", "Operates Kubernetes workloads with Helm and understands object storage"],
       "outcomes": ["Explain and tune the runtime, network stack and checkpoint mechanics from metrics", "Build custom connectors and edit state with the State Processor API", "Operate elastic, secure and highly available Flink on Kubernetes with autoscaling and rollbacks", "Lead migrations, troubleshooting and platform design with measured service level objectives"],
+      "course_outcomes": [
+        {"outcome": "Trace JobManager scheduling and task execution", "topics": ["Flink Runtime Internals: JobManager, Scheduler and Task Execution"]},
+        {"outcome": "Debug the network stack, credit-based flow control and buffer debloating", "topics": ["Network Stack, Credit-Based Flow Control and Buffer Debloating"]},
+        {"outcome": "Analyse checkpoint failures from barrier and coordinator behaviour", "topics": ["Checkpoint Internals: Barriers, Coordinator and Failure Analysis"]},
+        {"outcome": "Use disaggregated state with ForSt and repair state with the State Processor API", "topics": ["Disaggregated State with ForSt and the Async State API", "State Processor API: Reading, Repairing and Bootstrapping State"]},
+        {"outcome": "Build custom sources, sinks, table connectors and formats", "topics": ["Custom Sources and Sinks: FLIP-27 Sources and Sink V2", "Custom Table Connectors and Formats with DynamicTableFactory"]},
+        {"outcome": "Read Flink SQL planner output and use compiled plans", "topics": ["Flink SQL Planner Internals: Optimizer, Plans and Compiled Plans"]},
+        {"outcome": "Use process table functions, models and AI functions in Flink SQL", "topics": ["Process Table Functions, Models and AI Functions in Flink SQL"]},
+        {"outcome": "Run unified batch and streaming with execution modes and the adaptive batch scheduler", "topics": ["Unified Batch and Streaming: Execution Modes and the Adaptive Batch Scheduler"]},
+        {"outcome": "Rescale jobs with the adaptive scheduler, reactive mode and the operator autoscaler", "topics": ["Elastic Scaling: Adaptive Scheduler, Reactive Mode and Rescaling", "Operator Autoscaler: Metrics, Targets and Tuning"]},
+        {"outcome": "Manage operator upgrades, snapshots and rollbacks and design high availability and disaster recovery on Kubernetes", "topics": ["Operator Upgrade Modes, Snapshot Management and Rollbacks", "High Availability, Failover and Disaster Recovery on Kubernetes"]},
+        {"outcome": "Secure Flink clusters with TLS, Kerberos, secrets and Kafka authentication", "topics": ["Securing Flink Clusters: TLS, Kerberos, Secrets and Kafka Authentication"]},
+        {"outcome": "Observe and troubleshoot production Flink jobs", "topics": ["Flink Observability: Metrics Reporters, Logging and Alerting", "Troubleshooting Production Flink Jobs"]},
+        {"outcome": "Run multi-tenant Flink platforms and manage their cost", "topics": ["Multi-Tenant Flink Platforms and Cost Management"]},
+        {"outcome": "Migrate to Flink 2.x and between streaming engines", "topics": ["Migrating to Flink 2.x and Between Streaming Engines"]},
+        {"outcome": "Deliver a production Flink platform on Kubernetes", "topics": ["Advanced Capstone: Production Flink Platform on Kubernetes"]}
+      ],
       "days": [
         {
           "topic": "Flink Runtime Internals: JobManager, Scheduler and Task Execution",

@@ -529,7 +529,7 @@
           "lab_task": "Analyse a month of platform costs, right-size plans and databases, apply autoscale and storage tiers, calculate cost per tenant and set budgets with alerts.",
           "deliverable": "Cost report and savings plan",
           "checks": [["Find cost drivers", "Top cost drivers identified with amounts", "Cost analysis"], ["Apply savings", "Monthly cost reduced with no SLO breach", "Before and after report"], ["Set budgets", "Budget alert fires in a test", "Alert notification"]],
-          "objectives": ["Understand Azure costs for .NET apps", "Reduce cost safely", "Report cost per tenant"]
+          "objectives": ["Explain Azure costs for .NET apps", "Reduce cost safely", "Report cost per tenant"]
         },
         {
           "topic": "Compliance, Auditing and Data Protection in Business Apps",
@@ -547,7 +547,7 @@
           "lab_task": "Work through four incidents: thread pool starvation, a blocking chain in SQL Server, a memory leak and a client crash after release, restore service and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by dumps, traces or plans", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
-          "objectives": ["Troubleshoot across .NET tiers", "Use diagnostics tools", "Learn from incidents"]
+          "objectives": ["Troubleshoot across .NET tiers", "Use diagnostics tools", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Technical Leadership for .NET Full Stack Teams",

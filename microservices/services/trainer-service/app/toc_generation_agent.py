@@ -1421,6 +1421,8 @@ def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str =
         "overview_table": overview_table,
         "prerequisites": prerequisites,
         "learning_outcomes": learning_outcomes,
+        "references": [{"title": item.get("title") or item["url"], "url": item["url"]}
+                       for item in (level_plan or {}).get("sources") or []],
         "days": days,
         "tools_software": tools,
         "tools_reference": tools_reference,

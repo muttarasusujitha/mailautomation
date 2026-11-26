@@ -279,7 +279,7 @@
           "lab_task": "Create a triage crew where a ConditionalTask 'escalate' runs only when the classifier output contains 'high'. Run it with a low and a high priority ticket. Add human_input=True on the reply task and record how the feedback changes the final draft.",
           "deliverable": "Run logs for both tickets and a note on the effect of feedback",
           "checks": [["Run with a low priority ticket", "The escalate task is skipped", "Run log"], ["Run with a high priority ticket", "The escalate task executes", "Run log"], ["Answer the human_input prompt with an edit request", "The final draft reflects the requested change", "Output comparison"]],
-          "objectives": ["Branch a crew with conditions", "Collect human feedback on a task", "Know the limits of terminal input"]
+          "objectives": ["Branch a crew with conditions", "Collect human feedback on a task", "Identify the limits of terminal input"]
         },
         {
           "topic": "Planning and Reasoning: planning=True and Agent Reasoning",

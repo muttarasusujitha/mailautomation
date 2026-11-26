@@ -297,7 +297,7 @@
           "lab_task": "Upload a 4000x3000 JPEG, then request getPublicUrl with transform { width: 400, height: 300, resize: 'cover', quality: 70 } and format 'origin'. Compare byte sizes with curl -s -o /dev/null -w '%{size_download}', check cache-control and cf-cache-status headers on repeated requests and re-upload with upsert to see how long the old image is served.",
           "deliverable": "Size comparison table and header captures",
           "checks": [["Fetch the 400x300 transformed URL", "Downloaded size is below 15 percent of the original", "curl size output"], ["Fetch it twice", "Second response shows a cache hit header", "curl -I output"], ["Set quality=30 versus quality=90", "Lower quality returns fewer bytes", "Two byte counts"]],
-          "objectives": ["Serve resized images without extra services", "Understand CDN caching and invalidation", "Measure transfer savings"]
+          "objectives": ["Serve resized images without extra services", "Explain CDN caching and invalidation", "Measure transfer savings"]
         },
         {
           "topic": "Resumable Uploads with TUS and the S3 Protocol",
@@ -315,7 +315,7 @@
           "lab_task": "Connect the GitHub repository in Project Settings > Integrations with the supabase directory, open a pull request that adds a migration for tasks.priority, wait for the Supabase check to pass, open the preview branch URL in the dashboard and test the new column. Merge, then confirm the migration runs on production with supabase migration list.",
           "deliverable": "Pull request with a passing Supabase check and the production migration list",
           "checks": [["Open a pull request with a new migration", "A preview branch is created and the Supabase check shows success", "PR checks screenshot"], ["Query the preview branch for the new column", "Column priority exists on the branch and not on production", "Two query results"], ["Merge the pull request", "The migration is applied to production and listed in migration list", "Terminal output"]],
-          "objectives": ["Create a preview database per pull request", "Understand how migrations flow on merge", "Keep branch data and production isolated"]
+          "objectives": ["Create a preview database per pull request", "Explain how migrations flow on merge", "Keep branch data and production isolated"]
         },
         {
           "topic": "CI/CD with GitHub Actions and the Supabase CLI",
@@ -484,7 +484,7 @@
           "lab_task": "On a kind cluster install a community Supabase Helm chart with helm install supabase ./chart -f values.yaml -n supabase using Secrets you generate, point it to an external Postgres, expose Kong through an Ingress and verify with curl. Scale PostgREST to 3 replicas with kubectl scale and delete one pod to confirm requests still succeed.",
           "deliverable": "Values file without secrets, deployment evidence and a scaling test",
           "checks": [["Run kubectl get pods -n supabase", "All pods are Running and Ready", "kubectl output"], ["curl the ingress /auth/v1/health", "HTTP 200 with a version field", "curl output"], ["Delete one PostgREST pod during a request loop", "No more than one failed request and the pod is recreated", "Loop log"]],
-          "objectives": ["Deploy Supabase components onto Kubernetes", "Use external Postgres and managed secrets", "Understand support and maintenance trade-offs"]
+          "objectives": ["Deploy Supabase components onto Kubernetes", "Use external Postgres and managed secrets", "Explain support and maintenance trade-offs"]
         },
         {
           "topic": "Management API, Terraform and Project Automation",
@@ -511,7 +511,7 @@
           "lab_task": "Take a logical backup with supabase db dump -f roles.sql --role-only, supabase db dump -f schema.sql and supabase db dump -f data.sql --data-only, restore all three into a new project with psql, delete 100 rows by mistake in staging and perform a restore drill, recording elapsed time against a stated RTO. Compare table counts after restore.",
           "deliverable": "Backup scripts, a restore runbook and a drill report with RTO and RPO",
           "checks": [["Restore the dumps into a new project", "Row counts for every table match the source", "Count comparison"], ["Measure the whole restore from start to usable API", "Elapsed time is recorded and compared with the RTO target", "Drill timeline"], ["Check Storage objects after a database-only restore", "The objects are not restored by the database backup, confirming a separate plan is needed", "Storage listing"]],
-          "objectives": ["Take and test logical and managed backups", "Know what a database restore does not recover", "Run and document a restore drill"]
+          "objectives": ["Take and test logical and managed backups", "Identify what a database restore does not recover", "Run and document a restore drill"]
         },
         {
           "topic": "Schema Drift, Migration Squashing and Release Promotion",

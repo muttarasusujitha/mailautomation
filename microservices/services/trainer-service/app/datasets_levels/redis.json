@@ -38,7 +38,7 @@
           "lab_task": "Build a simple job queue with blocking pops, a reliable variant that moves jobs to a processing list, and a capped recent activity feed.",
           "deliverable": "Queue and feed examples",
           "checks": [["Process jobs", "Worker receives jobs as they are pushed", "Worker log"], ["Recover a job", "Job left in processing is recovered after a crash", "Terminal output"], ["Cap the feed", "Feed never exceeds 100 items", "Terminal output"]],
-          "objectives": ["Use lists for queues and feeds", "Build reliable queues", "Know the limits of lists"]
+          "objectives": ["Use lists for queues and feeds", "Build reliable queues", "Identify the limits of lists"]
         },
         {
           "topic": "Hashes for Objects",
@@ -101,7 +101,7 @@
           "lab_task": "Broadcast cache invalidation messages to three app instances with pub/sub, show what happens to messages when a subscriber is offline and compare with streams.",
           "deliverable": "Pub/sub example with notes",
           "checks": [["Broadcast invalidations", "All instances clear the cache entry", "Logs"], ["Miss a message", "Offline subscriber misses the message", "Log output"], ["Compare", "Pub/sub and streams trade-offs recorded", "Notes"]],
-          "objectives": ["Use pub/sub", "Understand delivery limits", "Choose pub/sub or streams"]
+          "objectives": ["Use pub/sub", "Explain delivery limits", "Choose pub/sub or streams"]
         },
         {
           "topic": "Redis Streams",
@@ -128,7 +128,7 @@
           "lab_task": "Set a memory limit, fill Redis past it under different eviction policies, observe which keys go, read memory reports and size memory for the course project.",
           "deliverable": "Eviction experiment and sizing note",
           "checks": [["Compare policies", "Evicted keys match each policy", "Terminal output"], ["Read reports", "Memory usage and fragmentation explained", "INFO memory output"], ["Size memory", "Memory estimate for the project with headroom", "Sizing note"]],
-          "objectives": ["Understand Redis memory", "Choose eviction policies", "Size Redis memory"]
+          "objectives": ["Explain Redis memory", "Choose eviction policies", "Size Redis memory"]
         },
         {
           "topic": "Security: ACLs, Passwords and TLS",
@@ -207,7 +207,7 @@
           "lab_task": "Set up a primary with two replicas, read from replicas, measure replica lag under load, use WAIT for an important write and show data loss risk on failover.",
           "deliverable": "Replication setup with notes",
           "checks": [["Read from replicas", "Reads served by replicas", "Log output"], ["Measure lag", "Replica lag measured under heavy writes", "INFO replication output"], ["Use WAIT", "Write acknowledged by a replica before success", "Terminal output"]],
-          "objectives": ["Configure replication", "Scale reads", "Understand replication limits"]
+          "objectives": ["Configure replication", "Scale reads", "Explain replication limits"]
         },
         {
           "topic": "High Availability with Redis Sentinel",
@@ -261,7 +261,7 @@
           "lab_task": "Build a lock with safe release and renewal, show a failure where a paused process loses its lock, protect writes with fencing tokens and discuss Redlock.",
           "deliverable": "Lock implementation with failure demo",
           "checks": [["Release safely", "Only the owner can release the lock", "Test output"], ["Show the pitfall", "Paused process writes after losing its lock", "Test output"], ["Use fencing", "Fencing tokens block the stale write", "Test output"]],
-          "objectives": ["Build distributed locks carefully", "Understand lock pitfalls", "Use fencing tokens"]
+          "objectives": ["Build distributed locks carefully", "Explain lock pitfalls", "Use fencing tokens"]
         },
         {
           "topic": "Redis as a Job Queue: BullMQ, Sidekiq and Celery",
@@ -279,7 +279,7 @@
           "lab_task": "Index products stored as hashes, run text search with tag and price filters, add autocomplete and aggregations by category and compare with a database query.",
           "deliverable": "Product search on Redis",
           "checks": [["Search with filters", "Results match text, tag and price filters", "Query output"], ["Autocomplete", "Suggestions returned as the user types", "Query output"], ["Aggregate", "Counts per category returned", "Query output"]],
-          "objectives": ["Build search on Redis", "Index hashes and JSON", "Know when to use a search engine"]
+          "objectives": ["Build search on Redis", "Index hashes and JSON", "Decide when to use a search engine"]
         },
         {
           "topic": "JSON Documents in Redis",
@@ -351,7 +351,7 @@
           "lab_task": "Run the course project against Redis and Valkey, list compatibility differences, review licence terms with a checklist and recommend an engine for a company.",
           "deliverable": "Engine comparison and recommendation",
           "checks": [["Run on both engines", "Project works on both or differences listed", "Test output"], ["Review licences", "Licence obligations summarised for the company", "Checklist"], ["Recommend", "Recommendation covers features, licence and support", "Recommendation document"]],
-          "objectives": ["Compare Redis and Valkey", "Understand licensing", "Choose an engine"]
+          "objectives": ["Compare Redis and Valkey", "Explain licensing", "Choose an engine"]
         },
         {
           "topic": "Security Hardening in Production",
@@ -412,7 +412,7 @@
           "lab_task": "Design a two-region session and counter store, compare active-passive and active-active, show how concurrent increments and writes resolve and test regional failover.",
           "deliverable": "Multi-region design and test results",
           "checks": [["Resolve conflicts", "Concurrent writes resolve as documented", "Test output"], ["Fail a region", "Traffic moves to the other region within target", "Failover report"], ["Estimate cost", "Multi-region cost estimated", "Cost model"]],
-          "objectives": ["Design multi-region Redis", "Understand active-active semantics", "Test regional failover"]
+          "objectives": ["Design multi-region Redis", "Explain active-active semantics", "Test regional failover"]
         },
         {
           "topic": "Capacity Planning and Memory Engineering",
@@ -511,7 +511,7 @@
           "lab_task": "Move business logic into a versioned Redis Function library, write a small module that adds a custom command, test both and assess the operational risk.",
           "deliverable": "Function library and sample module",
           "checks": [["Version functions", "Function library upgraded without downtime", "Terminal output"], ["Load a module", "Custom command works after loading the module", "Terminal output"], ["Assess risk", "Operational risks and support limits documented", "Notes"]],
-          "objectives": ["Extend Redis safely", "Use Redis Functions", "Understand modules"]
+          "objectives": ["Extend Redis safely", "Use Redis Functions", "Explain modules"]
         },
         {
           "topic": "Cost Optimisation for Redis Estates",
@@ -520,7 +520,7 @@
           "lab_task": "Analyse a month of Redis costs, find oversized and idle instances, cut memory use, apply reserved pricing and report cost per team.",
           "deliverable": "Cost report and savings plan",
           "checks": [["Find waste", "Idle and oversized instances identified", "Cost analysis"], ["Cut cost", "Monthly cost reduced with no SLO breach", "Before and after report"], ["Report per team", "Cost per team calculated", "Cost report"]],
-          "objectives": ["Understand Redis costs", "Reduce cost safely", "Report cost clearly"]
+          "objectives": ["Explain Redis costs", "Reduce cost safely", "Report cost clearly"]
         },
         {
           "topic": "Chaos Testing Redis Deployments",
@@ -556,7 +556,7 @@
           "lab_task": "Work through four incidents: memory exhaustion, a blocking command, a failover loop and a connection storm, restore service and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by evidence", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
-          "objectives": ["Troubleshoot Redis in production", "Find root causes", "Learn from incidents"]
+          "objectives": ["Troubleshoot Redis in production", "Find root causes", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Global Low-Latency Data Layer",

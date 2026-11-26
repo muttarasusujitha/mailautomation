@@ -12,6 +12,21 @@
       "summary": "No database experience assumed. Participants learn relational concepts and write SQL to query, filter, sort, join, aggregate and change data, mainly on PostgreSQL with notes on MySQL and SQL Server differences, and finish by answering business questions on a sales database.",
       "prerequisites": ["Comfortable using a computer and spreadsheets", "Can install software or use a provided lab environment", "No programming experience needed"],
       "outcomes": ["Explain tables, keys and relationships", "Write SELECT queries with filters, sorting, joins and aggregates", "Insert, update and delete data safely", "Create simple tables with constraints"],
+      "course_outcomes": [
+        {"outcome": "Explain relational database concepts and set up a SQL environment", "topics": ["Relational Database Concepts and SQL Setup"]},
+        {"outcome": "Select, filter, sort and page rows", "topics": ["SELECT Basics: Columns, Aliases and Expressions", "Filtering Rows with WHERE", "Sorting and Paging Results"]},
+        {"outcome": "Transform values with text, number and date functions, CASE and NULL handling", "topics": ["Built-in Functions for Text, Numbers and Dates", "Conditional Logic with CASE and NULL Functions"]},
+        {"outcome": "Summarise data with aggregates and GROUP BY", "topics": ["Aggregate Functions and GROUP BY"]},
+        {"outcome": "Combine tables with inner and outer joins and find missing data", "topics": ["Joining Tables: INNER JOIN", "Outer Joins and Finding Missing Data"]},
+        {"outcome": "Write subqueries and set operations", "topics": ["Subqueries", "Set Operations: UNION, INTERSECT and EXCEPT"]},
+        {"outcome": "Create tables with suitable data types and constraints", "topics": ["Creating Tables and Data Types", "Constraints and Data Integrity"]},
+        {"outcome": "Insert, update and delete data inside transactions", "topics": ["Inserting, Updating and Deleting Data", "Transactions Essentials"]},
+        {"outcome": "Reuse queries with views", "topics": ["Views and Reusable Queries"]},
+        {"outcome": "Speed up queries with indexes", "topics": ["Indexes Essentials and Query Speed"]},
+        {"outcome": "Design a normalised database", "topics": ["Database Design and Normalisation"]},
+        {"outcome": "Answer business questions with SQL", "topics": ["Answering Business Questions with SQL"]},
+        {"outcome": "Deliver a sales reporting database", "topics": ["Beginner Capstone: Sales Reporting Database"]}
+      ],
       "days": [
         {
           "topic": "Relational Database Concepts and SQL Setup",
@@ -199,6 +214,23 @@
       "summary": "For people who write everyday SELECT, JOIN and GROUP BY queries. Covers window functions, CTEs and recursion, advanced aggregation, query plans and indexing, transactions and isolation, procedural SQL, JSON, data cleaning and analytics patterns.",
       "prerequisites": ["Writes joins, subqueries and GROUP BY queries confidently", "Has created tables with constraints", "Has used transactions"],
       "outcomes": ["Solve analytical problems with window functions and CTEs", "Read query plans and choose indexes", "Write stored procedures, functions and triggers", "Handle concurrency, JSON data and data quality in SQL"],
+      "course_outcomes": [
+        {"outcome": "Write common table expressions and recursive queries", "topics": ["Common Table Expressions", "Recursive Queries for Hierarchies and Graphs"]},
+        {"outcome": "Rank rows and compute running totals with window functions", "topics": ["Window Functions: Ranking and Numbering", "Window Functions: Running Totals and Comparisons"]},
+        {"outcome": "Aggregate with GROUPING SETS, ROLLUP and CUBE", "topics": ["Advanced Aggregation: GROUPING SETS, ROLLUP and CUBE"]},
+        {"outcome": "Read query plans and choose indexes", "topics": ["Reading Query Plans with EXPLAIN ANALYZE", "Indexing Strategies"]},
+        {"outcome": "Write efficient queries", "topics": ["Writing Efficient Queries"]},
+        {"outcome": "Choose isolation levels and avoid locking problems", "topics": ["Transactions, Isolation Levels and Locking"]},
+        {"outcome": "Write stored procedures, functions and audit triggers", "topics": ["Stored Procedures and Functions", "Triggers and Auditing"]},
+        {"outcome": "Load and synchronise data with upserts and MERGE", "topics": ["Upserts and MERGE: Loading and Synchronising Data"]},
+        {"outcome": "Build materialised views and summary tables", "topics": ["Materialised Views and Summary Tables"]},
+        {"outcome": "Query JSON and semi-structured data", "topics": ["Working with JSON and Semi-Structured Data"]},
+        {"outcome": "Clean data and handle dates, times and time zones", "topics": ["Data Cleaning and Quality Checks in SQL", "Date, Time and Time Zone Handling"]},
+        {"outcome": "Analyse cohorts, funnels and retention", "topics": ["Analytical Patterns: Cohorts, Funnels and Retention"]},
+        {"outcome": "Change schemas safely with migrations", "topics": ["Schema Changes and Migrations"]},
+        {"outcome": "Control database access", "topics": ["Database Security and Access Control"]},
+        {"outcome": "Deliver an analytics database for an online store", "topics": ["Intermediate Capstone: Analytics Database for an Online Store"]}
+      ],
       "days": [
         {
           "topic": "Common Table Expressions",
@@ -288,7 +320,7 @@
           "lab_task": "Write a function that returns a customer's order summary as a table and a procedure that places an order, checks stock, raises clear errors and commits in batches for bulk loads.",
           "deliverable": "Function and procedure code with test calls",
           "checks": [["Call the summary function", "Returns the expected rows", "Query result"], ["Place an order for more than the stock", "Clear error raised and nothing changed", "Error and rows"], ["Bulk-load 50,000 orders with the procedure", "Completes with batch commits", "Logs and row count"]],
-          "objectives": ["Write functions and procedures", "Handle errors in procedural SQL", "Know the vendor differences"]
+          "objectives": ["Write functions and procedures", "Handle errors in procedural SQL", "Explain how stored procedures differ between database vendors"]
         },
         {
           "topic": "Triggers and Auditing",
@@ -386,6 +418,23 @@
       "summary": "For experienced SQL developers and database engineers. Covers optimiser internals, advanced tuning, partitioning, concurrency at scale, replication and high availability, warehouse modelling, advanced analytics, operations and moving between database engines.",
       "prerequisites": ["Writes window functions, CTEs and procedural SQL", "Reads query plans and designs indexes", "Has run a production database or a large reporting database"],
       "outcomes": ["Tune queries using optimiser and statistics knowledge", "Design partitioned, replicated and highly available databases", "Model data warehouses and write advanced analytical SQL", "Operate, secure and migrate databases at scale"],
+      "course_outcomes": [
+        {"outcome": "Explain optimiser internals and statistics and tune hard queries", "topics": ["Query Optimiser Internals and Statistics", "Advanced Query Tuning"]},
+        {"outcome": "Use BRIN, GIN and GiST indexes and full-text search", "topics": ["Advanced Indexing: BRIN, GIN, GiST and Full-Text Search"]},
+        {"outcome": "Partition large tables and manage MVCC, vacuum and bloat at scale", "topics": ["Table Partitioning", "Concurrency at Scale: MVCC, Vacuum and Bloat"]},
+        {"outcome": "Design transactions for serializable isolation", "topics": ["Advanced Transaction Design and Serializable Isolation"]},
+        {"outcome": "Run replication and high availability", "topics": ["Replication and High Availability"]},
+        {"outcome": "Recover to a point in time from backups", "topics": ["Backup, Recovery and Point-in-Time Restore"]},
+        {"outcome": "Model a data warehouse with star schemas and slowly changing dimensions", "topics": ["Data Warehouse Modelling: Star Schemas and Slowly Changing Dimensions"]},
+        {"outcome": "Build ELT pipelines in SQL with dbt", "topics": ["ELT Pipelines in SQL with dbt"]},
+        {"outcome": "Write advanced analytical SQL for columnar and cloud warehouses", "topics": ["Advanced Analytical SQL", "Columnar and Cloud Data Warehouses"]},
+        {"outcome": "Run geospatial, graph and vector queries", "topics": ["Geospatial, Graph and Vector Queries in SQL"]},
+        {"outcome": "Monitor database performance and meet security and compliance requirements", "topics": ["Database Observability and Performance Monitoring", "Advanced Database Security and Compliance"]},
+        {"outcome": "Design multi-tenant databases and migrate between database engines", "topics": ["Multi-Tenant Database Design", "Migrating Between Database Engines"]},
+        {"outcome": "Tune SQL used through ORMs and connection pools", "topics": ["SQL in Applications: ORMs, Pooling and Performance"]},
+        {"outcome": "Troubleshoot database incidents", "topics": ["Database Troubleshooting and Incident Response"]},
+        {"outcome": "Deliver a production data platform design", "topics": ["Advanced Capstone: Production Data Platform Design"]}
+      ],
       "days": [
         {
           "topic": "Query Optimiser Internals and Statistics",

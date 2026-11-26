@@ -439,7 +439,7 @@
           "lab_task": "List Milvus keys with etcdctl get --prefix --keys-only by-dev/meta | head, take an etcd snapshot with etcdctl snapshot save and verify it with etcdutl snapshot status. Map one collection's segments to object paths with mc ls. Then scale etcd to zero in a test cluster, record client errors for insert and search, restore etcd and confirm recovery.",
           "deliverable": "Key layout notes, snapshot status, object mapping and an etcd outage report",
           "checks": [["etcdutl snapshot status on the saved snapshot", "Hash, revision and total key count are printed", "Terminal output"], ["Insert during the etcd outage", "Insert fails or times out", "Client log"], ["Search after etcd is restored", "Search returns results again", "Client log"]],
-          "objectives": ["Understand Milvus metadata and storage layout", "Back up etcd safely", "Assess dependency failure impact"]
+          "objectives": ["Explain Milvus metadata and storage layout", "Back up etcd safely", "Assess dependency failure impact"]
         },
         {
           "topic": "DiskANN and Memory-Mapped Storage in Milvus",

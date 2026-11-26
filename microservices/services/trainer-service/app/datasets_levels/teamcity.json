@@ -288,7 +288,7 @@
           "lab_task": "Create three build configurations in a Polyglot project: a .NET runner running dotnet test on a sample solution, a Node.js runner running npm ci then npm test inside node:22, and a Python runner running pytest with a requirements file. Compare the Tests tab of each and record the agent requirements each runner added.",
           "deliverable": "Three green builds with a table of test counts and agent requirements per runner",
           "checks": [["Run the .NET build", "The Tests tab lists the xUnit or NUnit tests with durations", "Tests tab screenshot"], ["Run the Node.js build in node:22", "The log prints node --version starting with v22", "Build log excerpt"], ["Open Agent Requirements of the .NET configuration", "A requirement on the .NET SDK being present on the agent is listed", "Agent Requirements screenshot"]],
-          "objectives": ["Build and test .NET, Node.js and Python projects with dedicated runners", "Report tests from each runner", "Understand implicit agent requirements"]
+          "objectives": ["Build and test .NET, Node.js and Python projects with dedicated runners", "Report tests from each runner", "Explain implicit agent requirements"]
         },
         {
           "topic": "Agent Pools and Project-to-Pool Assignment",

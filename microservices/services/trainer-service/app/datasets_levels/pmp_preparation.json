@@ -20,7 +20,7 @@
           "lab_task": "Check your eligibility against the current PMI rules, write two project experience descriptions in the format the application expects, and draft a twelve-week study plan with weekly hours.",
           "deliverable": "Eligibility check, two experience descriptions and a study plan",
           "checks": [["Confirm eligibility", "Education, experience and contact hours are checked against current PMI rules", "Eligibility checklist"], ["Describe experience", "Each description covers objective, role, responsibilities and outcome", "Experience descriptions"], ["Plan study", "The plan has weekly hours and a target exam date", "Study plan"]],
-          "objectives": ["Understand PMP eligibility and format", "Prepare the application", "Plan your study time"]
+          "objectives": ["Explain PMP eligibility and format", "Prepare the application", "Plan your study time"]
         },
         {
           "topic": "The Examination Content Outline: Domains, Tasks and Enablers",
@@ -38,7 +38,7 @@
           "lab_task": "Build a one-page mind map that links the principles, performance domains and focus areas, and write flashcards for twenty key terms from the guide.",
           "deliverable": "One-page mind map and twenty flashcards",
           "checks": [["Link concepts", "The mind map shows how principles, domains and focus areas connect", "Mind map"], ["Define terms", "Flashcard definitions match the guide", "Flashcards"], ["Apply", "Five sample questions are answered using the mind map", "Answer sheet"]],
-          "objectives": ["Explain the PMBOK Guide Eighth Edition structure", "Use the guide as a reference", "Learn key terms"]
+          "objectives": ["Explain the PMBOK Guide Eighth Edition structure", "Use the guide as a reference", "Define the key terms"]
         },
         {
           "topic": "Predictive, Agile and Hybrid Delivery Approaches",
@@ -173,7 +173,7 @@
           "lab_task": "Answer thirty situational questions using the strategy card, write the reason for every wrong answer in an error log and identify your three most common error types.",
           "deliverable": "Answered questions and an error log with three error types",
           "checks": [["Use the method", "Every answer shows the elimination steps", "Answer sheet"], ["Log errors", "Every wrong answer has a reason in the error log", "Error log"], ["Find patterns", "Three error types are identified with examples", "Error log summary"]],
-          "objectives": ["Read situational questions accurately", "Eliminate wrong answers", "Learn from errors"]
+          "objectives": ["Read situational questions accurately", "Eliminate wrong answers", "Record the root cause and a preventive action for each error"]
         },
         {
           "topic": "Mixed Domain Practice Set with Detailed Review",

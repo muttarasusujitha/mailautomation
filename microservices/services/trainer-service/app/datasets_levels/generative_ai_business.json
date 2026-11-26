@@ -29,7 +29,7 @@
           "lab_task": "Ask the same three questions twice in different chats, compare the answers, test one question with and without web search and explain the differences in plain words.",
           "deliverable": "Answer comparison with explanations",
           "checks": [["Compare", "Differences between repeated answers are recorded", "Worksheet"], ["Test search", "The effect of web search on a factual question is shown", "Worksheet"], ["Explain", "Each difference is explained in plain words", "Notes"]],
-          "objectives": ["Explain how language models produce answers", "Understand context and knowledge limits", "Expect variation in answers"]
+          "objectives": ["Explain how language models produce answers", "Explain context and knowledge limits", "Expect variation in answers"]
         },
         {
           "topic": "Choosing AI Assistants at Work: ChatGPT, Microsoft Copilot, Gemini and Claude",
@@ -38,7 +38,7 @@
           "lab_task": "Run the same three work tasks in two approved assistants, compare quality, speed and data handling, and write which tool you will use for each kind of task.",
           "deliverable": "Tool comparison and personal tool choices",
           "checks": [["Compare", "Both tools are rated on quality and speed for three tasks", "Comparison sheet"], ["Check data rules", "Data handling of each tool is noted from company guidance", "Comparison sheet"], ["Choose", "Each task type has a chosen tool with a reason", "Notes"]],
-          "objectives": ["Compare AI assistants", "Understand business account protections", "Pick tools for tasks"]
+          "objectives": ["Compare AI assistants", "Explain business account protections", "Pick tools for tasks"]
         },
         {
           "topic": "Prompting for Everyday Business Tasks",
@@ -137,7 +137,7 @@
           "lab_task": "Work through six content scenarios covering marketing copy, images, client deliverables and code, decide whether each is acceptable and what disclosure or checks are needed.",
           "deliverable": "Scenario decisions with reasons",
           "checks": [["Decide", "Each scenario has a decision with reasons", "Scenario sheet"], ["Disclose", "Required disclosures are identified", "Scenario sheet"], ["Escalate", "Cases needing legal review are flagged", "Scenario sheet"]],
-          "objectives": ["Understand IP risks of AI", "Decide on acceptable use", "Know when to involve legal teams"]
+          "objectives": ["Explain IP risks of AI", "Decide on acceptable use", "Decide when to involve legal teams"]
         },
         {
           "topic": "Bias and Fairness in Everyday AI Use",
@@ -324,7 +324,7 @@
           "lab_task": "Classify five use cases against EU AI Act risk categories and data protection rules, list the duties for each and agree actions with a role-played compliance officer.",
           "deliverable": "Regulatory classification and action list",
           "checks": [["Classify", "Each use case has a risk category with reasons", "Classification sheet"], ["List duties", "Transparency and data duties are listed", "Action list"], ["Agree", "The compliance officer agrees the actions", "Meeting notes"]],
-          "objectives": ["Understand AI regulation", "Classify use cases", "Work with compliance teams"]
+          "objectives": ["Explain AI regulation", "Classify use cases", "Work with compliance teams"]
         },
         {
           "topic": "Generative AI in Customer Service",
@@ -475,7 +475,7 @@
           "lab_task": "Review AI security threats for a case company with a role-played CISO, choose controls for the top five threats and plan an employee awareness campaign including deepfake fraud.",
           "deliverable": "Threat review, controls and awareness plan",
           "checks": [["Prioritise", "The top five threats are chosen with reasons", "Threat review"], ["Control", "Each threat has controls and owners", "Control plan"], ["Raise awareness", "The campaign covers deepfake fraud and shadow AI", "Awareness plan"]],
-          "objectives": ["Understand AI security threats", "Choose controls", "Raise employee awareness"]
+          "objectives": ["Explain AI security threats", "Choose controls", "Raise employee awareness"]
         },
         {
           "topic": "Workforce Planning, Reskilling and Job Redesign for AI",
@@ -538,7 +538,7 @@
           "lab_task": "Prepare and run a role-played negotiation for an enterprise AI contract covering price, data terms, indemnity, service levels and exit, and record the outcome.",
           "deliverable": "Negotiation plan and outcome record",
           "checks": [["Prepare", "Goals, limits and alternatives are planned", "Negotiation planner"], ["Protect", "Data, IP and exit terms are addressed", "Outcome record"], ["Agree", "The outcome stays within the planned limits", "Outcome record"]],
-          "objectives": ["Understand the AI vendor market", "Negotiate AI contracts", "Protect data and exit options"]
+          "objectives": ["Explain the AI vendor market", "Negotiate AI contracts", "Protect data and exit options"]
         },
         {
           "topic": "Sustainability and Energy Use of AI",

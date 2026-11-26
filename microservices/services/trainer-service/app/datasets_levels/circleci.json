@@ -439,7 +439,7 @@
           "lab_task": "Install container runner into namespace circleci with helm install container-agent container-agent/container-agent -f values.yaml, defining resource class acme/k8s-small with CPU and memory requests and limits. Run a parallelism: 4 test job using docker image cimg/node with resource_class acme/k8s-small, watch task pods with kubectl get pods -n circleci -w, and record pod resources and scheduling time.",
           "deliverable": "values.yaml, kubectl pod listing during the run, and the job page showing four parallel tasks",
           "checks": [["Run kubectl get pods -n circleci during the job", "Four task pods are running alongside the container-agent pod", "Terminal output"], ["Describe one task pod", "Requests and limits match values.yaml", "kubectl describe output"], ["Use setup_remote_docker in a container runner job", "The job fails because the feature is not supported on container runner", "Step output"]],
-          "objectives": ["Install container runner with Helm", "Shape task pods with Kubernetes settings", "Know container runner limits"]
+          "objectives": ["Install container runner with Helm", "Shape task pods with Kubernetes settings", "Identify container runner limits"]
         },
         {
           "topic": "Autoscaling and Hardening CircleCI Self-Hosted Runner Fleets",

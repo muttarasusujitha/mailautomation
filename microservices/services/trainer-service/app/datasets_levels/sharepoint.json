@@ -547,7 +547,7 @@
           "lab_task": "Diagnose five injected issues (missing search results, a sync conflict storm, a broken SPFx web part, a failing flow and unexpected access), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the search issue", "Items found after the fix", "Screenshot"], ["Fix the web part", "Web part loads", "Screenshot"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose SharePoint issues", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose SharePoint issues", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "SharePoint Platform Strategy and Ownership",

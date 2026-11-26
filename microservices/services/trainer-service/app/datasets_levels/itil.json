@@ -182,7 +182,7 @@
           "lab_task": "Take a 40-question timed practice exam, review every wrong answer against the syllabus and write a final study plan.",
           "deliverable": "Practice score, review notes and study plan",
           "checks": [["Complete the practice exam", "Score recorded", "Test results"], ["Review wrong answers", "Each linked to a syllabus area", "Review notes"], ["Review the study plan", "Weak areas covered", "Study plan"]],
-          "objectives": ["Prepare for ITIL 4 Foundation", "Learn key definitions", "Practise exam questions"]
+          "objectives": ["Prepare for ITIL 4 Foundation", "Define the key terms", "Practise exam questions"]
         },
         {
           "topic": "Beginner Capstone: Running a Service Desk for a Week",
@@ -529,7 +529,7 @@
           "lab_task": "Lead a simulated multi-day outage with a regulator notification, executive briefings and customer updates, then run the post-crisis review.",
           "deliverable": "Command log, communications and post-crisis review",
           "checks": [["Send the regulator notification", "Sent within the required time with correct content", "Notification"], ["Brief executives", "Clear status, impact and decisions needed", "Briefing notes"], ["Run the post-crisis review", "Actions with owners", "Review report"]],
-          "objectives": ["Lead crises", "Communicate under pressure", "Learn from crises"]
+          "objectives": ["Lead crises", "Communicate under pressure", "Write a review of a crisis response with what worked and what to change"]
         },
         {
           "topic": "Service Transformation Roadmaps",

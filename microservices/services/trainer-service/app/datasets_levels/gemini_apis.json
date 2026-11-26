@@ -270,7 +270,7 @@
           "lab_task": "Give the model a 500-row sales CSV and the code execution tool, ask for total revenue by region, the month with the largest growth and a bar chart, and print executable_code and code_execution_result parts. Verify every number against pandas, and test a request that needs a library or network access the sandbox does not provide.",
           "deliverable": "Script, extracted code and a verification table of model figures versus pandas",
           "checks": [["Ask for revenue by region", "code_execution_result outcome is OUTCOME_OK and each regional total equals your pandas total", "Verification table"], ["Ask the same sum without the code execution tool", "The answer is less reliable or equal, and the comparison is noted", "Comparison note"], ["Ask for an HTTP download inside the sandbox", "The attempt fails or the model explains it has no network access", "Printed result"]],
-          "objectives": ["Run model-written code in the sandbox", "Verify results independently", "Know the tool limits"]
+          "objectives": ["Run model-written code in the sandbox", "Verify results independently", "Identify the tool limits"]
         },
         {
           "topic": "Embeddings and Task Types for Semantic Search",

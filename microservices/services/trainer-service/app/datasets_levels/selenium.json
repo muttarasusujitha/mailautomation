@@ -12,6 +12,21 @@
       "summary": "For manual testers and new automation engineers. Covers the Java needed for Selenium, WebDriver set-up, locators, interacting with every common element, waits, alerts, frames and windows, TestNG, assertions, data-driven tests with Excel, a first Page Object Model and HTML reports, ending with an automated regression suite for a web shop.",
       "prerequisites": ["Has done manual testing of web applications", "Basic programming knowledge helps but is not required", "Can install software on their machine"],
       "outcomes": ["Write Java code needed for test automation", "Automate web pages with Selenium WebDriver using reliable locators and waits", "Organise tests with TestNG, data-driven tests and page objects", "Run suites and produce readable reports"],
+      "course_outcomes": [
+        {"outcome": "Set up Selenium and write Java code for tests", "topics": ["Selenium Overview and Environment Setup", "Java Essentials for Testers: Variables, Conditions and Loops", "Java for Automation: Methods, Classes, Collections and Exceptions"]},
+        {"outcome": "Navigate browsers with WebDriver", "topics": ["WebDriver Navigation and Browser Commands"]},
+        {"outcome": "Find elements with CSS, XPath and relative locators", "topics": ["Locators: ID, Name, Class, Link Text and CSS Selectors", "XPath Locators and Relative Locators"]},
+        {"outcome": "Automate forms, dropdowns, checkboxes and tables", "topics": ["Interacting with Elements: Forms, Buttons and Text", "Dropdowns, Checkboxes, Radio Buttons and Tables"]},
+        {"outcome": "Synchronise tests with implicit, explicit and fluent waits", "topics": ["Synchronisation: Implicit, Explicit and Fluent Waits"]},
+        {"outcome": "Handle alerts, frames and multiple windows", "topics": ["Alerts, Frames and Multiple Windows"]},
+        {"outcome": "Use mouse and keyboard actions and JavaScriptExecutor", "topics": ["Mouse and Keyboard Actions and JavaScriptExecutor"]},
+        {"outcome": "Take screenshots and test file uploads and downloads", "topics": ["Screenshots, File Upload and File Download"]},
+        {"outcome": "Organise tests with TestNG and drive them with data", "topics": ["TestNG Essentials: Annotations, Assertions and Groups", "Data-Driven Testing with DataProvider and Excel"]},
+        {"outcome": "Write page objects", "topics": ["Page Object Model First Steps"]},
+        {"outcome": "Report results with ExtentReports and run tests with Maven and Git", "topics": ["Test Reports with ExtentReports and Logs", "Running Tests with Maven and Git"]},
+        {"outcome": "Debug failing tests and decide what not to automate", "topics": ["Debugging Failing Selenium Tests", "Selenium IDE and When Not to Automate"]},
+        {"outcome": "Deliver an automated regression suite for a web application", "topics": ["Beginner Capstone: Automated Regression Suite for a Web Shop"]}
+      ],
       "days": [
         {
           "topic": "Selenium Overview and Environment Setup",
@@ -199,6 +214,23 @@
       "summary": "For automation engineers who write Selenium tests. Covers hybrid framework design, configuration and utilities, parallel execution, Selenium Grid 4 with Docker, cross-browser and cloud grids, CI with Jenkins and GitHub Actions, BDD with Cucumber, API and UI tests together, dynamic elements and shadow DOM, Selenium 4 features, flakiness control and Allure reporting.",
       "prerequisites": ["Writes Selenium tests in Java with TestNG", "Uses page objects and data-driven tests", "Uses Git and Maven"],
       "outcomes": ["Design and build a maintainable hybrid automation framework", "Run suites in parallel on Selenium Grid and cloud browsers", "Run tests in CI with reports and quality gates", "Combine UI, API and BDD tests and keep them stable"],
+      "course_outcomes": [
+        {"outcome": "Design a hybrid framework with thread-safe driver management", "topics": ["Hybrid Framework Design", "Driver Management with Factory and ThreadLocal"]},
+        {"outcome": "Configure environments and secrets for tests", "topics": ["Configuration, Environments and Secrets"]},
+        {"outcome": "Build advanced page objects, components and helper utilities", "topics": ["Advanced Page Objects, Components and PageFactory", "Utilities: Waits, Excel, Database and Email Helpers"]},
+        {"outcome": "Run tests in parallel and on Selenium Grid 4 with Docker", "topics": ["Parallel Execution with TestNG", "Selenium Grid 4 with Docker"]},
+        {"outcome": "Test across browsers on cloud grids", "topics": ["Cross-Browser Testing and Cloud Grids"]},
+        {"outcome": "Run suites in Jenkins and GitHub Actions", "topics": ["Continuous Integration with Jenkins and GitHub Actions"]},
+        {"outcome": "Write BDD tests with Cucumber", "topics": ["BDD with Cucumber and Selenium"]},
+        {"outcome": "Combine API tests in REST Assured with UI tests", "topics": ["Combining API and UI Tests with REST Assured"]},
+        {"outcome": "Automate dynamic elements, shadow DOM and network control with Selenium 4 CDP and BiDi", "topics": ["Dynamic Elements, Shadow DOM and Complex Pages", "Selenium 4 Features: CDP, BiDi and Network Control"]},
+        {"outcome": "Manage cookies, sessions and authentication in tests", "topics": ["Cookies, Sessions and Authentication in Tests"]},
+        {"outcome": "Reduce flaky tests", "topics": ["Reducing Flakiness and Improving Stability"]},
+        {"outcome": "Analyse results with Allure reports", "topics": ["Allure Reporting and Test Analytics"]},
+        {"outcome": "Add accessibility and visual checks and a first Appium test", "topics": ["Testing Accessibility and Visuals with Selenium", "Mobile Web and a First Appium Test for Selenium Users"]},
+        {"outcome": "Review test automation code for quality", "topics": ["Code Quality and Reviews for Test Automation"]},
+        {"outcome": "Deliver a hybrid Selenium framework running in CI", "topics": ["Intermediate Capstone: Hybrid Selenium Framework in CI"]}
+      ],
       "days": [
         {
           "topic": "Hybrid Framework Design",
@@ -386,6 +418,23 @@
       "summary": "For senior automation engineers and test architects. Covers framework architecture at scale, design patterns, Selenium Grid on Kubernetes, suite performance and test impact analysis, observability for test runs, advanced network and browser control, security and compliance in automation, AI and self-healing, migration to and coexistence with Playwright, legacy suite rescue and leading automation teams.",
       "prerequisites": ["Has built and maintained a Selenium framework in CI", "Knows parallel runs, Grid and reporting", "Comfortable with Java design patterns"],
       "outcomes": ["Architect and scale Selenium automation for many teams", "Run fast, observable and reliable suites on Kubernetes grids", "Rescue, modernise and migrate legacy suites", "Lead automation strategy and teams"],
+      "course_outcomes": [
+        {"outcome": "Architect automation frameworks at scale with design patterns", "topics": ["Automation Framework Architecture at Scale", "Design Patterns for Selenium Frameworks"]},
+        {"outcome": "Run Selenium Grid on Kubernetes at scale", "topics": ["Selenium Grid on Kubernetes at Scale"]},
+        {"outcome": "Speed up suites with test impact analysis and observe test runs", "topics": ["Suite Performance and Test Impact Analysis", "Observability for Test Runs"]},
+        {"outcome": "Test network behaviour with advanced browser control", "topics": ["Advanced Browser Control and Network Testing"]},
+        {"outcome": "Meet security and compliance requirements in test automation", "topics": ["Security and Compliance in Test Automation"]},
+        {"outcome": "Assess AI self-healing and test generation", "topics": ["AI in Selenium Automation: Self-Healing and Test Generation"]},
+        {"outcome": "Plan Selenium and Playwright coexistence or migration and rescue legacy suites", "topics": ["Selenium and Playwright Coexistence and Migration", "Rescuing Legacy Selenium Suites"]},
+        {"outcome": "Test complex enterprise applications and single-page applications", "topics": ["Testing Complex Enterprise Applications", "Testing Single-Page Applications Built with React and Angular"]},
+        {"outcome": "Extend Selenium and contribute to it", "topics": ["Contributing to and Extending Selenium"]},
+        {"outcome": "Provide test data and environments for many teams", "topics": ["Test Data and Environments for Many Teams"]},
+        {"outcome": "Report automation metrics and return on investment", "topics": ["Automation Metrics and Return on Investment"]},
+        {"outcome": "Lead automation teams and set an automation strategy", "topics": ["Leading Automation Teams", "Automation Strategy for Organisations"]},
+        {"outcome": "Automate testing in regulated environments", "topics": ["Testing in Regulated Environments with Selenium"]},
+        {"outcome": "Troubleshoot large-scale automation failures", "topics": ["Troubleshooting Large-Scale Automation Failures"]},
+        {"outcome": "Deliver an enterprise automation platform", "topics": ["Advanced Capstone: Enterprise Automation Platform with Selenium"]}
+      ],
       "days": [
         {
           "topic": "Automation Framework Architecture at Scale",

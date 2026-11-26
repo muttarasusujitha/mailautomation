@@ -538,7 +538,7 @@
           "lab_task": "Analyse a month of MERN hosting costs, right-size Atlas and compute, cut transfer and storage costs, report cost per tenant and set budget alerts.",
           "deliverable": "Cost report and savings plan",
           "checks": [["Find cost drivers", "Top cost drivers identified with amounts", "Cost analysis"], ["Right-size", "Monthly cost reduced with no SLO breach", "Before and after report"], ["Report per tenant", "Cost per tenant calculated", "Cost report"]],
-          "objectives": ["Understand MERN hosting costs", "Reduce cost safely", "Report cost clearly"]
+          "objectives": ["Explain MERN hosting costs", "Reduce cost safely", "Report cost clearly"]
         },
         {
           "topic": "Production Incidents in MERN Apps: Troubleshooting Across Tiers",
@@ -547,7 +547,7 @@
           "lab_task": "Work through four incidents: a missing index after a release, a Node.js memory leak, a socket reconnect storm and a client crash, restore service and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by evidence", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
-          "objectives": ["Troubleshoot across MERN tiers", "Restore service quickly", "Learn from incidents"]
+          "objectives": ["Troubleshoot across MERN tiers", "Restore service quickly", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Technical Leadership for MERN Product Teams",

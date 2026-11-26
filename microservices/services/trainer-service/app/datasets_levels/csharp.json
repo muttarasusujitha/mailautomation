@@ -7,11 +7,29 @@
   "certifications": ["Microsoft Certified: Azure Developer Associate (AZ-204)", "Microsoft Foundational C# with freeCodeCamp", "Microsoft Certified: DevOps Engineer Expert (AZ-400) as a next step"],
   "tools": [".NET 8 SDK", "C# 12", "Visual Studio 2022 or VS Code", "Entity Framework Core", "SQL Server", "xUnit"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "C# guide", "url": "https://learn.microsoft.com/en-us/dotnet/csharp/", "checked": "Found in a web search on 2026-11-24; page not opened"},
+    {"title": ".NET documentation", "url": "https://learn.microsoft.com/en-us/dotnet/", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "For new developers and those moving to C# from other languages. Covers the .NET platform, C# syntax, types, control flow, methods, object-oriented programming, collections and LINQ, exceptions, files, async basics, unit testing and a first ASP.NET Core API with Entity Framework Core.",
       "prerequisites": ["Comfortable with computers and installing software", "Basic logical thinking; earlier programming helps", "Windows, macOS or Linux machine"],
       "outcomes": ["Write C# programs with classes, interfaces and collections", "Query data with LINQ and handle errors", "Write unit tests with xUnit", "Build a simple ASP.NET Core Web API backed by a database"],
+      "course_outcomes": [
+        {"outcome": "Set up the .NET SDK and write C# programs with types, control flow and pattern matching", "topics": [".NET Platform Overview and Setup", "C# Syntax, Variables and Types", "Control Flow and Pattern Matching"]},
+        {"outcome": "Write methods and records, and model problems with classes, inheritance and interfaces", "topics": ["Methods, Parameters and Records", "Classes and Object-Oriented Programming", "Inheritance, Interfaces and Polymorphism"]},
+        {"outcome": "Store and query data with generic collections and LINQ", "topics": ["Collections and Generics", "LINQ: Querying Data in C#"]},
+        {"outcome": "Handle errors with exceptions and read files, JSON and configuration", "topics": ["Exceptions and Error Handling", "Files, JSON and Configuration"]},
+        {"outcome": "Write asynchronous code with async and await", "topics": ["Asynchronous Programming with async and await"]},
+        {"outcome": "Write unit tests with xUnit and debug failing code", "topics": ["Unit Testing with xUnit", "Debugging and Code Quality"]},
+        {"outcome": "Build an ASP.NET Core Web API backed by Entity Framework Core and SQL Server", "topics": ["Your First ASP.NET Core Web API", "Entity Framework Core and SQL Server"]},
+        {"outcome": "Validate input, return clear errors and log requests in an API", "topics": ["Validation, Errors and Logging in APIs"]},
+        {"outcome": "Secure an API with ASP.NET Core Identity and JWT", "topics": ["Authentication with ASP.NET Core Identity and JWT"]},
+        {"outcome": "Build a simple web UI with Razor Pages or Blazor", "topics": ["Building a Simple Web UI with Razor Pages or Blazor"]},
+        {"outcome": "Package and deploy a .NET application", "topics": ["Packaging, Running and Deploying .NET Apps"]},
+        {"outcome": "Deliver a tested library management Web API", "topics": ["Beginner Capstone: Library Management Web API"]}
+      ],
       "days": [
         {
           "topic": ".NET Platform Overview and Setup",
@@ -83,7 +101,7 @@
           "lab_task": "Load sales data into objects and use LINQ to find revenue by region, top products, monthly totals and customers with no orders.",
           "deliverable": "LINQ queries and results",
           "checks": [["Group revenue by region", "Totals match the answer sheet", "Terminal output"], ["Find customers with no orders", "Correct list", "Terminal output"], ["Show deferred execution", "Explained with output", "Notes and output"]],
-          "objectives": ["Query data with LINQ", "Group and join data", "Understand deferred execution"]
+          "objectives": ["Query data with LINQ", "Group and join data", "Explain deferred execution"]
         },
         {
           "topic": "Exceptions and Error Handling",
@@ -199,6 +217,21 @@
       "summary": "For C# developers who have built simple apps. Covers modern C# features, clean architecture, advanced ASP.NET Core, EF Core in depth, caching, background services, messaging, gRPC and SignalR, testing at every level, performance, security, Azure services and CI/CD.",
       "prerequisites": ["Writes C# with classes, interfaces, LINQ and async", "Has built an ASP.NET Core API with EF Core", "Uses Git and unit tests"],
       "outcomes": ["Structure .NET solutions with clean architecture", "Build robust APIs with EF Core, caching, messaging and real-time features", "Test, profile and secure .NET applications", "Deploy to Azure with CI/CD"],
+      "course_outcomes": [
+        {"outcome": "Use modern C# features from C# 9 to 12", "topics": ["Modern C# Features from C# 9 to 12"]},
+        {"outcome": "Structure a solution with clean architecture, dependency injection and the options pattern", "topics": ["Clean Architecture and Solution Structure", "Dependency Injection and the Options Pattern"]},
+        {"outcome": "Extend ASP.NET Core with middleware, filters and API versioning", "topics": ["Advanced ASP.NET Core: Middleware, Filters and Versioning"]},
+        {"outcome": "Use EF Core in depth and add caching where it improves response times", "topics": ["Entity Framework Core in Depth", "Caching in .NET Applications"]},
+        {"outcome": "Run background jobs and exchange messages with RabbitMQ, Azure Service Bus and MassTransit", "topics": ["Background Services and Scheduled Jobs", "Messaging with RabbitMQ, Azure Service Bus and MassTransit"]},
+        {"outcome": "Build real-time and service-to-service features with SignalR and gRPC", "topics": ["gRPC and SignalR"]},
+        {"outcome": "Write integration tests with WebApplicationFactory and Testcontainers", "topics": ["Integration Testing with WebApplicationFactory and Testcontainers"]},
+        {"outcome": "Diagnose performance problems with .NET diagnostic tools", "topics": ["Performance and Diagnostics in .NET"]},
+        {"outcome": "Secure applications and sign users in with OpenID Connect and Microsoft Entra ID", "topics": ["Security for ASP.NET Core Applications", "Authentication with OpenID Connect and Microsoft Entra ID"]},
+        {"outcome": "Use Azure services from .NET, run apps in containers and deploy them through CI/CD", "topics": ["Azure Services for .NET Developers", "Containers and Docker for .NET", "CI/CD with GitHub Actions and Azure DevOps"]},
+        {"outcome": "Instrument applications with OpenTelemetry and orchestrate them with .NET Aspire", "topics": ["Observability with OpenTelemetry in .NET", "Building Cloud-Native Apps with .NET Aspire"]},
+        {"outcome": "Build a front end with Blazor", "topics": ["Front Ends with Blazor"]},
+        {"outcome": "Deliver a cloud-native .NET platform", "topics": ["Intermediate Capstone: Cloud-Native .NET Library Platform"]}
+      ],
       "days": [
         {
           "topic": "Modern C# Features from C# 9 to 12",
@@ -386,6 +419,21 @@
       "summary": "For senior .NET developers and architects. Covers runtime internals and performance, advanced async and concurrency, domain-driven design, microservices and event-driven systems on .NET, high-performance APIs, data at scale, distributed system resilience, security architecture, Azure architecture, modernising .NET Framework apps and technical leadership.",
       "prerequisites": ["Builds production ASP.NET Core services", "Knows EF Core, messaging, testing and Azure", "Leads design or code reviews"],
       "outcomes": ["Tune .NET runtime performance and concurrency", "Architect domain-driven, event-driven .NET systems", "Build resilient, secure services on Azure at scale", "Modernise legacy .NET and lead teams"],
+      "course_outcomes": [
+        {"outcome": "Explain the CLR, JIT and garbage collector and use them to tune performance", "topics": [".NET Runtime Internals: CLR, JIT and Garbage Collection", "High-Performance C#"]},
+        {"outcome": "Write correct advanced async and concurrent code", "topics": ["Advanced Async and Concurrency"]},
+        {"outcome": "Model a domain with domain-driven design and split it into microservices", "topics": ["Domain-Driven Design with .NET", "Microservices Architecture on .NET"]},
+        {"outcome": "Build event-driven systems with event sourcing", "topics": ["Event-Driven Systems and Event Sourcing"]},
+        {"outcome": "Build high-throughput minimal APIs and scale data on SQL Server and Azure SQL", "topics": ["High-Performance APIs and Minimal APIs at Scale", "Data at Scale with SQL Server and Azure SQL"]},
+        {"outcome": "Add resilience with Polly and distributed systems patterns", "topics": ["Resilience with Polly and Distributed Systems Patterns"]},
+        {"outcome": "Design security and Azure architecture for .NET platforms and run services on AKS", "topics": ["Security Architecture for .NET Platforms", "Azure Architecture for .NET Workloads", "Kubernetes and AKS for .NET Services"]},
+        {"outcome": "Set a testing strategy for a large .NET system", "topics": ["Testing Strategy for Large .NET Systems"]},
+        {"outcome": "Plan the modernisation of a .NET Framework application", "topics": ["Modernising .NET Framework Applications"]},
+        {"outcome": "Observe services at scale and lead incident response", "topics": ["Observability and Incident Response at Scale"]},
+        {"outcome": "Add AI features to .NET applications and build cross-platform clients with .NET MAUI", "topics": ["AI Features in .NET Applications", "Cross-Platform Client Apps with .NET MAUI"]},
+        {"outcome": "Publish internal libraries and packages and lead .NET teams", "topics": ["Libraries, Packages and Internal Platforms", "Technical Leadership for .NET Teams"]},
+        {"outcome": "Deliver an event-driven claims platform on Azure", "topics": ["Advanced Capstone: Event-Driven Claims Platform on Azure"]}
+      ],
       "days": [
         {
           "topic": ".NET Runtime Internals: CLR, JIT and Garbage Collection",

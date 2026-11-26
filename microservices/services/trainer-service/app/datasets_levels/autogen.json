@@ -12,6 +12,23 @@
       "summary": "For Python developers who have called an LLM API and now want to build agents and small teams with AutoGen 0.4 and later (the layered autogen-agentchat, autogen-core and autogen-ext packages). Covers where AutoGen stands today next to Microsoft Agent Framework, installing and pinning packages, model clients, AssistantAgent, messages and TaskResult, streaming, function tools, termination conditions, RoundRobinGroupChat, human input, state, model context, structured output, local models, memory, code execution, AutoGen Studio, logging and a research-team capstone.",
       "prerequisites": ["Writes Python 3.10+ with async/await and can use virtual environments and pip", "Has an API key for an OpenAI-compatible or Azure OpenAI model, or can run Ollama locally", "Has used a chat-completions API and understands prompts, tokens and JSON"],
       "outcomes": ["Install AutoGen 0.4+ packages, pin versions and run agents against hosted and local models", "Build AssistantAgent instances with function tools, structured output, memory and model context limits", "Compose agents into RoundRobinGroupChat teams with termination conditions and human input", "Deliver a tested research-team application with logs, saved state and a documented upgrade path to Microsoft Agent Framework"],
+      "course_outcomes": [
+        {"outcome": "Install AutoGen 0.4+ and connect OpenAI and Azure OpenAI model clients", "topics": ["Installing AutoGen 0.4+ and Understanding Project Status", "Model Clients: OpenAIChatCompletionClient and Azure OpenAI"]},
+        {"outcome": "Run agents with run() and read messages and TaskResult", "topics": ["Messages, TaskResult and the run() Coroutine"]},
+        {"outcome": "Build a first AssistantAgent with system messages", "topics": ["Your First AssistantAgent: System Messages and Roles"]},
+        {"outcome": "Stream output with run_stream and the Console UI", "topics": ["Streaming Output with run_stream and the Console UI"]},
+        {"outcome": "Give agents function tools and control how tool results are reported", "topics": ["Function Tools: FunctionTool and Docstrings as Schemas", "Tool Results: reflect_on_tool_use and tool_call_summary_format"]},
+        {"outcome": "Stop runs with termination conditions, including combined conditions", "topics": ["Termination Conditions: MaxMessageTermination and TextMentionTermination", "Combining Termination Conditions with OR and AND"]},
+        {"outcome": "Build writer and critic teams with RoundRobinGroupChat", "topics": ["RoundRobinGroupChat: Writer and Critic Teams"]},
+        {"outcome": "Add human input with UserProxyAgent", "topics": ["Human Input with UserProxyAgent"]},
+        {"outcome": "Resume, reset and save team state", "topics": ["Resuming, Resetting and Saving Team State"]},
+        {"outcome": "Manage model context windows and agent memory", "topics": ["Model Context: Buffered and Head-and-Tail Windows", "Agent Memory: ListMemory and the Memory Protocol"]},
+        {"outcome": "Return structured output with Pydantic", "topics": ["Structured Output with Pydantic and output_content_type"]},
+        {"outcome": "Run local models with OllamaChatCompletionClient", "topics": ["Local Models with OllamaChatCompletionClient"]},
+        {"outcome": "Run code safely with CodeExecutorAgent in Docker", "topics": ["Code Execution: CodeExecutorAgent with Docker"]},
+        {"outcome": "Build teams without code in AutoGen Studio and read the message log", "topics": ["AutoGen Studio: Building a Team Without Code", "Logging and Reading the Message Log"]},
+        {"outcome": "Deliver a research assistant team", "topics": ["Capstone: Research Assistant Team"]}
+      ],
       "days": [
         {
           "topic": "Installing AutoGen 0.4+ and Understanding Project Status",
@@ -199,6 +216,23 @@
       "summary": "For developers who can already build single agents and RoundRobinGroupChat teams in AutoGen and now need dynamic orchestration. Covers SelectorGroupChat with custom selector and candidate functions, Swarm and handoffs, GraphFlow with DiGraphBuilder, MagenticOneGroupChat and web or file agents, MCP tools through McpWorkbench, AgentTool and TeamTool, custom BaseChatAgent classes, vector memory, token-limited context, declarative configuration, cancellation, Docker code executors, multi-provider clients, replay-based testing, OpenTelemetry tracing and a swarm-based support capstone.",
       "prerequisites": ["Has completed the beginner AutoGen course or builds AssistantAgent tools and RoundRobinGroupChat teams with termination conditions", "Reads async Python and writes pytest tests", "Has Docker, Node.js (for MCP servers) and an LLM API key or a local Ollama model available"],
       "outcomes": ["Choose between selector, swarm, graph and Magentic-One orchestration for a given workflow", "Connect agents to MCP servers, other agents and vector memory while controlling context size", "Persist, serialise and test teams with state files, declarative JSON and a replay model client", "Trace and cancel multi-agent runs and deliver a swarm-based support application"],
+      "course_outcomes": [
+        {"outcome": "Route speakers with SelectorGroupChat and custom selector and candidate functions", "topics": ["SelectorGroupChat: Model-Chosen Speakers", "Custom selector_func and candidate_func Routing"]},
+        {"outcome": "Build Swarm teams with handoffs, including handoffs to humans", "topics": ["Swarm Teams and HandoffMessage", "Handing Off to Humans with HandoffTermination"]},
+        {"outcome": "Build GraphFlow workflows with DiGraphBuilder", "topics": ["GraphFlow and DiGraphBuilder Workflows"]},
+        {"outcome": "Run MagenticOneGroupChat and read its orchestrator ledgers", "topics": ["MagenticOneGroupChat and the Orchestrator Ledgers"]},
+        {"outcome": "Browse the web with MultimodalWebSurfer and Playwright", "topics": ["Web Browsing with MultimodalWebSurfer and Playwright"]},
+        {"outcome": "Use MCP tools with McpWorkbench", "topics": ["MCP Tools with McpWorkbench and StdioServerParams"]},
+        {"outcome": "Wrap agents and teams as tools", "topics": ["Agents as Tools: AgentTool and TeamTool"]},
+        {"outcome": "Write custom agents by subclassing BaseChatAgent", "topics": ["Custom Agents: Subclassing BaseChatAgent"]},
+        {"outcome": "Add vector memory and RAG with ChromaDB", "topics": ["Vector Memory with ChromaDBVectorMemory and RAG"]},
+        {"outcome": "Handle long conversations with token-limited context and summaries", "topics": ["Long Conversations: TokenLimitedChatCompletionContext and Summaries"]},
+        {"outcome": "Save state to files and databases and define teams declaratively", "topics": ["Saving State to Files and Databases", "Declarative Teams: dump_component and load_component"]},
+        {"outcome": "Cancel runs with timeouts and ExternalTermination and limit Docker code executors", "topics": ["Cancellation, Timeouts and ExternalTermination", "Docker Code Executors: Images, Volumes and Limits"]},
+        {"outcome": "Connect multiple model providers, including Anthropic and Azure tokens", "topics": ["Multi-Provider Clients: Anthropic, Azure Tokens and model_info"]},
+        {"outcome": "Test teams with ReplayChatCompletionClient and trace runs with OpenTelemetry and Jaeger", "topics": ["Testing Teams with ReplayChatCompletionClient and pytest", "Tracing a Run with OpenTelemetry and Jaeger"]},
+        {"outcome": "Deliver a support triage swarm with persistent state", "topics": ["Capstone: Support Triage Swarm with Persistent State"]}
+      ],
       "days": [
         {
           "topic": "SelectorGroupChat: Model-Chosen Speakers",
@@ -386,6 +420,23 @@
       "summary": "For engineers who run AutoGen teams and now need to design on autogen-core, operate multi-agent services and plan the move to Microsoft Agent Framework. Covers the Core runtime, RoutedAgent handlers, topics and subscriptions, direct RPC messaging, lifecycle and state, hand-written tool loops, intervention handlers, gRPC distributed workers, message serialisation, Core design patterns, custom model clients and caching, the component system, FastAPI streaming, agent security, cost control, evaluation, reliability, production telemetry, migration to Microsoft Agent Framework and a distributed capstone.",
       "prerequisites": ["Has completed the intermediate AutoGen course or has built SelectorGroupChat, Swarm and tool-using teams with tests", "Understands asyncio tasks, queues, Pydantic models and Docker networking", "Can run a gRPC service, a FastAPI app and an OpenTelemetry collector locally"],
       "outcomes": ["Design event-driven agent systems on autogen-core with topics, RPC calls, interventions and distributed workers", "Harden agent services with sandboxing, tool allow-lists, budgets, retries, evaluation and production telemetry", "Extend AutoGen with custom model clients, caching and components", "Produce a migration plan from AutoGen to Microsoft Agent Framework backed by tests and a working distributed service"],
+      "course_outcomes": [
+        {"outcome": "Build agents on the Core runtime with RoutedAgent and type-based message handlers", "topics": ["Core Runtime: SingleThreadedAgentRuntime and RoutedAgent", "Message Handlers and Type-Based Routing"]},
+        {"outcome": "Publish and subscribe with topics and send direct RPC messages", "topics": ["Topics and Subscriptions for Publish-Subscribe", "Direct RPC Messaging with AgentId and Cancellation"]},
+        {"outcome": "Manage agent lifecycle, factories and Core state", "topics": ["Agent Lifecycle, Factories and Core State"]},
+        {"outcome": "Drive model clients and tool loops by hand in Core", "topics": ["Driving Model Clients and Tool Loops by Hand in Core"]},
+        {"outcome": "Intercept and drop messages with intervention handlers", "topics": ["Intervention Handlers and Message Dropping"]},
+        {"outcome": "Run a distributed runtime with gRPC worker agents", "topics": ["Distributed Runtime with gRPC Worker Agents"]},
+        {"outcome": "Serialise custom messages and evolve their schemas", "topics": ["Custom Message Serialisation and Schema Evolution"]},
+        {"outcome": "Apply reflection, sequential, concurrent and mixture-of-agents patterns", "topics": ["Core Design Patterns: Reflection, Sequential, Concurrent and Mixture of Agents"]},
+        {"outcome": "Write custom model clients, caches and components", "topics": ["Custom ChatCompletionClient and ChatCompletionCache", "The Component System: Custom Component and ComponentConfig"]},
+        {"outcome": "Serve teams over FastAPI with server-sent events", "topics": ["Serving Teams over FastAPI with Server-Sent Events"]},
+        {"outcome": "Secure agents with sandboxing, prompt-injection defences and tool allow-lists", "topics": ["Agent Security: Sandboxing, Prompt Injection and Tool Allow-Lists"]},
+        {"outcome": "Control cost with token budgets and evaluate teams with repeated trials", "topics": ["Cost Control: Token Budgets and Usage Accounting", "Evaluating Teams with Repeated Trials and Pass-Rate Metrics"]},
+        {"outcome": "Make agent runs reliable and monitor them with sampled, redacted telemetry", "topics": ["Reliability: Retries, Tool Errors and Human Fallback", "Production Telemetry: Sampling, Redaction and Alerts on Agent Runs"]},
+        {"outcome": "Migrate AutoGen systems to Microsoft Agent Framework", "topics": ["Migrating AutoGen Systems to Microsoft Agent Framework"]},
+        {"outcome": "Deliver a distributed multi-agent service with governance and a migration plan", "topics": ["Capstone: Distributed Multi-Agent Service with Governance and Migration Plan"]}
+      ],
       "days": [
         {
           "topic": "Core Runtime: SingleThreadedAgentRuntime and RoutedAgent",
@@ -412,7 +463,7 @@
           "lab_task": "Create three agents Auditor, Archiver and Notifier subscribed to topic type 'orders'. Publish 20 OrderPlaced events with TopicId('orders', f'tenant-{i%2}'). Count handled events per agent and tenant key, then remove the Notifier subscription with runtime.remove_subscription and republish to confirm it stops receiving.",
           "deliverable": "Pub-sub script and a table of events per agent and tenant",
           "checks": [["Publish 20 events to three subscribers", "Each subscriber handled 20 events, 60 handler calls in total", "Counter table"], ["Check instances by tenant source", "Each agent has two instances, tenant-0 and tenant-1, with 10 events each", "Counter table"], ["Remove the Notifier subscription and publish 5 more", "Notifier count stays at 20 while the others reach 25", "Counter table"]],
-          "objectives": ["Broadcast events with topics", "Understand source-based instance creation", "Manage subscriptions at runtime"]
+          "objectives": ["Broadcast events with topics", "Explain source-based instance creation", "Manage subscriptions at runtime"]
         },
         {
           "topic": "Direct RPC Messaging with AgentId and Cancellation",

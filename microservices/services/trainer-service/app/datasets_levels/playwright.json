@@ -38,7 +38,7 @@
           "lab_task": "Write five tests for a sample web shop (home page, search, product page, add to cart and checkout start), run them selectively by title and read the output of a failing test.",
           "deliverable": "Five passing tests in one spec file",
           "checks": [["Write tests", "All five tests pass in Chromium", "Terminal output"], ["Run selectively", "Single tests run with -g and by file name", "Terminal output"], ["Read failures", "A deliberately failing test is diagnosed from its message", "Notes"]],
-          "objectives": ["Write Playwright tests", "Run tests selectively", "Understand test isolation"]
+          "objectives": ["Write Playwright tests", "Run tests selectively", "Explain test isolation"]
         },
         {
           "topic": "Locators: getByRole, getByText, getByLabel and Test IDs",
@@ -56,7 +56,7 @@
           "lab_task": "Automate a registration form with text, dropdowns, checkboxes, a date field, a file upload and a drag-and-drop step, then submit it and confirm the result page.",
           "deliverable": "Automated form test",
           "checks": [["Fill the form", "Every field type is filled with Playwright actions", "Test code"], ["Upload", "The uploaded file name appears on the result page", "Test output"], ["Avoid forcing", "No action uses force: true", "Code review"]],
-          "objectives": ["Perform user actions", "Upload files and drag items", "Understand actionability"]
+          "objectives": ["Perform user actions", "Upload files and drag items", "Explain actionability checks"]
         },
         {
           "topic": "Assertions and Auto-Waiting with Web-First Assertions",
@@ -270,7 +270,7 @@
           "lab_task": "Test a store locator on an emulated phone with set geolocation and permissions, check dark mode and offline behaviour, and list what still needs real-device testing.",
           "deliverable": "Emulation tests and a real-device gap list",
           "checks": [["Emulate devices", "Tests run with a phone descriptor and touch", "Test output"], ["Set location", "The locator shows stores near the set coordinates", "Test output"], ["Name gaps", "The gap list explains what emulation cannot cover", "Gap list"]],
-          "objectives": ["Emulate mobile devices", "Control location and permissions", "Know the limits of emulation"]
+          "objectives": ["Emulate mobile devices", "Control location and permissions", "Identify the limits of emulation"]
         },
         {
           "topic": "Time and Clock Control in Tests",
@@ -369,7 +369,7 @@
           "lab_task": "Collect navigation timing and Largest Contentful Paint for three pages in tests, set soft budgets, throttle the network for one test and track results across five builds.",
           "deliverable": "Performance signal tests and a trend table",
           "checks": [["Measure", "Timing values are recorded for three pages", "Test output"], ["Set budgets", "Exceeding a budget marks a soft failure", "Report"], ["Track trends", "Results from five builds are compared", "Trend table"]],
-          "objectives": ["Collect browser performance signals", "Set performance budgets", "Know when to use load testing tools"]
+          "objectives": ["Collect browser performance signals", "Set performance budgets", "Decide when to use load testing tools"]
         },
         {
           "topic": "Intermediate Capstone: Parallel Playwright Framework in CI with Reports",

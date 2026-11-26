@@ -137,7 +137,7 @@
           "lab_task": "Send loan confirmation emails as background tasks, schedule a daily overdue check with APScheduler started in the lifespan, and explain what breaks with several workers.",
           "deliverable": "Background work with notes on limits",
           "checks": [["Borrow a book", "Response returns before the email is sent", "Timing log"], ["Run the schedule", "Overdue check runs at the set time", "Log output"], ["Run two workers", "Duplicate schedule problem shown and a fix proposed", "Notes"]],
-          "objectives": ["Run background work in FastAPI", "Use lifespan events", "Know when to use a queue"]
+          "objectives": ["Run background work in FastAPI", "Use lifespan events", "Decide when to use a queue"]
         },
         {
           "topic": "Middleware, CORS and Request Logging",
@@ -394,7 +394,7 @@
           "lab_task": "Write a raw ASGI app and middleware, trace a FastAPI request through Uvicorn and Starlette in the debugger, and show how sync endpoints use the thread pool.",
           "deliverable": "ASGI notebook with raw middleware",
           "checks": [["Write raw middleware", "Middleware adds timing without Starlette helpers", "Response headers"], ["Trace a request", "Each layer from server to endpoint identified", "Debugger notes"], ["Exhaust the thread pool", "Sync endpoint queueing shown and explained", "Timing results"]],
-          "objectives": ["Explain ASGI and FastAPI internals", "Write ASGI middleware", "Understand concurrency in FastAPI"]
+          "objectives": ["Explain ASGI and FastAPI internals", "Write ASGI middleware", "Explain concurrency in FastAPI"]
         },
         {
           "topic": "Designing Python Service Boundaries with FastAPI, gRPC and Messaging",
@@ -556,7 +556,7 @@
           "lab_task": "Work through four incidents: a blocked event loop, worker memory growth, pool exhaustion and a cascading dependency failure, restore service and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by profiles, traces or metrics", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
-          "objectives": ["Troubleshoot FastAPI in production", "Find root causes", "Learn from incidents"]
+          "objectives": ["Troubleshoot FastAPI in production", "Find root causes", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Event-Driven API Platform on FastAPI",

@@ -430,7 +430,7 @@
           "lab_task": "Route risky actions to a review queue with a simple UI, let reviewers edit proposed actions, measure reviewer load and feed corrections back into evaluation data.",
           "deliverable": "Review workflow, UI and metrics",
           "checks": [["Trigger a risky action", "Sent to the review queue", "Queue"], ["Edit a proposal", "Agent continues with the edit", "Trace"], ["Measure load", "Reviews per hour recorded", "Metrics"]],
-          "objectives": ["Run human review at scale", "Edit agent state", "Learn from reviewers"]
+          "objectives": ["Run human review at scale", "Edit agent state", "Apply reviewer feedback and record each change made"]
         },
         {
           "topic": "Production Evaluation and Monitoring",
@@ -547,7 +547,7 @@
           "lab_task": "Diagnose five injected incidents (a provider outage, a retrieval index failure, an agent loop, a cost spike and an injection attempt), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Stop the agent loop", "Cause found and limits added", "Trace"], ["Fix the cost spike", "Cause found and costs back to normal", "Cost dashboard"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose LLM incidents", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose LLM incidents", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Team Practices for LLM Application Engineering",

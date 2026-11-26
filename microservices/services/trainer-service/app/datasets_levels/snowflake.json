@@ -39,6 +39,20 @@
         "Use Time Travel, cloning and role-based access control",
         "Automate loading with Snowpipe, streams and tasks and control cost"
       ],
+      "course_outcomes": [
+        {"outcome": "Explain Snowflake architecture and work in Snowsight", "topics": ["Snowflake Architecture and Snowsight"]},
+        {"outcome": "Size and run virtual warehouses", "topics": ["Virtual Warehouses and Compute"]},
+        {"outcome": "Create databases, schemas and tables", "topics": ["Databases, Schemas and Tables"]},
+        {"outcome": "Load data with stages, file formats and COPY", "topics": ["Loading Data: Stages, File Formats and COPY"]},
+        {"outcome": "Query relational data with SQL", "topics": ["Querying Data with SQL"]},
+        {"outcome": "Query JSON with VARIANT", "topics": ["Semi-Structured Data: VARIANT and JSON"]},
+        {"outcome": "Use views and explain the caching layers", "topics": ["Views and the Caching Layers"]},
+        {"outcome": "Recover data with Time Travel and clone it without copying", "topics": ["Time Travel and Zero-Copy Cloning"]},
+        {"outcome": "Control access with roles", "topics": ["Access Control with Roles"]},
+        {"outcome": "Load data continuously with Snowpipe and automate it with streams and tasks", "topics": ["Continuous Loading with Snowpipe", "Automating with Streams and Tasks"]},
+        {"outcome": "Share data securely and control credits with resource monitors", "topics": ["Secure Data Sharing", "Managing Cost: Credits and Resource Monitors"]},
+        {"outcome": "Deliver a small analytics pipeline", "topics": ["Capstone: A Small Analytics Pipeline"]}
+      ],
       "days": [
         {
           "topic": "Snowflake Architecture and Snowsight",
@@ -631,6 +645,21 @@
         "Build incremental pipelines with streams, tasks and dynamic tables",
         "Design scalable RBAC and apply masking and row-access policies",
         "Share governed data products and use Snowpark for Python"
+      ],
+      "course_outcomes": [
+        {"outcome": "Explain micro-partitions and improve pruning with clustering", "topics": ["Micro-Partitions, Pruning and Clustering"]},
+        {"outcome": "Size and scale warehouses, including multi-cluster warehouses", "topics": ["Warehouse Sizing, Scaling and Multi-Cluster"]},
+        {"outcome": "Profile and optimise queries", "topics": ["Query Profiling and Optimization"]},
+        {"outcome": "Load and unload data at scale and query the data lake with external tables", "topics": ["Advanced Loading and Unloading", "External Tables and the Data Lake"]},
+        {"outcome": "Query complex semi-structured data", "topics": ["Semi-Structured Deep Dive"]},
+        {"outcome": "Speed up queries with materialised views and search optimisation", "topics": ["Materialised Views and Search Optimization"]},
+        {"outcome": "Capture changes with streams", "topics": ["Streams and Change Data Capture"]},
+        {"outcome": "Orchestrate task graphs", "topics": ["Tasks, Task Graphs and Orchestration"]},
+        {"outcome": "Build declarative pipelines with dynamic tables", "topics": ["Dynamic Tables for Declarative Pipelines"]},
+        {"outcome": "Design role-based access", "topics": ["RBAC Design and Access Management"]},
+        {"outcome": "Protect data with masking and row access policies", "topics": ["Governance: Masking and Row Access Policies"]},
+        {"outcome": "Share data through secure views and the Marketplace", "topics": ["Secure Views, Sharing and the Marketplace"]},
+        {"outcome": "Build data engineering code with Snowpark and deliver a governed near-real-time pipeline", "topics": ["Snowpark for Data Engineering", "Capstone: Governed Near-Real-Time Pipeline"]}
       ],
       "days": [
         {
@@ -1264,6 +1293,20 @@
         "Run governance, privacy, continuity and security programmes",
         "Build Snowpark, Streamlit and Native App data products",
         "Lead migrations and platform architecture reviews"
+      ],
+      "course_outcomes": [
+        {"outcome": "Tune performance and isolate workloads at scale", "topics": ["Performance Tuning and Workload Isolation at Scale"]},
+        {"outcome": "Run cost optimisation and FinOps", "topics": ["Cost Optimization and FinOps"]},
+        {"outcome": "Audit access with advanced governance and access history", "topics": ["Advanced Governance and Access History"]},
+        {"outcome": "Classify sensitive data and protect privacy", "topics": ["Data Classification and Privacy"]},
+        {"outcome": "Replicate and fail over for business continuity", "topics": ["Replication, Failover and Business Continuity"]},
+        {"outcome": "Collaborate through clean rooms and advanced sharing", "topics": ["Clean Rooms and Advanced Sharing"]},
+        {"outcome": "Write Snowpark UDFs, UDTFs and stored procedures", "topics": ["Snowpark: UDFs, UDTFs and Stored Procedures"]},
+        {"outcome": "Build data apps with Streamlit in Snowflake and Native Apps", "topics": ["Streamlit in Snowflake and Data Apps", "Native Apps and the Marketplace"]},
+        {"outcome": "Build large-scale pipelines and use acceleration services", "topics": ["Large-Scale Pipelines", "Acceleration Services at Scale"]},
+        {"outcome": "Monitor data quality and observability", "topics": ["Data Quality and Observability"]},
+        {"outcome": "Plan a migration to Snowflake", "topics": ["Migration to Snowflake"]},
+        {"outcome": "Design security architecture with network policies and review a platform architecture", "topics": ["Security Architecture and Network Policies", "Capstone: Platform Architecture Review"]}
       ],
       "days": [
         {

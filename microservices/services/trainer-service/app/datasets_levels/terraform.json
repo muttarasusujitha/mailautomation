@@ -24,6 +24,22 @@
         "Manage state safely, including remote state and locking",
         "Build reusable modules and run Terraform from a pipeline"
       ],
+      "course_outcomes": [
+        {"outcome": "Explain infrastructure as code and set up Terraform", "topics": ["Infrastructure as Code Concepts and Terraform Setup"]},
+        {"outcome": "Write HCL resources, data sources, outputs and validated variables", "topics": ["HCL Language: Resources, Data Sources and Outputs", "Input Settings: Variables, Types and Validation"]},
+        {"outcome": "Explain Terraform state and store it remotely with locking", "topics": ["Terraform State Explained", "Remote State, Locking and Backends"]},
+        {"outcome": "Provision compute, networking, managed databases and storage", "topics": ["Provisioning Compute and Networking", "Provisioning Managed Databases and Storage"]},
+        {"outcome": "Use expressions, loops and conditionals", "topics": ["Expressions, Loops and Conditionals"]},
+        {"outcome": "Write reusable modules and manage several environments", "topics": ["Writing Reusable Modules", "Managing Multiple Environments"]},
+        {"outcome": "Import existing infrastructure into Terraform", "topics": ["Importing Existing Infrastructure"]},
+        {"outcome": "Deploy containers and Kubernetes resources with Terraform", "topics": ["Terraform with Containers and Kubernetes"]},
+        {"outcome": "Lint, format, scan and test Terraform code", "topics": ["Code Quality: Linting, Formatting and Security Scans", "Testing Terraform Code"]},
+        {"outcome": "Run Terraform in CI/CD and in HCP Terraform", "topics": ["Running Terraform in CI/CD Pipelines", "Terraform Cloud and HCP Terraform"]},
+        {"outcome": "Use Terraform with AWS and Azure side by side", "topics": ["Multi-Cloud Terraform: AWS and Azure Side by Side"]},
+        {"outcome": "Troubleshoot failed Terraform runs", "topics": ["Troubleshooting Terraform Runs"]},
+        {"outcome": "Structure repositories and team practices for Terraform", "topics": ["Team Practices and Repository Structure"]},
+        {"outcome": "Deliver a complete environment with Terraform", "topics": ["Beginner Capstone: Complete Environment with Terraform"]}
+      ],
       "days": [
         {
           "topic": "Infrastructure as Code Concepts and Terraform Setup",
@@ -41,7 +57,7 @@
           "lab_task": "Create a virtual network with two subnets and a security group, look up the latest Linux image with a data source, and output the subnet IDs.",
           "deliverable": "Configuration files and outputs",
           "checks": [["Run terraform output", "Shows both subnet IDs", "Command output"], ["Run terraform validate on a broken reference", "Validation reports the error", "Command output"], ["Explain the dependency order", "Participant explains why subnets wait for the network", "Explanation with terraform graph"]],
-          "objectives": ["Write resources, data sources and outputs", "Understand implicit dependencies", "Validate and format code"]
+          "objectives": ["Write resources, data sources and outputs", "Explain implicit dependencies", "Validate and format code"]
         },
         {
           "topic": "Input Settings: Variables, Types and Validation",
@@ -219,6 +235,23 @@
         "Enforce policy and security with policy as code",
         "Refactor, test and upgrade Terraform safely",
         "Run self-service infrastructure for many teams"
+      ],
+      "course_outcomes": [
+        {"outcome": "Design modules and state for large estates with a small blast radius", "topics": ["Module Design Principles for Large Estates", "State Architecture and Blast Radius"]},
+        {"outcome": "Enforce policy as code with OPA and Sentinel", "topics": ["Policy as Code with OPA and Sentinel"]},
+        {"outcome": "Test with native tests, Terratest and mocks", "topics": ["Advanced Testing: Native Tests, Terratest and Mocks"]},
+        {"outcome": "Refactor and upgrade Terraform code safely", "topics": ["Refactoring and Upgrading Terraform Code"]},
+        {"outcome": "Give Terraform least-privilege identity and secrets", "topics": ["Secrets, Identity and Least Privilege for Terraform"]},
+        {"outcome": "Build landing zones and Kubernetes platforms with Terraform", "topics": ["Landing Zones with Terraform", "Kubernetes Platforms with Terraform"]},
+        {"outcome": "Offer self-service infrastructure from a module catalogue", "topics": ["Self-Service Infrastructure with Module Catalogues"]},
+        {"outcome": "Manage cost with Infracost and tagging, and detect drift", "topics": ["Cost Management with Infracost and Tagging", "Drift Detection and Continuous Reconciliation"]},
+        {"outcome": "Manage networking at scale", "topics": ["Terraform for Networking at Scale"]},
+        {"outcome": "Write a custom provider", "topics": ["Writing a Custom Terraform Provider"]},
+        {"outcome": "Orchestrate dependent configurations with stacks", "topics": ["Stacks, Orchestration and Dependencies Between Configurations"]},
+        {"outcome": "Produce compliance evidence and recover infrastructure code and state", "topics": ["Compliance and Audit Evidence from Terraform", "Disaster Recovery for Infrastructure Code and State"]},
+        {"outcome": "Migrate from other IaC tools and assess OpenTofu", "topics": ["Migrating from Other IaC Tools to Terraform", "OpenTofu and the Terraform Ecosystem"]},
+        {"outcome": "Operate Terraform for many teams", "topics": ["Operating Terraform for Many Teams"]},
+        {"outcome": "Deliver a self-service infrastructure platform", "topics": ["Intermediate Capstone: Self-Service Infrastructure Platform"]}
       ],
       "days": [
         {
@@ -415,6 +448,23 @@
         "Govern thousands of resources with policy, evidence and controlled change",
         "Lead large migrations and refactors with measured risk",
         "Set IaC platform strategy with cost, security and reliability evidence"
+      ],
+      "course_outcomes": [
+        {"outcome": "Design an enterprise IaC architecture with governance and change risk tiers", "topics": ["Enterprise IaC Architecture", "Governance Frameworks and Change Risk Tiers"]},
+        {"outcome": "Engineer policy at organisation scale and secure the module supply chain", "topics": ["Policy Engineering at Organisation Scale", "Module Supply Chain Security"]},
+        {"outcome": "Run large-scale refactoring programmes", "topics": ["Large-Scale Refactoring Programmes"]},
+        {"outcome": "Analyse plans to flag risky changes", "topics": ["Plan Analysis and Change Intelligence"]},
+        {"outcome": "Build multi-region infrastructure as code", "topics": ["Resilience and Multi-Region Infrastructure as Code"]},
+        {"outcome": "Apply FinOps through infrastructure as code", "topics": ["FinOps Through Infrastructure as Code"]},
+        {"outcome": "Engineer providers and internal infrastructure APIs", "topics": ["Provider Engineering and Internal APIs", "Platform Engineering: Infrastructure APIs and Developer Portals"]},
+        {"outcome": "Give security teams infrastructure as code", "topics": ["Infrastructure as Code for Security Teams"]},
+        {"outcome": "Run a migration factory that moves estates into Terraform", "topics": ["Migration Factory: Moving Estates into Terraform"]},
+        {"outcome": "Tune Terraform performance at scale", "topics": ["Terraform Performance at Scale"]},
+        {"outcome": "Set a testing strategy for large estates and manage incidents from infrastructure changes", "topics": ["Infrastructure Testing Strategy for Large Estates", "Incident Management for Infrastructure Changes"]},
+        {"outcome": "Plan a multi-cloud and hybrid strategy", "topics": ["Multi-Cloud and Hybrid Strategy with Terraform"]},
+        {"outcome": "Report IaC metrics and build infrastructure for AI platforms", "topics": ["IaC Metrics, Reporting and Continuous Improvement", "Infrastructure as Code for AI Platforms"]},
+        {"outcome": "Set an IaC strategy and operating model", "topics": ["IaC Strategy, Operating Model and Leadership"]},
+        {"outcome": "Deliver an enterprise infrastructure as code platform", "topics": ["Advanced Capstone: Enterprise Infrastructure as Code Platform"]}
       ],
       "days": [
         {

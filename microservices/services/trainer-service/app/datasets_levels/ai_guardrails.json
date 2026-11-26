@@ -12,6 +12,22 @@
       "summary": "For developers and analysts who can write basic Python and have called an LLM API but have not defended an LLM application. Covers the main failure modes and OWASP LLM Top 10 vocabulary, input and output validation, structured outputs, PII redaction with Presidio, moderation APIs, prompt injection and jailbreak basics, Guardrails AI, Llama Guard, NeMo Guardrails, Azure AI Content Safety, Amazon Bedrock Guardrails, tool permissions, grounding checks, audit logs, a first red-team run and a guarded chatbot capstone.",
       "prerequisites": ["Writes and runs Python 3.10+ scripts and uses pip and virtual environments", "Has called a hosted or local LLM API at least once", "Reads JSON and basic regular expressions"],
       "outcomes": ["Explain the main LLM application risks and map them to the OWASP LLM Top 10", "Build input, output, PII and moderation controls around an LLM call", "Configure Guardrails AI, NeMo Guardrails, Llama Guard and the Azure and AWS guardrail services", "Test a guarded chatbot with promptfoo and garak and report attack and false-refusal rates"],
+      "course_outcomes": [
+        {"outcome": "Explain LLM risks and guardrail layers and set up a test harness", "topics": ["Guardrails Orientation: Risks, Layers and Threat Vocabulary", "Local Test Harness: Python Environment, API Keys and a Baseline Chatbot"]},
+        {"outcome": "Validate inputs and outputs with allow-lists, regex and JSON Schema", "topics": ["Input Validation: Length, Encoding and Allow-Lists", "Output Validation with Regex and JSON Schema"]},
+        {"outcome": "Enforce structured output with Pydantic", "topics": ["Structured Output Enforcement with Pydantic and Provider JSON Modes"]},
+        {"outcome": "Detect and redact PII with Presidio", "topics": ["PII Detection and Redaction with Microsoft Presidio"]},
+        {"outcome": "Screen content with moderation endpoints", "topics": ["Moderation Endpoints: OpenAI Moderation and Category Scores"]},
+        {"outcome": "Recognise prompt injection and jailbreaks and harden system prompts", "topics": ["Direct and Indirect Prompt Injection Attacks", "System Prompt Hardening and Delimiters", "Jailbreak Families: Role-Play, Encoding and Multi-Turn Attacks"]},
+        {"outcome": "Build guards with the Guardrails AI library", "topics": ["Guardrails AI Library: Guards, Validators and on_fail Actions"]},
+        {"outcome": "Classify safety with Llama Guard and configure NeMo Guardrails", "topics": ["Llama Guard: Safety Classification with Open Models", "NeMo Guardrails Configuration: config.yml and Colang Flows"]},
+        {"outcome": "Apply Azure AI Content Safety and Amazon Bedrock Guardrails", "topics": ["Azure AI Content Safety: Text Analysis and Severity Levels", "Amazon Bedrock Guardrails: Filters, Denied Topics and ApplyGuardrail"]},
+        {"outcome": "Restrict agent tools with allow-lists and argument validation", "topics": ["Tool Permissioning: Allow-Lists and Argument Validation"]},
+        {"outcome": "Check that RAG answers are grounded", "topics": ["Grounding Checks for RAG Answers"]},
+        {"outcome": "Log decisions and design refusals that users understand", "topics": ["Logging, Audit Trails and Refusal UX"]},
+        {"outcome": "Run a first red-team test with promptfoo and garak", "topics": ["First Red Team Run with promptfoo and garak"]},
+        {"outcome": "Deliver a guarded support chatbot", "topics": ["Beginner Capstone: Guarded Support Chatbot"]}
+      ],
       "days": [
         {
           "topic": "Guardrails Orientation: Risks, Layers and Threat Vocabulary",
@@ -199,6 +215,23 @@
       "summary": "For engineers who have shipped an LLM feature and must make it safe at production scale. Covers layered rail pipelines, policy as code with Open Policy Agent, labelled evaluation sets and threshold tuning, injection classifiers, indirect injection in RAG, custom PII recognisers, custom validators and NeMo actions, custom Llama Guard taxonomies, Bedrock grounding checks, streaming validation, agent tool governance, MCP risks, latency and cost budgets, multilingual safety, observability, PyRIT red teaming and CI gates.",
       "prerequisites": ["Completed the beginner level or has built a guarded LLM prototype", "Comfortable with FastAPI or a similar web framework and with pytest", "Understands precision, recall and the confusion matrix"],
       "outcomes": ["Design a layered, policy-driven guardrail pipeline with defined failure modes", "Measure classifier quality and choose thresholds from labelled data", "Secure RAG pipelines and agent tools against injection and excessive agency", "Automate red teaming and regression gates in CI and monitor rails in production"],
+      "course_outcomes": [
+        {"outcome": "Build layered guardrail pipelines and version policies as code", "topics": ["Layered Guardrail Pipelines: Rails Across the Request Path", "Policy as Code: Writing and Versioning Guardrail Policies"]},
+        {"outcome": "Build evaluation datasets and measure classifier precision and recall", "topics": ["Building Evaluation Datasets for Guardrails", "Measuring Classifier Quality: Precision, Recall and Threshold Tuning"]},
+        {"outcome": "Detect prompt injection with classifiers and defend RAG against indirect injection", "topics": ["Prompt Injection Classifiers: Prompt Guard, Prompt Shields and LLM Guard", "Indirect Injection in RAG and Web Content: Spotlighting and Sanitisation"]},
+        {"outcome": "Build custom PII recognisers with pseudonymisation", "topics": ["Custom PII Recognisers, Pseudonymisation and Reversible Tokens"]},
+        {"outcome": "Write custom validators and NeMo rails", "topics": ["Custom Validators in Guardrails AI and the Validator Hub", "NeMo Guardrails Actions, Custom Rails and Self-Check Prompts"]},
+        {"outcome": "Build custom safety taxonomies with Llama Guard", "topics": ["Custom Safety Taxonomies with Llama Guard"]},
+        {"outcome": "Use Bedrock contextual grounding and automated reasoning checks", "topics": ["Bedrock Guardrails: Contextual Grounding and Automated Reasoning Checks"]},
+        {"outcome": "Validate token streams in real time", "topics": ["Streaming Guardrails: Validating Token Streams in Real Time"]},
+        {"outcome": "Govern agent tools with scopes, approvals and least privilege", "topics": ["Agent Tool Governance: Scopes, Approvals and Least Privilege"]},
+        {"outcome": "Defend MCP tools against excessive agency and confused-deputy attacks", "topics": ["Excessive Agency and Confused-Deputy Defences for MCP Servers"]},
+        {"outcome": "Keep guardrail latency and cost within budget", "topics": ["Latency and Cost Budgets for Guardrail Stacks"]},
+        {"outcome": "Apply safety to multilingual and multimodal content", "topics": ["Multilingual and Multimodal Content Safety"]},
+        {"outcome": "Monitor guardrails and red-team with PyRIT", "topics": ["Guardrails Observability: Metrics, Traces and Alerting", "Red Teaming with PyRIT: Targets, Converters and Scorers"]},
+        {"outcome": "Gate releases with guardrail regression tests in CI", "topics": ["CI Gates for Guardrails: Regression Tests with promptfoo"]},
+        {"outcome": "Deliver a guardrail platform for a RAG agent", "topics": ["Intermediate Capstone: Guardrail Platform for a RAG Agent"]}
+      ],
       "days": [
         {
           "topic": "Layered Guardrail Pipelines: Rails Across the Request Path",
@@ -386,6 +419,22 @@
       "summary": "For security engineers, platform engineers and AI leads who own assurance for LLM and agent systems. Covers OWASP LLM Top 10 control mapping, threat modelling for agents, adaptive attacks, evasion research, isolation patterns, prompt leakage, supply chain and poisoning, vector store access control, denial-of-wallet, claim-level verification, training guard models, large red-team programmes, guardrail platforms, human oversight, NIST AI RMF, EU AI Act awareness, ISO/IEC 42001, incident response and economics.",
       "prerequisites": ["Completed the intermediate level or operates an LLM application in production", "Understands threat modelling, access control and CI pipelines", "Can fine-tune or evaluate a small model with Hugging Face tools"],
       "outcomes": ["Threat model agentic systems and prove control coverage against the OWASP LLM Top 10", "Run adaptive red-team campaigns and fix findings with retest evidence", "Operate guardrails as a governed multi-tenant platform with oversight and incident response", "Map technical controls to NIST AI RMF, EU AI Act duties and ISO/IEC 42001 evidence at awareness level"],
+      "course_outcomes": [
+        {"outcome": "Map controls to the OWASP Top 10 for LLM applications", "topics": ["OWASP Top 10 for LLM Applications 2025: Control Mapping"]},
+        {"outcome": "Threat-model agentic systems with MAESTRO and STRIDE", "topics": ["Threat Modelling Agentic Systems with MAESTRO and STRIDE"]},
+        {"outcome": "Run adaptive jailbreak searches and research guardrail evasion", "topics": ["Adaptive Attacks: Automated Jailbreak Search with PAIR, TAP and GCG", "Guardrail Evasion Research: Tokenisation, Obfuscation and Classifier Bypass"]},
+        {"outcome": "Isolate agents with sandboxes and dual-LLM patterns", "topics": ["Isolation Patterns for Agents: Sandboxes, Dual-LLM and Control-Data Separation"]},
+        {"outcome": "Prevent system prompt leakage and protect secrets", "topics": ["System Prompt Leakage and Secret Handling"]},
+        {"outcome": "Check for data poisoning, supply chain risks and vector store weaknesses", "topics": ["Data Poisoning, Supply Chain and Model Provenance Checks", "Embedding and Vector Store Weaknesses: Access Control and Poisoning"]},
+        {"outcome": "Limit unbounded consumption with rate limits and quotas", "topics": ["Unbounded Consumption: Rate Limits, Quotas and Denial-of-Wallet Defence"]},
+        {"outcome": "Control hallucinations with claim-level checks", "topics": ["Hallucination and Misinformation Controls: Claim-Level Verification"]},
+        {"outcome": "Train guard models", "topics": ["Training Guard Models: Distilling Safety Classifiers"]},
+        {"outcome": "Run red-team programmes at scale", "topics": ["Large-Scale Red Team Programmes: Running garak, PyRIT and promptfoo Together"]},
+        {"outcome": "Run guardrails as a multi-tenant platform with human oversight", "topics": ["Guardrails as a Platform: Multi-Tenant Gateways and Policy Distribution", "Human Oversight Design: Escalation, Review Queues and Reviewer Quality"]},
+        {"outcome": "Map controls to the NIST AI RMF, the EU AI Act and ISO/IEC 42001", "topics": ["NIST AI RMF and the Generative AI Profile: Mapping Controls", "EU AI Act Awareness: Risk Tiers, General-Purpose Models and Transparency", "ISO/IEC 42001 and Audit Evidence for AI Controls"]},
+        {"outcome": "Respond to AI safety incidents and manage guardrail economics", "topics": ["Incident Response for AI Safety Failures", "Guardrail Economics: Tiered Cascades and Sampling Strategies"]},
+        {"outcome": "Red-team and certify a production AI system", "topics": ["Advanced Capstone: Red-Team and Certify a Production Agent"]}
+      ],
       "days": [
         {
           "topic": "OWASP Top 10 for LLM Applications 2025: Control Mapping",

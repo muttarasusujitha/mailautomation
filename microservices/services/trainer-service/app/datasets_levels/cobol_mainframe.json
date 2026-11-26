@@ -38,7 +38,7 @@
           "lab_task": "Allocate a sequential data set, a PDS and a PDSE with suitable attributes, copy members between them, fill a data set until it runs out of space and fix the allocation.",
           "deliverable": "Data set attributes and notes",
           "checks": [["Display data set attributes", "RECFM, LRECL and BLKSIZE as planned", "ISPF screen"], ["Run out of space", "Space abend explained and allocation fixed", "Job output and note"], ["Allocate with the Zowe CLI", "Data set created from the command line", "CLI output"]],
-          "objectives": ["Understand data sets", "Choose attributes", "Allocate and manage data sets"]
+          "objectives": ["Explain data sets", "Choose attributes", "Allocate and manage data sets"]
         },
         {
           "topic": "Job Control Language: Jobs, Steps and DD Statements",
@@ -182,7 +182,7 @@
           "lab_task": "Run and trace a sample inquiry transaction, map each screen to the program and file calls behind it and explain how pseudo-conversational design frees resources between screens.",
           "deliverable": "Transaction flow diagram and explanation",
           "checks": [["Run the sample transaction", "Customer data shown on the screen", "Screenshot"], ["Draw the flow", "Screens, programs and files linked", "Flow diagram"], ["Explain pseudo-conversational design", "Resource use between screens explained", "Written explanation"]],
-          "objectives": ["Understand CICS", "Follow a transaction", "Explain online design"]
+          "objectives": ["Explain CICS", "Follow a transaction", "Explain online design"]
         },
         {
           "topic": "Beginner Capstone: Batch Billing System",
@@ -270,7 +270,7 @@
           "lab_task": "Read an existing IMS batch program, draw its database hierarchy, trace its DL/I calls and change it to report one extra field.",
           "deliverable": "Hierarchy diagram, call trace and changed program",
           "checks": [["Draw the hierarchy", "Segments and relationships correct", "Diagram"], ["Trace the calls", "Each GU, GN and GNP explained", "Call trace"], ["Run the changed program", "Extra field reported", "Job output"]],
-          "objectives": ["Understand IMS", "Read DL/I programs", "Make small IMS changes"]
+          "objectives": ["Explain IMS", "Read DL/I programs", "Make small IMS changes"]
         },
         {
           "topic": "Batch Scheduling with Control-M and CA 7",
@@ -369,7 +369,7 @@
           "lab_task": "Read the RACF profiles protecting your data sets, test access with another user, request access to a production data set through the right process and diagnose an ICH408I message.",
           "deliverable": "Profile listings, test results and diagnosis",
           "checks": [["List profiles", "Profiles protecting your data sets shown", "LISTDSD output"], ["Access as another user", "Denied with ICH408I", "Job output"], ["Diagnose the message", "Profile and missing access identified", "Diagnosis notes"]],
-          "objectives": ["Understand RACF", "Diagnose security errors", "Request access correctly"]
+          "objectives": ["Explain RACF", "Diagnose security errors", "Request access correctly"]
         },
         {
           "topic": "Intermediate Capstone: Online and Batch Banking Application",
@@ -484,7 +484,7 @@
           "lab_task": "Design an application change so it works across two LPARs with Db2 data sharing, test a rolling restart of one LPAR and explain the design rules that keep work moving.",
           "deliverable": "Design notes, test results and design rules",
           "checks": [["Restart one LPAR", "Transactions continue on the other", "Monitoring output"], ["Review affinities", "No transaction affinity to one region", "Design review"], ["Write the design rules", "Rules clear with examples", "Design rules"]],
-          "objectives": ["Understand sysplex", "Design for data sharing", "Keep applications available"]
+          "objectives": ["Explain sysplex", "Design for data sharing", "Keep applications available"]
         },
         {
           "topic": "Workload Manager and Mainframe Capacity",
@@ -493,7 +493,7 @@
           "lab_task": "Read WLM service class performance for online and batch, find a batch job driving the four-hour peak and propose changes that lower the peak.",
           "deliverable": "Performance analysis and peak reduction proposal",
           "checks": [["Read WLM reports", "Goals met or missed per class", "RMF report"], ["Find the peak driver", "Job and its MSU use identified", "SMF analysis"], ["Propose changes", "Expected peak reduction calculated", "Proposal"]],
-          "objectives": ["Understand WLM", "Read capacity data", "Reduce peak use"]
+          "objectives": ["Explain WLM", "Read capacity data", "Reduce peak use"]
         },
         {
           "topic": "Mainframe Software Cost and MIPS Reduction",
@@ -502,7 +502,7 @@
           "lab_task": "Find the top ten CPU consumers, estimate savings from tuning, zIIP offload and rescheduling, implement two changes and report measured savings.",
           "deliverable": "Consumer list, savings plan and results",
           "checks": [["List top consumers", "Ten jobs and transactions ranked", "SMF report"], ["Implement two changes", "CPU savings measured", "Before and after reports"], ["Report money saved", "Savings estimated under the pricing model", "Savings report"]],
-          "objectives": ["Understand mainframe cost", "Find savings", "Measure results"]
+          "objectives": ["Explain mainframe cost", "Find savings", "Measure results"]
         },
         {
           "topic": "Mainframe Security and Pervasive Encryption",

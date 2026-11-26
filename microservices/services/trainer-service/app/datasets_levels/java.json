@@ -7,11 +7,29 @@
   "certifications": ["Oracle Certified Foundations Associate, Java (1Z0-811)", "Oracle Certified Professional: Java SE 21 Developer (1Z0-830)", "Spring Certified Professional"],
   "tools": ["JDK 21", "IntelliJ IDEA", "Maven", "Gradle", "JUnit 5", "Git"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "dev.java tutorials", "url": "https://dev.java/learn", "checked": "Found in a web search on 2026-11-24; page not opened"},
+    {"title": "dev.java", "url": "https://dev.java/", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "No Java experience assumed. Participants learn the language, object-oriented programming, collections, exceptions, files and testing, and finish with a working console application.",
       "prerequisites": ["Basic computer and file system use", "Can install software on their machine", "Some logical thinking; earlier programming helps but is not required"],
       "outcomes": ["Write, compile and run Java programs", "Model problems with classes, interfaces and inheritance", "Use collections, exceptions and file I/O correctly", "Build and test a small Maven project"],
+      "course_outcomes": [
+        {"outcome": "Install the JDK and write, compile and run Java programs", "topics": ["Java Setup, JDK and First Program"]},
+        {"outcome": "Use variables, operators, strings and text blocks correctly", "topics": ["Variables, Primitive Types and Operators", "Strings, Text Blocks and Formatting"]},
+        {"outcome": "Control program flow with conditions, switch expressions and loops", "topics": ["Conditions and Switch Expressions", "Loops and Control Flow"]},
+        {"outcome": "Write methods and solve simple problems with arrays", "topics": ["Methods, Parameters and Overloading", "Arrays and Simple Algorithms"]},
+        {"outcome": "Model problems with classes, encapsulation and packages", "topics": ["Classes, Objects and Constructors", "Encapsulation, Packages and Access Modifiers"]},
+        {"outcome": "Use inheritance, polymorphism, interfaces, enums and sealed types", "topics": ["Inheritance and Polymorphism", "Interfaces, Enums and Sealed Types"]},
+        {"outcome": "Handle errors with exceptions", "topics": ["Exception Handling"]},
+        {"outcome": "Store and sort data with collections, generics and comparators", "topics": ["Collections: Lists, Sets and Maps", "Generics and Sorting with Comparators"]},
+        {"outcome": "Process data with lambdas and the Stream API", "topics": ["Lambdas and the Stream API"]},
+        {"outcome": "Read and write files with java.nio and work with dates using java.time", "topics": ["Files and the java.nio API", "Dates and Times with java.time"]},
+        {"outcome": "Build and test a Maven project with JUnit 5 and debug failing code", "topics": ["Maven Projects and Unit Testing with JUnit 5", "Debugging and Clean Code Practices"]},
+        {"outcome": "Deliver a library management console application", "topics": ["Beginner Capstone: Library Management Console Application"]}
+      ],
       "days": [
         {
           "topic": "Java Setup, JDK and First Program",
@@ -199,6 +217,20 @@
       "summary": "For people who can write basic Java. Covers modern language features, deeper collections and streams, concurrency, databases, build tools, testing and building REST services with Spring Boot.",
       "prerequisites": ["Writes Java classes, interfaces and collections confidently", "Has used exceptions and basic streams", "Has built and tested a Maven project"],
       "outcomes": ["Write idiomatic modern Java 21 code", "Use concurrency and databases correctly", "Build and test REST services with Spring Boot", "Organise multi-module builds with Maven or Gradle"],
+      "course_outcomes": [
+        {"outcome": "Write modern Java 21 code with records, sealed types and pattern matching", "topics": ["Modern Java Language Features from 11 to 21"]},
+        {"outcome": "Apply SOLID principles to an object-oriented design", "topics": ["Object-Oriented Design Principles and SOLID"]},
+        {"outcome": "Apply common design patterns in Java code", "topics": ["Common Design Patterns in Java"]},
+        {"outcome": "Choose collections and data structures on their performance characteristics", "topics": ["Advanced Collections and Data Structure Choice"]},
+        {"outcome": "Process data with advanced streams, collectors and functional patterns", "topics": ["Advanced Streams and Collectors", "Functional Programming Patterns in Java"]},
+        {"outcome": "Run concurrent work with executors, CompletableFuture and virtual threads", "topics": ["Concurrency: Threads and the Executor Framework", "CompletableFuture and Virtual Threads"]},
+        {"outcome": "Access databases with JDBC, JPA and Hibernate", "topics": ["JDBC and Database Access", "JPA and Hibernate"]},
+        {"outcome": "Organise multi-module builds with Gradle and test with Mockito and AssertJ", "topics": ["Gradle and Multi-Module Builds", "Testing with Mockito and AssertJ"]},
+        {"outcome": "Process JSON with Jackson and call external APIs with the Java HTTP Client", "topics": ["JSON Processing with Jackson", "Calling External APIs with the Java HTTP Client"]},
+        {"outcome": "Build REST APIs with Spring Boot using dependency injection and Spring Data JPA", "topics": ["Spring Core: Dependency Injection and Configuration", "Building REST APIs with Spring Boot", "Spring Data JPA"]},
+        {"outcome": "Secure Spring applications and monitor them with logging and Actuator", "topics": ["Spring Security Essentials", "Logging, Configuration and Actuator"]},
+        {"outcome": "Deliver an order management REST service", "topics": ["Intermediate Capstone: Order Management REST Service"]}
+      ],
       "days": [
         {
           "topic": "Modern Java Language Features from 11 to 21",
@@ -386,6 +418,20 @@
       "summary": "For working Java developers. Covers JVM internals, memory and garbage collection, performance, advanced concurrency, reactive and event-driven services, microservices, security and running Java in production.",
       "prerequisites": ["Builds Spring Boot services professionally", "Comfortable with concurrency, JPA and testing", "Has deployed a Java application"],
       "outcomes": ["Diagnose memory, CPU and latency problems in the JVM", "Design reliable concurrent and event-driven systems", "Build production-ready microservices", "Run, secure and observe Java services in containers"],
+      "course_outcomes": [
+        {"outcome": "Explain JVM architecture and class loading", "topics": ["JVM Architecture and Class Loading"]},
+        {"outcome": "Tune garbage collection and find memory leaks from heap dumps", "topics": ["Memory Management and Garbage Collection Tuning", "Diagnosing Memory Leaks with Heap Dumps"]},
+        {"outcome": "Profile CPU and latency with JFR and async-profiler and benchmark code with JMH", "topics": ["Performance Profiling with JFR and async-profiler", "Microbenchmarking with JMH"]},
+        {"outcome": "Write correct concurrent code with the Java Memory Model, structured concurrency and scoped values", "topics": ["Java Memory Model and Lock-Free Programming", "Advanced Concurrency: Structured Concurrency and Scoped Values"]},
+        {"outcome": "Build reactive and event-driven services with Project Reactor, WebFlux and Kafka", "topics": ["Reactive Programming with Project Reactor and WebFlux", "Event-Driven Services with Apache Kafka"]},
+        {"outcome": "Design microservices with domain-driven design, hexagonal architecture and Spring Cloud", "topics": ["Domain-Driven Design and Hexagonal Architecture in Java", "Microservices Architecture with Spring Cloud"]},
+        {"outcome": "Make services resilient with Resilience4j and observable with distributed tracing", "topics": ["Resilience Patterns with Resilience4j", "Distributed Tracing and Observability for Java Services"]},
+        {"outcome": "Secure services with OAuth2, OpenID Connect and dependency checks", "topics": ["Advanced Spring Security with OAuth2 and OpenID Connect", "Secure Coding and Dependency Security"]},
+        {"outcome": "Test services with contract, integration and mutation tests", "topics": ["Advanced Testing: Contract, Integration and Mutation Testing"]},
+        {"outcome": "Containerise Java applications and run them on Kubernetes", "topics": ["Containerising Java Applications", "Running Java on Kubernetes"]},
+        {"outcome": "Build GraalVM native images for fast startup", "topics": ["Native Images and Fast Startup with GraalVM"]},
+        {"outcome": "Deliver a production-grade Java microservices platform", "topics": ["Advanced Capstone: Production-Grade Java Microservices Platform"]}
+      ],
       "days": [
         {
           "topic": "JVM Architecture and Class Loading",

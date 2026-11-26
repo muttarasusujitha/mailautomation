@@ -65,7 +65,7 @@
           "lab_task": "Use a repository secret for an API token and a configuration value for an endpoint, restrict GITHUB_TOKEN to read-only, and prove the secret never appears in logs.",
           "deliverable": "Workflow file, settings screenshots and a log search",
           "checks": [["Search logs for the token", "Masked", "Log search"], ["Try to push from the workflow with read-only permissions", "Denied", "Run logs"], ["Run from a fork pull request", "Secret is not available", "Run logs"]],
-          "objectives": ["Use secrets and contexts safely", "Limit GITHUB_TOKEN permissions", "Understand fork pull request limits"]
+          "objectives": ["Use secrets and contexts safely", "Limit GITHUB_TOKEN permissions", "Explain fork pull request limits"]
         },
         {
           "topic": "Building and Publishing Container Images",

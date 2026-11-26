@@ -403,7 +403,7 @@
           "lab_task": "Benchmark one 8B-class or larger model with and without a small same-family draft model on 50 prompts at concurrency 1 and 8, and with and without prefix caching using a 1,500-token shared system prompt. Report tokens/s, acceptance rate where logged, TTFT and the load level where speculation stops helping.",
           "deliverable": "Benchmark table for four configurations at two concurrency levels with a recommendation",
           "checks": [["Run draft-model decoding at concurrency 1", "Tokens/s is higher than the baseline and the acceptance rate is shown", "Benchmark table"], ["Run at concurrency 8", "The speedup is smaller or negative and the value is reported", "Benchmark table"], ["Enable prefix caching and replay the shared prompt", "TTFT for the second request is lower than for the first", "Two timing lines"]],
-          "objectives": ["Apply speculative decoding and prefix caching", "Measure benefits under realistic load", "Know when each technique does not pay off"]
+          "objectives": ["Apply speculative decoding and prefix caching", "Measure benefits under realistic load", "Decide when each technique does not pay off"]
         },
         {
           "topic": "vLLM Production Tuning and Scheduling Limits",

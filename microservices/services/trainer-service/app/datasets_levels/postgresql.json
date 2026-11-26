@@ -12,6 +12,23 @@
       "summary": "For developers, analysts and junior DBAs new to PostgreSQL. Covers installing and connecting, databases and schemas, data types, constraints, writing and querying data, joins, aggregation, CTEs, views, indexes, transactions, roles and privileges, functions in SQL and PL/pgSQL, JSONB, dates and time zones, loading data with COPY, backups with pg_dump and connecting from application code.",
       "prerequisites": ["Comfortable using a terminal", "Knows what tables, rows and columns are", "No previous PostgreSQL experience needed"],
       "outcomes": ["Install PostgreSQL and work confidently in psql and pgAdmin", "Design tables with correct types and constraints", "Write queries with joins, aggregates, CTEs and JSONB", "Secure access with roles, take backups and connect from an application"],
+      "course_outcomes": [
+        {"outcome": "Install PostgreSQL and create databases, schemas and tables", "topics": ["PostgreSQL Overview, Installation and Setup", "Databases, Schemas and Tables"]},
+        {"outcome": "Choose data types and constraints", "topics": ["PostgreSQL Data Types", "Constraints and Keys"]},
+        {"outcome": "Insert, update and delete data", "topics": ["Inserting, Updating and Deleting Data in PostgreSQL"]},
+        {"outcome": "Query with filters, sorting, pattern matching and joins", "topics": ["Querying: Filtering, Sorting and Pattern Matching", "Joins in PostgreSQL"]},
+        {"outcome": "Aggregate data with grouping and window functions", "topics": ["Aggregation, Grouping and Window Functions"]},
+        {"outcome": "Write subqueries and common table expressions", "topics": ["Subqueries and Common Table Expressions"]},
+        {"outcome": "Build views and materialised views", "topics": ["Views and Materialised Views"]},
+        {"outcome": "Speed up queries with indexes", "topics": ["Indexes and Query Speed"]},
+        {"outcome": "Use transactions safely under concurrency", "topics": ["Transactions and Concurrency"]},
+        {"outcome": "Manage roles, users and privileges", "topics": ["Roles, Users and Privileges"]},
+        {"outcome": "Write functions, procedures and audit triggers in PL/pgSQL", "topics": ["Functions and Procedures in SQL and PL/pgSQL", "Triggers and Audit Tables"]},
+        {"outcome": "Store and query JSON with JSONB", "topics": ["JSON and JSONB in PostgreSQL"]},
+        {"outcome": "Load and export data with COPY and back up with pg_dump", "topics": ["Loading and Exporting Data with COPY", "Backup and Restore with pg_dump"]},
+        {"outcome": "Connect applications to PostgreSQL", "topics": ["Connecting Applications to PostgreSQL"]},
+        {"outcome": "Deliver a library management database", "topics": ["Beginner Capstone: Library Management Database"]}
+      ],
       "days": [
         {
           "topic": "PostgreSQL Overview, Installation and Setup",
@@ -199,6 +216,23 @@
       "summary": "For developers and DBAs who use PostgreSQL daily. Covers configuration, EXPLAIN ANALYZE, index types, query tuning, statistics, MVCC and vacuum, locking, isolation levels, partitioning, full-text search, extensions, physical and logical replication, point-in-time recovery with pgBackRest, monitoring, PgBouncer, security, safe schema migrations, foreign data wrappers and managed cloud PostgreSQL.",
       "prerequisites": ["Writes SQL with joins, CTEs and window functions", "Has created tables, indexes and roles in PostgreSQL", "Comfortable on the Linux command line"],
       "outcomes": ["Tune queries and configuration using plans and statistics", "Keep databases healthy with vacuum, monitoring and pooling", "Set up replication and point-in-time recovery", "Change schemas safely and run PostgreSQL on cloud services"],
+      "course_outcomes": [
+        {"outcome": "Configure server memory settings", "topics": ["Server Configuration and Memory Settings"]},
+        {"outcome": "Read EXPLAIN ANALYZE plans and tune queries", "topics": ["Reading EXPLAIN ANALYZE Plans", "Query Tuning Techniques"]},
+        {"outcome": "Choose B-tree, GIN, GiST, BRIN and hash indexes", "topics": ["Index Types: B-tree, GIN, GiST, BRIN and Hash"]},
+        {"outcome": "Explain how statistics drive the query planner", "topics": ["Statistics and the Query Planner"]},
+        {"outcome": "Manage MVCC, VACUUM and autovacuum", "topics": ["MVCC, VACUUM and Autovacuum"]},
+        {"outcome": "Avoid locking problems and choose isolation levels", "topics": ["Locking and Concurrency Control", "Transaction Isolation Levels"]},
+        {"outcome": "Partition tables declaratively", "topics": ["PostgreSQL Declarative Table Partitioning"]},
+        {"outcome": "Search text with full-text search and use extensions such as pg_stat_statements and PostGIS", "topics": ["Full-Text Search in PostgreSQL", "Extensions: pg_stat_statements, PostGIS and Others"]},
+        {"outcome": "Run streaming replication with read replicas", "topics": ["Streaming Replication and Read Replicas"]},
+        {"outcome": "Recover to a point in time with pgBackRest", "topics": ["Point-in-Time Recovery with pgBackRest"]},
+        {"outcome": "Monitor PostgreSQL and pool connections with PgBouncer", "topics": ["Monitoring PostgreSQL", "Connection Pooling with PgBouncer"]},
+        {"outcome": "Secure PostgreSQL", "topics": ["Securing PostgreSQL"]},
+        {"outcome": "Run safe schema migrations", "topics": ["Safe Schema Migrations"]},
+        {"outcome": "Capture changes with logical replication and compare managed PostgreSQL services", "topics": ["Logical Replication and Change Data Capture", "Managed PostgreSQL: RDS, Aurora, Azure and Cloud SQL"]},
+        {"outcome": "Deliver a tuned and protected production database", "topics": ["Intermediate Capstone: Tuning and Protecting a Production-Like Database"]}
+      ],
       "days": [
         {
           "topic": "Server Configuration and Memory Settings",
@@ -243,7 +277,7 @@
           "lab_task": "Create a table with two correlated columns, show a bad estimate, fix it with extended statistics, raise a column's statistics target and compare plans.",
           "deliverable": "Plans before and after and pg_stats output",
           "checks": [["Query on both correlated columns", "Estimate far below actual before the fix", "EXPLAIN output"], ["Add extended statistics and ANALYZE", "Estimate close to actual", "EXPLAIN output"], ["Inspect pg_stats", "Most common values shown for the column", "Query result"]],
-          "objectives": ["Understand planner estimates", "Maintain statistics", "Fix estimate problems"]
+          "objectives": ["Explain planner estimates", "Maintain statistics", "Fix estimate problems"]
         },
         {
           "topic": "MVCC, VACUUM and Autovacuum",
@@ -261,7 +295,7 @@
           "lab_task": "Create a lock queue with an ALTER TABLE behind a long query, find the blocker, use lock_timeout to protect the migration and build a job queue with SKIP LOCKED.",
           "deliverable": "Lock queries, session transcripts and the job queue code",
           "checks": [["Find the blocker", "Blocking process identified", "pg_blocking_pids output"], ["Run the migration with lock_timeout", "Fails fast instead of blocking others", "Error output"], ["Run four queue workers", "Each job processed once", "Query result"]],
-          "objectives": ["Understand locks", "Find blockers", "Build safe job queues"]
+          "objectives": ["Explain locks", "Find blockers", "Build safe job queues"]
         },
         {
           "topic": "Transaction Isolation Levels",
@@ -369,7 +403,7 @@
           "lab_task": "Create a PostgreSQL instance on two cloud providers, change a parameter, create a read replica, restore to a point in time and compare features, limits and monthly cost.",
           "deliverable": "Instance settings, test results and comparison table",
           "checks": [["Restore to a point in time", "New instance with data from that time", "Query result"], ["Try to create a superuser", "Blocked and the managed alternative used", "Error output"], ["Compare costs", "Monthly cost for the same size on both", "Comparison table"]],
-          "objectives": ["Use managed PostgreSQL", "Know their limits", "Compare providers"]
+          "objectives": ["Use managed PostgreSQL", "Identify their limits", "Compare providers"]
         },
         {
           "topic": "Intermediate Capstone: Tuning and Protecting a Production-Like Database",
@@ -386,6 +420,23 @@
       "summary": "For senior DBAs, platform engineers and architects. Covers storage and WAL internals, high availability with Patroni, tuning heavy workloads, checkpoints and WAL, bloat management, major upgrades without downtime, sharding with Citus, PostgreSQL on Kubernetes, disaster recovery, compliance, multi-tenant design, time series, pgvector, Oracle migration, observability at scale, capacity planning, automation, production troubleshooting and running a database platform.",
       "prerequisites": ["Administers PostgreSQL in production", "Has set up replication and backups", "Tunes queries with EXPLAIN and pg_stat_statements"],
       "outcomes": ["Run highly available PostgreSQL with automatic failover", "Tune and scale heavy workloads and upgrade without downtime", "Design multi-tenant, sharded and AI workloads", "Diagnose production incidents and run PostgreSQL as a platform"],
+      "course_outcomes": [
+        {"outcome": "Explain storage, pages and WAL internals", "topics": ["PostgreSQL Internals: Storage, Pages and WAL"]},
+        {"outcome": "Run high availability with Patroni", "topics": ["High Availability with Patroni"]},
+        {"outcome": "Tune write-heavy and mixed workloads and manage bloat online", "topics": ["Tuning Write-Heavy and Mixed Workloads", "Bloat Management and Online Reorganisation"]},
+        {"outcome": "Upgrade major versions without downtime", "topics": ["Major Version Upgrades Without Downtime"]},
+        {"outcome": "Scale out with Citus and sharding", "topics": ["Scaling Out with Citus and Sharding"]},
+        {"outcome": "Run PostgreSQL on Kubernetes with CloudNativePG", "topics": ["PostgreSQL on Kubernetes with CloudNativePG"]},
+        {"outcome": "Plan disaster recovery across regions", "topics": ["Disaster Recovery Across Regions"]},
+        {"outcome": "Harden security and meet compliance requirements", "topics": ["Security Hardening and Compliance"]},
+        {"outcome": "Design multi-tenant databases", "topics": ["Multi-Tenant Database Design on PostgreSQL"]},
+        {"outcome": "Run time series workloads with TimescaleDB and vector search with pgvector", "topics": ["Time Series Workloads with TimescaleDB", "Vector Search and AI Workloads with pgvector"]},
+        {"outcome": "Query across databases with foreign data wrappers and migrate from Oracle", "topics": ["Foreign Data Wrappers and Cross-Database Queries", "Migrating from Oracle to PostgreSQL"]},
+        {"outcome": "Observe fleets and plan capacity and cost", "topics": ["Observability at Fleet Scale", "Capacity Planning and Cost"]},
+        {"outcome": "Automate operations and troubleshoot production incidents", "topics": ["Automating PostgreSQL Operations", "Troubleshooting Production PostgreSQL Incidents"]},
+        {"outcome": "Run PostgreSQL as a database platform", "topics": ["Running PostgreSQL as a Database Platform"]},
+        {"outcome": "Deliver a highly available PostgreSQL platform", "topics": ["Advanced Capstone: Highly Available PostgreSQL Platform"]}
+      ],
       "days": [
         {
           "topic": "PostgreSQL Internals: Storage, Pages and WAL",
@@ -394,7 +445,7 @@
           "lab_task": "Inspect a table page with pageinspect, read WAL records for an update with pg_waldump, show a HOT update after lowering fillfactor and see which tables fill shared buffers.",
           "deliverable": "Annotated internals notes",
           "checks": [["Inspect a page", "Live and dead tuples identified", "pageinspect output"], ["Read the WAL record for an update", "Record type and relation identified", "pg_waldump output"], ["Lower fillfactor and update", "HOT updates counted", "pg_stat_user_tables output"]],
-          "objectives": ["Understand storage", "Read WAL", "Use HOT updates"]
+          "objectives": ["Explain storage", "Read WAL", "Use HOT updates"]
         },
         {
           "topic": "High Availability with Patroni",
@@ -547,7 +598,7 @@
           "lab_task": "Diagnose and fix five injected incidents (a plan regression, a lock pile-up, a full disk from a stuck replication slot, a connection storm and lag from a long query on a standby) and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the stuck slot", "WAL space freed and the cause removed", "Disk usage output"], ["Clear the lock pile-up", "Blocker found and the queue cleared", "pg_locks output"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose database incidents", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose database incidents", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Running PostgreSQL as a Database Platform",

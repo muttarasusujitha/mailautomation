@@ -12,6 +12,22 @@
       "summary": "For business users and analysts new to Power BI. Covers connecting to data, cleaning it with Power Query, building a data model, writing first DAX measures, designing reports and dashboards, and publishing and sharing in the Power BI service, ending with a complete sales report.",
       "prerequisites": ["Comfortable with Excel: tables, filters and simple formulas", "Understands basic business measures such as revenue and margin", "Power BI Desktop installed and a work or trial account for the service"],
       "outcomes": ["Import and clean data with Power Query", "Build a star-schema data model with relationships", "Write basic DAX measures and time intelligence", "Design, publish and share clear reports and dashboards"],
+      "course_outcomes": [
+        {"outcome": "Set up Power BI Desktop and build a first report", "topics": ["Power BI Overview, Setup and First Report"]},
+        {"outcome": "Connect to data sources and clean data with Power Query", "topics": ["Connecting to Data Sources", "Cleaning Data with Power Query"]},
+        {"outcome": "Shape data with merge, append, pivot and unpivot", "topics": ["Shaping Data: Merge, Append, Pivot and Unpivot"]},
+        {"outcome": "Model data as a star schema with relationships", "topics": ["Data Modelling: Star Schema and Relationships"]},
+        {"outcome": "Write calculated columns and measures in DAX", "topics": ["DAX Essentials: Calculated Columns and Measures"]},
+        {"outcome": "Change filter context with CALCULATE and use time intelligence", "topics": ["DAX with CALCULATE and Filter Context", "Time Intelligence in DAX"]},
+        {"outcome": "Design report pages with visuals, slicers, drill-through and bookmarks", "topics": ["Report Design: Visuals and Layout", "Interactivity: Slicers, Filters, Drill-Through and Bookmarks"]},
+        {"outcome": "Publish reports to the Power BI Service with scheduled refresh through a gateway", "topics": ["Publishing and the Power BI Service", "Scheduled Refresh and Gateways"]},
+        {"outcome": "Restrict data with row-level security", "topics": ["Row-Level Security"]},
+        {"outcome": "Use Excel and Power BI together", "topics": ["Excel and Power BI Together"]},
+        {"outcome": "Fix slow reports with performance basics", "topics": ["Performance Essentials for Reports"]},
+        {"outcome": "Tell a clear story with a dashboard and use Copilot in Power BI", "topics": ["Data Storytelling and Dashboard Design", "Copilot in Power BI"]},
+        {"outcome": "Organise and govern content and build paginated reports", "topics": ["Organising and Governing Power BI Content", "Paginated Reports with Report Builder"]},
+        {"outcome": "Deliver a sales performance report suite", "topics": ["Beginner Capstone: Sales Performance Report Suite"]}
+      ],
       "days": [
         {
           "topic": "Power BI Overview, Setup and First Report",
@@ -199,6 +215,22 @@
       "summary": "For analysts who build Power BI reports. Covers advanced Power Query and M, data modelling patterns, deeper DAX including context transition and iterators, calculation groups, composite models, incremental refresh, deployment pipelines, Fabric integration, performance tuning and governance.",
       "prerequisites": ["Builds Power BI reports with a star schema and basic DAX", "Uses CALCULATE and time intelligence", "Publishes reports to the Power BI service"],
       "outcomes": ["Write advanced M and DAX with confidence", "Design scalable models with composite and incremental refresh", "Tune model and report performance", "Manage the lifecycle of Power BI content with deployment pipelines and Git"],
+      "course_outcomes": [
+        {"outcome": "Write advanced Power Query transformations in M", "topics": ["Advanced Power Query and the M Language"]},
+        {"outcome": "Apply data modelling patterns", "topics": ["Data Modelling Patterns"]},
+        {"outcome": "Use context transition, iterators and advanced DAX patterns", "topics": ["DAX Context Transition and Iterators", "Advanced DAX Patterns"]},
+        {"outcome": "Build P&L and balance sheet reports", "topics": ["Financial Reporting in Power BI: P&L, Balance Sheet and Variance Analysis"]},
+        {"outcome": "Use calculation groups and field parameters", "topics": ["Calculation Groups and Field Parameters"]},
+        {"outcome": "Design composite models with DirectQuery, aggregations and incremental refresh", "topics": ["Composite Models, DirectQuery and Aggregations", "Incremental Refresh and Large Models"]},
+        {"outcome": "Tune model and DAX performance", "topics": ["Performance Tuning Models and DAX"]},
+        {"outcome": "Promote content with deployment pipelines", "topics": ["Deployment Pipelines and Lifecycle Management"]},
+        {"outcome": "Share semantic models and dataflows and use Microsoft Fabric", "topics": ["Power BI with Microsoft Fabric", "Dataflows and Shared Semantic Models"]},
+        {"outcome": "Apply row-level and object-level security", "topics": ["Advanced Row-Level and Object-Level Security"]},
+        {"outcome": "Build custom visuals and embed reports in applications", "topics": ["Custom Visuals and Advanced Visualisation", "Embedding Power BI in Applications"]},
+        {"outcome": "Administer tenant settings and monitor capacity", "topics": ["Power BI Administration and Tenant Settings", "Capacity Management and Monitoring"]},
+        {"outcome": "Test reports and automate tasks with Power Automate and the REST API", "topics": ["Testing and Validating Reports", "Automation with Power Automate and the REST API"]},
+        {"outcome": "Deliver an enterprise sales analytics solution", "topics": ["Intermediate Capstone: Enterprise Sales Analytics Solution"]}
+      ],
       "days": [
         {
           "topic": "Advanced Power Query and the M Language",
@@ -386,6 +418,22 @@
       "summary": "For senior Power BI developers, BI architects and Fabric analytics engineers. Covers BI architecture at enterprise scale, tabular model internals, advanced DAX optimisation, semantic model engineering with external tools and Git, Fabric and Direct Lake design, governance, security, embedding at scale, AI and a BI centre of excellence.",
       "prerequisites": ["Builds enterprise Power BI models with advanced DAX", "Uses deployment pipelines, Tabular Editor and DAX Studio", "Has managed shared models for many users"],
       "outcomes": ["Architect enterprise BI on Power BI and Fabric", "Engineer and optimise large tabular models", "Govern, secure and automate BI at scale", "Lead a BI centre of excellence"],
+      "course_outcomes": [
+        {"outcome": "Design an enterprise BI architecture with Power BI and Fabric", "topics": ["Enterprise BI Architecture with Power BI and Fabric"]},
+        {"outcome": "Explain tabular model internals and optimise advanced DAX", "topics": ["Tabular Model Internals", "Advanced DAX Optimisation"]},
+        {"outcome": "Engineer semantic models with Tabular Editor, version control and CI/CD", "topics": ["Semantic Model Engineering with Tabular Editor and C# Scripts", "Version Control and CI/CD for Semantic Models"]},
+        {"outcome": "Design Direct Lake semantic models and Fabric lakehouses, warehouses and notebooks", "topics": ["Direct Lake and Fabric Semantic Model Design", "Fabric Analytics Engineering: Lakehouse, Warehouse and Notebooks for BI"]},
+        {"outcome": "Partition large models", "topics": ["Large-Scale Model Design and Partitioning"]},
+        {"outcome": "Build real-time analytics", "topics": ["Real-Time Analytics with Power BI and Fabric"]},
+        {"outcome": "Secure BI with SSO, data masking and zero trust", "topics": ["Advanced Security: SSO, Data Masking and Zero Trust for BI"]},
+        {"outcome": "Run governance through a BI centre of excellence and monitor usage at scale", "topics": ["Governance at Scale and the BI Centre of Excellence", "Monitoring, Auditing and Usage Analytics at Scale"]},
+        {"outcome": "Embed analytics in multi-tenant applications", "topics": ["Embedding at Scale for Multi-Tenant Applications"]},
+        {"outcome": "Use AI and Copilot in enterprise BI", "topics": ["AI and Copilot in Enterprise BI"]},
+        {"outcome": "Plan a migration from another BI tool", "topics": ["Migrating from Other BI Tools to Power BI"]},
+        {"outcome": "Engineer advanced visuals and troubleshoot production issues", "topics": ["Advanced Data Visualisation and Report Engineering", "Troubleshooting Production Power BI Issues"]},
+        {"outcome": "Set a BI strategy and lead architecture reviews", "topics": ["BI Strategy and Business Value", "BI Architecture Reviews and Design Authority"]},
+        {"outcome": "Deliver an enterprise BI platform on Fabric", "topics": ["Advanced Capstone: Enterprise BI Platform on Fabric"]}
+      ],
       "days": [
         {
           "topic": "Enterprise BI Architecture with Power BI and Fabric",

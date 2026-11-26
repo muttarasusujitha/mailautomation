@@ -50,12 +50,62 @@ def build_outline(entry: dict) -> dict:
 _DESIGN_MODES = {"demo", "lab", "discussion"}
 
 
+def seeded_faults(design: dict) -> list:
+    """The design's planted lab faults: ``seeded_faults`` (2-3 faults), or the older single ``seeded_failure``."""
+    faults = design.get("seeded_faults")
+    if isinstance(faults, list) and faults:
+        return [fault for fault in faults if isinstance(fault, dict)]
+    single = design.get("seeded_failure")
+    return [single] if isinstance(single, dict) and single else []
+
+
+def quiz_items(design: dict) -> list:
+    """Knowledge-check questions as {"question", "answer", "outcome"}; older designs store questions only."""
+    items = []
+    for item in design.get("quiz") or []:
+        if isinstance(item, dict):
+            items.append({"question": str(item.get("question") or "").strip(),
+                          "answer": str(item.get("answer") or "").strip(), "outcome": item.get("outcome")})
+        elif str(item or "").strip():
+            items.append({"question": str(item).strip(), "answer": "", "outcome": None})
+    return items
+
+
 def design_problems(design: dict, module_minutes: int) -> list:
-    """Checks for an optional fully detailed module design (the course-workbook sample format)."""
+    """Checks for an optional fully detailed module design (the course-workbook sample format).
+
+    Both shapes pass: the current one (2-3 ``seeded_faults``; quiz items with an answer and the
+    number of the outcome they test) and the earlier one (one ``seeded_failure``; questions only).
+    Whatever a design does state must be complete and consistent.
+    """
     problems = []
     outcomes = design.get("outcomes") or []
     if not 3 <= len(outcomes) <= 5 or not all(o.get("outcome") and o.get("assessed_by") for o in outcomes):
         problems.append("design needs 3 to 5 outcomes, each with an outcome and how it is assessed")
+    faults = seeded_faults(design)
+    # The single seeded_failure kept beside seeded_faults for earlier readers must be complete too.
+    stated = faults + ([design["seeded_failure"]] if isinstance(design.get("seeded_failure"), dict) else [])
+    if not faults or not all(all(fault.get(key) for key in ("symptom", "cause", "fix")) for fault in stated):
+        problems.append("design needs a seeded lab failure with a symptom, cause and fix")
+    if isinstance(design.get("seeded_faults"), list) and not 2 <= len(design["seeded_faults"]) <= 3:
+        problems.append("design needs 2 to 3 seeded faults")
+    questions = quiz_items(design)
+    if any(not item["question"] for item in questions):
+        problems.append("every knowledge-check item needs a question")
+    answered = [item for item in questions if item["answer"] or item["outcome"] is not None]
+    if answered:
+        if len(answered) != len(questions) or any(not item["answer"] for item in questions):
+            problems.append("every knowledge-check question needs an answer")
+        numbers = {item["outcome"] for item in questions}
+        if not all(isinstance(number, int) and 1 <= number <= len(outcomes) for number in numbers):
+            problems.append("every knowledge-check question needs the number of the outcome it tests")
+        untested = [index for index, outcome in enumerate(outcomes, 1)
+                    if "knowledge check" in str(outcome.get("assessed_by") or "").lower() and index not in numbers]
+        if untested:
+            problems.append("outcomes assessed by the knowledge check need a question: "
+                            + ", ".join(str(number) for number in untested))
+    if not isinstance(design.get("to_verify", []), list):
+        problems.append("to_verify must be a list")
     topics = design.get("topics") or []
     if not topics or not all(t.get("topic") and int(t.get("minutes") or 0) > 0 for t in topics):
         problems.append("design topics need a name and positive minutes")
@@ -63,9 +113,6 @@ def design_problems(design: dict, module_minutes: int) -> list:
         problems.append(f"design topic minutes must add up to the module's {module_minutes} minutes")
     if any(t.get("mode") not in _DESIGN_MODES for t in topics):
         problems.append("design topic mode must be demo, lab or discussion")
-    seeded = design.get("seeded_failure") or {}
-    if not all(seeded.get(key) for key in ("symptom", "cause", "fix")):
-        problems.append("design needs a seeded lab failure with a symptom, cause and fix")
     if len(design.get("quiz") or []) < 5:
         problems.append("design needs at least 5 knowledge-check questions")
     if any(len(row) != 5 for row in design.get("lab_rubric") or []) or not design.get("lab_rubric"):

@@ -47,7 +47,7 @@
           "lab_task": "Create two branches that change the same lines, merge them, resolve the conflict keeping both changes correctly, and repeat with an abort.",
           "deliverable": "Resolved file, merge commit and notes on each conflict",
           "checks": [["Open the resolved file", "No conflict markers remain and both changes are kept", "File contents"], ["Run git merge --abort during a second conflict", "Repository returns to the pre-merge state", "git status output"], ["Run the project after resolving", "It still works", "Test or run output"]],
-          "objectives": ["Understand why conflicts happen", "Resolve conflicts correctly", "Abort a merge safely"]
+          "objectives": ["Explain why conflicts happen", "Resolve conflicts correctly", "Abort a merge safely"]
         },
         {
           "topic": "Remote Repositories and GitHub",
@@ -182,7 +182,7 @@
           "lab_task": "Create a commit by hand using git hash-object, update-index, write-tree and commit-tree, then point a branch at it and explain each object you created.",
           "deliverable": "Command transcript and an annotated diagram of the objects",
           "checks": [["Run git log on the new branch", "Shows the hand-made commit", "Command output"], ["Show the tree of the commit with git cat-file -p", "Lists the file blobs", "Command output"], ["Explain the diagram", "Blob, tree, commit and branch relationships are correct", "Diagram"]],
-          "objectives": ["Explain how Git stores data", "Inspect Git objects", "Understand branches as pointers"]
+          "objectives": ["Explain how Git stores data", "Inspect Git objects", "Explain branches as pointers"]
         },
         {
           "topic": "Beginner Capstone: Team Project with a Git Workflow",

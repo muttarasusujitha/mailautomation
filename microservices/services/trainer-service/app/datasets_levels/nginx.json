@@ -403,7 +403,7 @@
           "lab_task": "Create a stream block that listens on 5433 and proxies to PostgreSQL on 5432, a UDP listener on 5353 that forwards to 127.0.0.1:53, and a 443 listener using ssl_preread with a map from $ssl_preread_server_name to two upstreams. Test with psql -h localhost -p 5433, dig @127.0.0.1 -p 5353 example.com and s_client -servername.",
           "deliverable": "Stream configuration and three test transcripts for TCP, UDP and SNI routing",
           "checks": [["psql -h localhost -p 5433 -c 'select 1'", "Returns one row with value 1 through the proxy", "psql output"], ["dig @127.0.0.1 -p 5353 example.com +short", "Returns an IP address through UDP proxying", "dig output"], ["openssl s_client -connect localhost:443 -servername a.test, then -servername b.test", "Each SNI reaches a different backend certificate subject", "s_client subjects"]],
-          "objectives": ["Proxy non-HTTP protocols with the stream module", "Route TLS traffic by SNI without terminating it", "Know the differences between stream and http logging"]
+          "objectives": ["Proxy non-HTTP protocols with the stream module", "Route TLS traffic by SNI without terminating it", "Explain the differences between stream and http logging"]
         },
         {
           "topic": "gRPC Proxying with grpc_pass and HTTP/2 Backends",
@@ -430,7 +430,7 @@
           "lab_task": "Install the njs dynamic module, add load_module modules/ngx_http_js_module.so; and js_import main from /etc/nginx/njs/main.js;. Write a function that returns JSON with r.headersIn['User-Agent'] and a computed SHA-256 hash from the crypto module, expose it with js_content, test with curl, and run njs -c in the CLI for a unit check.",
           "deliverable": "njs script, configuration and curl output plus a CLI unit test result",
           "checks": [["nginx -t after load_module and js_import", "Reports syntax is ok and test is successful", "nginx -t output"], ["curl -s http://localhost/njs", "Returns JSON containing the User-Agent and a 64-hex-character hash", "curl output"], ["Pass an invalid argument to the handler", "The script returns HTTP 400 with a JSON error message", "curl -i output"]],
-          "objectives": ["Extend Nginx behavior with njs handlers", "Test njs scripts outside the server", "Know when scripting is appropriate and when it is not"]
+          "objectives": ["Extend Nginx behavior with njs handlers", "Test njs scripts outside the server", "Decide when scripting is appropriate and when it is not"]
         },
         {
           "topic": "Dynamic Modules: Building, Loading and Compatibility",
@@ -466,7 +466,7 @@
           "lab_task": "Configure location /api/ with mirror /mirror; mirror_request_body on; and an internal location /mirror { proxy_pass http://127.0.0.1:9100$request_uri; } where 9100 logs requests. POST 20 JSON payloads to /api/ and show that the shadow service logs 20 requests while clients see only the primary response. Then add sub_filter 'http://old.test' 'https://new.test'.",
           "deliverable": "Mirroring configuration, shadow server log count and a sub_filter rewrite example",
           "checks": [["POST 20 payloads to /api/", "Shadow service log has 20 matching entries", "Shadow log count"], ["Stop the shadow service and repeat", "Clients still receive HTTP 200 from the primary backend", "curl status list"], ["Request a page that contains http://old.test links", "Response body shows https://new.test after sub_filter", "curl output"]],
-          "objectives": ["Duplicate production traffic to a test service", "Understand that mirror failures do not change client responses", "Rewrite response bodies with sub_filter"]
+          "objectives": ["Duplicate production traffic to a test service", "Show that mirror failures do not change client responses", "Rewrite response bodies with sub_filter"]
         },
         {
           "topic": "Large Media Delivery: sendfile, aio threads, slice and mp4",

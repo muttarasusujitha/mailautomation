@@ -26,6 +26,22 @@
         "Expose applications with Services and Ingress and configure them with ConfigMaps and Secrets",
         "Diagnose common pod failures with kubectl"
       ],
+      "course_outcomes": [
+        {"outcome": "Explain Kubernetes architecture and run a local cluster", "topics": ["Kubernetes Architecture and Local Cluster Setup"]},
+        {"outcome": "Run pods and manage their life cycle", "topics": ["Pods and Container Lifecycle"]},
+        {"outcome": "Deploy applications with Deployments and roll out updates without downtime", "topics": ["Deployments, ReplicaSets and Rolling Updates"]},
+        {"outcome": "Expose applications with Services and route HTTP traffic with Ingress", "topics": ["Services and Service Discovery", "Ingress and HTTP Routing"]},
+        {"outcome": "Configure applications with ConfigMaps and Secrets", "topics": ["ConfigMaps and Secrets"]},
+        {"outcome": "Organise resources with namespaces and labels", "topics": ["Namespaces, Labels and Resource Organisation"]},
+        {"outcome": "Give workloads persistent storage and run stateful and per-node workloads", "topics": ["Storage: Volumes, PersistentVolumes and Claims", "StatefulSets and DaemonSets"]},
+        {"outcome": "Run batch work with Jobs and CronJobs", "topics": ["Jobs and CronJobs"]},
+        {"outcome": "Keep applications healthy with probes, resource requests and limits, and autoscaling", "topics": ["Health Probes and Self-Healing", "Resource Requests, Limits and Scheduling", "Horizontal Pod Autoscaling"]},
+        {"outcome": "Package and install applications with Helm", "topics": ["Packaging Applications with Helm"]},
+        {"outcome": "Restrict access with RBAC and service accounts and restrict traffic with network policies", "topics": ["Role-Based Access Control and Service Accounts", "Network Policies"]},
+        {"outcome": "Diagnose failing applications from logs, events and metrics", "topics": ["Observing a Cluster: Logs, Events and Metrics", "Troubleshooting Applications on Kubernetes"]},
+        {"outcome": "Deploy a multi-tier application to Kubernetes", "topics": ["Deploying a Multi-Tier Application"]},
+        {"outcome": "Deliver a production-ready web application on Kubernetes", "topics": ["Beginner Capstone: Production-Ready Web Application on Kubernetes"]}
+      ],
       "days": [
         {
           "topic": "Kubernetes Architecture and Local Cluster Setup",
@@ -222,6 +238,22 @@
         "Extend Kubernetes with CRDs and operators and deliver apps with GitOps",
         "Operate workloads with service mesh, observability and capacity planning"
       ],
+      "course_outcomes": [
+        {"outcome": "Install a cluster with kubeadm, upgrade it and back up and restore etcd", "topics": ["Cluster Installation with kubeadm", "Cluster Upgrades, etcd Backup and Restore"]},
+        {"outcome": "Explain the pod-to-Service traffic path and route traffic with the Gateway API", "topics": ["Kubernetes Networking Internals", "Gateway API and Ingress Patterns"]},
+        {"outcome": "Enforce Pod Security and admission control", "topics": ["Pod Security and Admission Control"]},
+        {"outcome": "Manage secrets with External Secrets and Vault", "topics": ["Secrets Management with External Secrets and Vault"]},
+        {"outcome": "Extend Kubernetes with custom resources and operators", "topics": ["Custom Resources and Operators"]},
+        {"outcome": "Deliver applications with GitOps in Argo CD and progressive delivery with Argo Rollouts", "topics": ["GitOps with Argo CD", "Progressive Delivery with Argo Rollouts"]},
+        {"outcome": "Run a service mesh with Istio", "topics": ["Service Mesh with Istio"]},
+        {"outcome": "Control workload placement and plan cluster capacity with autoscaling", "topics": ["Advanced Scheduling and Workload Placement", "Cluster Autoscaling and Capacity Planning"]},
+        {"outcome": "Monitor clusters at scale with Prometheus, Loki and Tempo", "topics": ["Observability at Scale: Prometheus, Loki and Tempo"]},
+        {"outcome": "Share a cluster between teams with multi-tenancy and governance", "topics": ["Multi-Tenancy and Cluster Governance"]},
+        {"outcome": "Secure the image supply chain and harden clusters at runtime", "topics": ["Supply Chain Security for Container Images", "Runtime Security and Cluster Hardening"]},
+        {"outcome": "Recover clusters and workloads with Velero", "topics": ["Disaster Recovery with Velero"]},
+        {"outcome": "Compare EKS, AKS and GKE and write operations runbooks", "topics": ["Managed Kubernetes: EKS, AKS and GKE Compared", "Kubernetes Platform Operations Runbooks"]},
+        {"outcome": "Deliver a GitOps platform for three teams", "topics": ["Intermediate Capstone: GitOps Platform for Three Teams"]}
+      ],
       "days": [
         {
           "topic": "Cluster Installation with kubeadm",
@@ -417,6 +449,23 @@
         "Run zero-trust security and compliance across a cluster fleet",
         "Engineer performance, reliability and cost at scale with measured results",
         "Build an internal developer platform on Kubernetes and defend its design"
+      ],
+      "course_outcomes": [
+        {"outcome": "Decide how many clusters a fleet needs and connect them across clusters", "topics": ["Fleet Architecture: How Many Clusters and Why", "Multi-Cluster Networking and Service Discovery"]},
+        {"outcome": "Run stateful workloads across regions with a tested failover", "topics": ["Multi-Region Resilience and Stateful Workloads"]},
+        {"outcome": "Design zero-trust security and enforce policy as code across a fleet", "topics": ["Zero-Trust Security Architecture for Kubernetes", "Policy as Code and Compliance Across a Fleet"]},
+        {"outcome": "Scale the control plane and tune workload performance", "topics": ["Control Plane Performance and Scaling", "Workload Performance Engineering"]},
+        {"outcome": "Set SLOs and run chaos experiments on Kubernetes", "topics": ["Reliability Engineering: SLOs and Chaos on Kubernetes"]},
+        {"outcome": "Measure and cut Kubernetes costs", "topics": ["Kubernetes FinOps and Cost Engineering"]},
+        {"outcome": "Build an internal developer platform on Kubernetes", "topics": ["Platform Engineering: Internal Developer Platform on Kubernetes"]},
+        {"outcome": "Write production-grade operators", "topics": ["Writing Production-Grade Operators"]},
+        {"outcome": "Run GPU, AI, edge and hybrid workloads", "topics": ["AI and GPU Workloads on Kubernetes", "Edge and Hybrid Kubernetes"]},
+        {"outcome": "Plan upgrades for large fleets", "topics": ["Kubernetes Upgrade Strategy for Large Fleets"]},
+        {"outcome": "Troubleshoot hard cluster and workload failures", "topics": ["Advanced Troubleshooting of Clusters and Workloads"]},
+        {"outcome": "Secure the delivery pipeline and respond to Kubernetes security incidents", "topics": ["Securing the Software Delivery Pipeline to Kubernetes", "Kubernetes Security Incident Response"]},
+        {"outcome": "Design observability for a cluster fleet", "topics": ["Observability Architecture for a Cluster Fleet"]},
+        {"outcome": "Lead architecture reviews that justify design trade-offs", "topics": ["Kubernetes Architecture Reviews and Design Trade-offs"]},
+        {"outcome": "Deliver a multi-cluster production platform", "topics": ["Advanced Capstone: Multi-Cluster Production Platform"]}
       ],
       "days": [
         {

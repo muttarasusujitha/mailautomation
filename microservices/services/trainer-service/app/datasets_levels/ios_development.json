@@ -556,7 +556,7 @@
           "lab_task": "Work through four production issues: a launch crash, a hang on one screen, a watchdog termination and a regression after release, fix each and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Fix the crash", "Crash rate drops after the fix", "Organizer screenshot"], ["Fix a hang", "Hang no longer reproduced", "Instruments trace"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
-          "objectives": ["Troubleshoot iOS apps in production", "Use crash and hang reports", "Learn from incidents"]
+          "objectives": ["Troubleshoot iOS apps in production", "Use crash and hang reports", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Multi-Module Banking App",

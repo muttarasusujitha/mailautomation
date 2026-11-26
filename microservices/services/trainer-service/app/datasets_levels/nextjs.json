@@ -137,7 +137,7 @@
           "lab_task": "Make the blog list revalidate every minute, revalidate a post on edit, keep the dashboard dynamic and explain three caching surprises found while testing.",
           "deliverable": "Caching plan and test notes",
           "checks": [["Edit a post", "Post page shows the change straight after saving", "Screen recording"], ["Wait for revalidation", "List refreshes after the time limit", "Timestamps"], ["Keep the dashboard dynamic", "Dashboard always shows current data", "Screenshots"]],
-          "objectives": ["Understand Next.js caching", "Revalidate on time and on demand", "Avoid stale data"]
+          "objectives": ["Explain Next.js caching", "Revalidate on time and on demand", "Avoid stale data"]
         },
         {
           "topic": "Metadata, SEO and Social Sharing Images",
@@ -538,7 +538,7 @@
           "lab_task": "Analyse a month of hosting usage, find the most expensive routes and features, cut cost with caching and image changes and set budget alerts.",
           "deliverable": "Cost analysis and savings report",
           "checks": [["Find expensive routes", "Top five cost drivers identified", "Cost analysis"], ["Cut cost", "Estimated monthly cost reduced with no vitals regression", "Before and after report"], ["Set alerts", "Budget alert fires in a test", "Alert notification"]],
-          "objectives": ["Understand hosting costs", "Reduce cost per route", "Control spending"]
+          "objectives": ["Explain hosting costs", "Reduce cost per route", "Control spending"]
         },
         {
           "topic": "Platform Choices: Vercel, AWS, Cloudflare and Kubernetes",
@@ -556,7 +556,7 @@
           "lab_task": "Work through four production issues: stale cached content, a hydration error, slow rendering after a release and memory growth, fix each and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Fix stale content", "Fresh content served after the fix", "Screenshots"], ["Find the slow release", "Cause identified with traces or bisect", "Evidence notes"], ["Write the review", "Review lists causes and follow-ups", "Post-incident review"]],
-          "objectives": ["Troubleshoot Next.js in production", "Find root causes", "Learn from incidents"]
+          "objectives": ["Troubleshoot Next.js in production", "Find root causes", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Multi-Tenant SaaS Platform on Next.js",

@@ -216,7 +216,7 @@
           "lab_task": "Train a bidirectional LSTM for named entities on a small dataset, compare it with the spaCy model and explain its weaknesses on long sentences.",
           "deliverable": "Model, evaluation and notes",
           "checks": [["Train the LSTM", "Entity F1 reported", "Evaluation table"], ["Compare with spaCy", "Scores compared", "Comparison table"], ["Test long sentences", "Errors on long inputs explained", "Notes"]],
-          "objectives": ["Understand sequence models", "Train LSTMs", "Compare architectures"]
+          "objectives": ["Explain sequence models", "Train LSTMs", "Compare architectures"]
         },
         {
           "topic": "Attention and the Transformer Architecture",
@@ -225,7 +225,7 @@
           "lab_task": "Implement scaled dot-product attention, visualise attention weights in a pretrained model and map BERT, GPT and T5 to their architectures.",
           "deliverable": "Attention code, visualisations and architecture notes",
           "checks": [["Implement attention", "Output matches the library version", "Notebook output"], ["Visualise attention", "Heads shown for a sentence", "Visualisation"], ["Map architectures", "Each model placed correctly", "Architecture notes"]],
-          "objectives": ["Explain attention", "Understand transformers", "Choose architectures"]
+          "objectives": ["Explain attention", "Explain transformers", "Choose architectures"]
         },
         {
           "topic": "Tokenisers for Transformers",
@@ -234,7 +234,7 @@
           "lab_task": "Compare how three tokenisers split English and Hindi text, train a tokeniser on support tickets and fix a truncation bug that cuts off labels.",
           "deliverable": "Comparison, trained tokeniser and fix",
           "checks": [["Compare tokenisers", "Token counts per language recorded", "Comparison table"], ["Train a tokeniser", "Domain terms kept as fewer tokens", "Notebook output"], ["Fix truncation", "Important text no longer cut", "Test output"]],
-          "objectives": ["Understand tokenisers", "Train tokenisers", "Avoid tokenisation bugs"]
+          "objectives": ["Explain tokenisers", "Train tokenisers", "Avoid tokenisation bugs"]
         },
         {
           "topic": "Fine-Tuning Transformers for Text Classification",
@@ -394,7 +394,7 @@
           "lab_task": "Continue pretraining a small model on legal or medical text, extend its tokeniser with domain terms and measure perplexity and downstream task gains.",
           "deliverable": "Training run, tokeniser changes and evaluation",
           "checks": [["Measure perplexity", "Lower on domain text after training", "Evaluation table"], ["Measure downstream gains", "Task score improves", "Evaluation table"], ["Estimate compute", "Hours and cost recorded", "Compute notes"]],
-          "objectives": ["Understand pretraining", "Adapt models to domains", "Plan compute"]
+          "objectives": ["Explain pretraining", "Adapt models to domains", "Plan compute"]
         },
         {
           "topic": "Parameter-Efficient Fine-Tuning: LoRA and QLoRA",

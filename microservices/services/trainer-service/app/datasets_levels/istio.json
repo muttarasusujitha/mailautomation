@@ -412,7 +412,7 @@
           "lab_task": "Convert cluster2 to a remote of cluster1: expose istiod through the east-west gateway, install cluster2 with the remote profile and remotePilotAddress set to the gateway address, and create the remote secret in cluster1. Deploy curl in cluster2, confirm it gets a sidecar from cluster1's istiod, then scale cluster1 istiod to zero for 2 minutes and test traffic and new pod injection.",
           "deliverable": "Topology diagram, install commands and an availability test table",
           "checks": [["Run istioctl proxy-status --context ctx1", "Proxies from cluster2 are listed against cluster1's istiod", "proxy-status output"], ["Send requests between existing pods while the primary istiod is down", "Existing traffic keeps returning 200", "curl loop output"], ["Create a new pod in cluster2 while the primary istiod is down", "Pod creation fails or the pod has no sidecar because the injection webhook is unavailable", "kubectl events"]],
-          "objectives": ["Install a primary-remote mesh", "Understand control plane dependency in remote clusters", "Pick a topology based on availability needs"]
+          "objectives": ["Install a primary-remote mesh", "Explain control plane dependency in remote clusters", "Pick a topology based on availability needs"]
         },
         {
           "topic": "Cross-Cluster Failover and Trust Verification",

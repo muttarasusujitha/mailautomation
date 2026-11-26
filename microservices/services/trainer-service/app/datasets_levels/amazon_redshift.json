@@ -12,6 +12,22 @@
       "summary": "For analysts, developers and data engineers who know SQL and are new to Amazon Redshift. Covers the leader node, compute nodes and slices, provisioned RA3 clusters and Redshift Serverless, connecting with Query Editor v2, drivers and the Data API, data types, compression encodings, distribution and sort keys, COPY and UNLOAD with S3, analytic SQL, MERGE upserts, views and materialized views, roles and grants, query monitoring, VACUUM and ANALYZE, snapshots, cost controls, and a retail warehouse capstone.",
       "prerequisites": ["Writes SQL joins, aggregates and subqueries against a relational database", "Has an AWS account or sandbox with rights to create IAM roles, S3 buckets and Redshift resources", "Uses the AWS CLI v2 or CloudShell and a text editor to run commands and edit SQL files"],
       "outcomes": ["Create provisioned RA3 and Serverless Redshift warehouses and connect with several clients", "Design tables with appropriate data types, encodings, distribution styles and sort keys and prove the effect with EXPLAIN and system views", "Load and export data with COPY and UNLOAD, diagnose load errors and keep tables healthy with VACUUM and ANALYZE", "Secure access with roles and grants, recover data from snapshots and control cost with pause, resume and usage limits"],
+      "course_outcomes": [
+        {"outcome": "Explain Redshift architecture and set up provisioned and Serverless warehouses", "topics": ["Redshift Service Tour: Leader Node, Compute Nodes and Slices", "Provisioned Clusters: RA3 Node Types, Subnet Groups and IAM Roles", "Redshift Serverless: Namespaces, Workgroups and RPUs"]},
+        {"outcome": "Connect with Query Editor v2, JDBC, ODBC and psql", "topics": ["Connecting with Query Editor v2, JDBC, ODBC, psql and the Data API"]},
+        {"outcome": "Organise databases and schemas and query across databases", "topics": ["Databases, Schemas, Cross-Database Queries and Data Types"]},
+        {"outcome": "Choose compression encodings, distribution styles and sort keys", "topics": ["Columnar Storage, Compression Encodings and ANALYZE COMPRESSION", "Distribution Styles: AUTO, KEY, ALL and EVEN", "Sort Keys: Compound, Interleaved and AUTO"]},
+        {"outcome": "Load data from S3 with COPY and diagnose load failures", "topics": ["Loading Data with COPY from Amazon S3", "Diagnosing COPY Failures with SYS_LOAD_ERROR_DETAIL and Manifests"]},
+        {"outcome": "Write analytics SQL with window functions and QUALIFY", "topics": ["Redshift SQL for Analytics: Window Functions, QUALIFY and LISTAGG"]},
+        {"outcome": "Export data to S3 with UNLOAD", "topics": ["UNLOAD to Amazon S3: Parquet, CSV and Partitioned Exports"]},
+        {"outcome": "Upsert data with MERGE", "topics": ["Constraints, MERGE and Upserts on Redshift"]},
+        {"outcome": "Build views, late-binding views and materialised views", "topics": ["Views, Late-Binding Views and Materialized Views"]},
+        {"outcome": "Control access with users, groups, roles and grants", "topics": ["Users, Groups, Roles and GRANT Privileges"]},
+        {"outcome": "Monitor queries and maintain tables with VACUUM and ANALYZE", "topics": ["Monitoring Queries with SYS Views and the Console", "Table Maintenance: VACUUM, ANALYZE and Automatic Table Optimization"]},
+        {"outcome": "Back up and restore with snapshots", "topics": ["Snapshots, Backups and Restore"]},
+        {"outcome": "Control costs with pricing options and pause and resume", "topics": ["Cost Control: On-Demand, Reserved Nodes, Pause and Resume, RPU Limits"]},
+        {"outcome": "Deliver a retail analytics warehouse on Redshift", "topics": ["Capstone: Retail Analytics Warehouse on Redshift"]}
+      ],
       "days": [
         {
           "topic": "Redshift Service Tour: Leader Node, Compute Nodes and Slices",
@@ -199,6 +215,23 @@
       "summary": "For data engineers and analytics developers who already run Redshift tables and loads. Covers Spectrum and Iceberg on the Glue Data Catalog, SUPER and PartiQL, stored procedures, SQL and Lambda UDFs and the Python UDF retirement, EXPLAIN-driven tuning, automatic and manual workload management, concurrency scaling, materialized view maintenance, Automatic Table Optimization, streaming ingestion and auto-copy, zero-ETL integrations, data sharing, federated queries, the Data API with Step Functions, monitoring, and row and column security with a lakehouse capstone.",
       "prerequisites": ["Has built Redshift tables, loaded them with COPY and chosen distribution and sort keys", "Reads EXPLAIN output and queries SYS monitoring views", "Has used S3, IAM roles and the AWS CLI to configure services"],
       "outcomes": ["Query data lake and semi-structured data from Redshift with Spectrum, Iceberg tables and SUPER", "Tune concurrency and performance with workload management, concurrency scaling, materialized views and workload-based keys", "Ingest continuously with streaming, auto-copy and zero-ETL and share data across warehouses with datashares and federated queries", "Orchestrate, monitor and secure a warehouse with the Data API, CloudWatch, audit logs, row-level security and data masking"],
+      "course_outcomes": [
+        {"outcome": "Query the data lake with Redshift Spectrum and open table formats", "topics": ["Redshift Spectrum: External Schemas on the Glue Data Catalog", "Querying Open Table Formats: Apache Iceberg and Hudi from Redshift"]},
+        {"outcome": "Query semi-structured data with SUPER and PartiQL", "topics": ["Semi-Structured Data with SUPER, PartiQL and JSON Functions"]},
+        {"outcome": "Write stored procedures and SQL, Lambda and Python UDFs", "topics": ["Stored Procedures in PL/pgSQL with Transactions and Error Handling", "User-Defined Functions: SQL and Lambda UDFs and the Python UDF Retirement"]},
+        {"outcome": "Read query plans", "topics": ["Query Planning with EXPLAIN: Join Strategies and Statistics"]},
+        {"outcome": "Manage workloads with automatic and manual WLM and query monitoring rules", "topics": ["Workload Management: Automatic WLM, Query Priority and Query Groups", "Manual WLM, Query Monitoring Rules and Short Query Acceleration"]},
+        {"outcome": "Scale for concurrency", "topics": ["Concurrency Scaling and Serverless Elasticity"]},
+        {"outcome": "Maintain materialised views with automatic and incremental refresh", "topics": ["Materialized View Maintenance: Auto Refresh, Incremental Refresh and Rewrite"]},
+        {"outcome": "Apply automatic table optimisation", "topics": ["Automatic Table Optimization and Key Selection from Workload Evidence"]},
+        {"outcome": "Ingest streams and auto-copy from S3", "topics": ["Streaming Ingestion and Auto-Copy from Amazon S3"]},
+        {"outcome": "Integrate Aurora, RDS and DynamoDB with zero-ETL", "topics": ["Zero-ETL Integrations from Aurora, RDS and DynamoDB"]},
+        {"outcome": "Share data across clusters with datashares and run federated queries", "topics": ["Data Sharing: Datashares Across Clusters, Workgroups and Accounts", "Federated Queries to Aurora and RDS PostgreSQL and MySQL"]},
+        {"outcome": "Automate with the Data API, Lambda, Step Functions and scheduled queries", "topics": ["Redshift Data API with AWS Lambda and Step Functions", "Scheduling Queries and Python Pipelines with redshift_connector"]},
+        {"outcome": "Monitor with CloudWatch and audit logs", "topics": ["Monitoring with CloudWatch Metrics, Alarms and Audit Logging"]},
+        {"outcome": "Apply column grants, row-level security and masking", "topics": ["Fine-Grained Access: Column Grants, Row-Level Security and Dynamic Data Masking"]},
+        {"outcome": "Deliver a lakehouse with Spectrum, zero-ETL and data sharing", "topics": ["Capstone: Lakehouse with Spectrum, Zero-ETL and Data Sharing"]}
+      ],
       "days": [
         {
           "topic": "Redshift Spectrum: External Schemas on the Glue Data Catalog",
@@ -386,6 +419,22 @@
       "summary": "For senior data engineers, warehouse administrators and architects who own production Redshift platforms. Covers key engineering for billion-row tables, system-view troubleshooting of slow queries, skew and spill, caching and cold starts, Serverless capacity engineering, multi-warehouse data sharing architecture, Redshift ML and Bedrock, Iceberg and SageMaker Lakehouse, encryption, network isolation, identity federation, audit evidence, migration from Teradata, Oracle and SQL Server, high availability and disaster recovery, infrastructure as code, schema change pipelines, FinOps, and a multi-account platform capstone.",
       "prerequisites": ["Operates Redshift workloads with WLM or Serverless capacity settings in a real environment", "Reads system views such as SYS_QUERY_DETAIL and SVV_TABLE_INFO to explain performance", "Has working knowledge of VPC networking, KMS and IAM policy design"],
       "outcomes": ["Diagnose and fix slow, skewed and spilling queries from system-level evidence", "Design multi-warehouse, multi-account Redshift platforms with data sharing, zero-ETL and open table formats", "Secure and audit a warehouse with KMS, private networking, identity federation and log evidence", "Migrate, automate and run warehouses with DMS, infrastructure as code, CI for schema changes, disaster recovery and FinOps"],
+      "course_outcomes": [
+        {"outcome": "Engineer keys for multi-billion-row fact tables", "topics": ["Advanced Key Engineering for Multi-Billion Row Fact Tables"]},
+        {"outcome": "Troubleshoot slow queries, skew and spill", "topics": ["Troubleshooting Slow Queries with SYS_QUERY_DETAIL and SVL_QUERY_REPORT", "Skew, Spill and Disk-Based Queries: Diagnosis and Fixes"]},
+        {"outcome": "Explain result and compilation caches", "topics": ["Result Cache, Compilation Cache and Cold-Start Behaviour"]},
+        {"outcome": "Engineer Serverless capacity and multi-warehouse architectures", "topics": ["Serverless Capacity Engineering: Base and Maximum RPU and Price-Performance Targets", "Multi-Warehouse Architecture with Data Sharing and Serverless Consumers"]},
+        {"outcome": "Build models with Redshift ML and call generative AI from SQL", "topics": ["Redshift ML: CREATE MODEL, SageMaker Autopilot and Bring-Your-Own Model", "Generative AI from SQL: Amazon Bedrock Models and SageMaker Remote Functions"]},
+        {"outcome": "Write Iceberg tables to the lakehouse catalog", "topics": ["Writing Iceberg Tables and SageMaker Lakehouse Catalog Access"]},
+        {"outcome": "Encrypt data and isolate networks", "topics": ["Encryption and Key Management: KMS, Snapshots and Data in Transit", "Network Isolation: VPC Endpoints, Enhanced VPC Routing and Private Access"]},
+        {"outcome": "Federate identity with IAM Identity Center", "topics": ["Identity: IAM Identity Center, Federated Roles and Trusted Identity Propagation"]},
+        {"outcome": "Produce audit and compliance evidence", "topics": ["Auditing and Compliance Evidence"]},
+        {"outcome": "Assess, convert and migrate data warehouses to Redshift", "topics": ["Migration Assessment and Schema Conversion from Teradata, Oracle and SQL Server", "Data Migration with AWS DMS, Snowball and Parallel COPY Cutover"]},
+        {"outcome": "Design high availability with Multi-AZ and relocation", "topics": ["High Availability: Multi-AZ RA3, Cluster Relocation and Cross-Region Recovery"]},
+        {"outcome": "Deploy Redshift as code and change schemas without downtime", "topics": ["Infrastructure as Code: Terraform, CloudFormation and AWS CDK for Redshift", "Schema Change Pipelines: Versioned DDL and Zero-Downtime Table Rewrites"]},
+        {"outcome": "Govern Redshift costs", "topics": ["Cost Governance and FinOps for Redshift Fleets"]},
+        {"outcome": "Deliver a governed multi-account Redshift platform", "topics": ["Capstone: Multi-Account Redshift Platform with Governance, Zero-ETL and ML"]}
+      ],
       "days": [
         {
           "topic": "Advanced Key Engineering for Multi-Billion Row Fact Tables",

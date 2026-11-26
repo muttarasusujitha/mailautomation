@@ -7,11 +7,26 @@
   "certifications": ["SAP Certified Associate - SAP S/4HANA Cloud Private Edition, Financial Accounting", "SAP Certified Associate - SAP S/4HANA Sales", "SAP Certified Associate - SAP Activate Project Manager"],
   "tools": ["SAP GUI", "SAP Fiori launchpad", "SAP S/4HANA training system", "SAP BTP cockpit"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "Getting Started With SAP S/4HANA 2025", "url": "https://help.sap.com/doc/819cdef021e44d7aad27b31c8bb1ebfc/2025/en-US/START_OP2025.pdf", "checked": "Found in a web search on 2026-11-24; page not opened"},
+    {"title": "SAP Learning: SAP Help Portal", "url": "https://learning.sap.com/courses/technical-implementation-and-operation-i-of-sap-s-4hana-and-sap-business-suite/sap-help-portal", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "For participants new to SAP. Covers navigation, enterprise structure, master data and the core business processes (procure to pay, order to cash, finance, controlling and production) in SAP S/4HANA, ending with an end-to-end scenario.",
       "prerequisites": ["Basic understanding of how companies buy, make and sell", "Comfortable with business software", "Access to an SAP S/4HANA training system"],
       "outcomes": ["Navigate SAP S/4HANA", "Run the core end-to-end business processes", "Connect logistics transactions with finance", "Answer business questions with standard reports"],
+      "course_outcomes": [
+        {"outcome": "Navigate SAP S/4HANA and find the transactions and Fiori apps for a task", "topics": ["SAP S/4HANA Landscape and Navigation"]},
+        {"outcome": "Explain the enterprise structure and the organisational units a business process uses", "topics": ["Enterprise Structure and Organisational Units"]},
+        {"outcome": "Create and maintain business partner, material and finance master data", "topics": ["Master Data: Business Partners, Materials and Finance"]},
+        {"outcome": "Run procure-to-pay in SAP MM from purchase requisition to supplier payment", "topics": ["Procure to Pay with SAP MM"]},
+        {"outcome": "Run order-to-cash in SAP SD from sales order to customer payment", "topics": ["Order to Cash with SAP SD"]},
+        {"outcome": "Post and review financial accounting documents in SAP FI and trace costs in SAP CO", "topics": ["Financial Accounting Essentials with SAP FI", "Controlling and Cost Accounting with SAP CO"]},
+        {"outcome": "Plan production and check inventory movements", "topics": ["Production Planning and Inventory Basics"]},
+        {"outcome": "Answer business questions with standard reports, Fiori apps and analytics", "topics": ["Reporting, Fiori Apps and Analytics"]},
+        {"outcome": "Run an end-to-end business process across modules and show its finance postings", "topics": ["Beginner Capstone: End-to-End Business Process in SAP"]}
+      ],
       "days": [
         {
           "topic": "SAP S/4HANA Landscape and Navigation",
@@ -109,6 +124,17 @@
       "summary": "For participants who use SAP and want to configure and deliver it. Covers module integration, configuration, the S/4HANA data model, roles, ABAP for consultants, data migration, interfaces, SAP BTP extensions and release management.",
       "prerequisites": ["Has run end-to-end processes in SAP", "Knows the SAP enterprise structure and master data", "Basic understanding of databases and interfaces"],
       "outcomes": ["Configure and transport SAP changes", "Secure SAP with roles", "Migrate data and connect interfaces", "Deliver a requirement from fit-gap to transport"],
+      "course_outcomes": [
+        {"outcome": "Trace a business process across modules and its integration points", "topics": ["Business Process Integration Across Modules"]},
+        {"outcome": "Configure SAP through the Implementation Guide and record the change in a transport", "topics": ["Configuration Fundamentals and the Implementation Guide"]},
+        {"outcome": "Explain the S/4HANA data model and its simplifications", "topics": ["S/4HANA Data Model and Simplification"]},
+        {"outcome": "Build roles and assign authorisations that follow least privilege", "topics": ["Authorisations, Roles and Security"]},
+        {"outcome": "Read and debug ABAP code as a functional consultant", "topics": ["ABAP Essentials for Functional Consultants"]},
+        {"outcome": "Migrate data with the Migration Cockpit", "topics": ["Data Migration with the Migration Cockpit"]},
+        {"outcome": "Connect SAP to other systems and extend it on SAP BTP", "topics": ["Integration with Other Systems", "SAP BTP and Extensions"]},
+        {"outcome": "Test changes and move them through the landscape with transports", "topics": ["Testing, Transports and Release Management"]},
+        {"outcome": "Deliver a business requirement from fit-gap to transport", "topics": ["Intermediate Capstone: Implementing a Business Requirement in SAP"]}
+      ],
       "days": [
         {
           "topic": "Business Process Integration Across Modules",
@@ -206,6 +232,17 @@
       "summary": "For senior consultants, architects and programme leads. Covers S/4HANA transition strategy, clean core, integration architecture, performance, GRC, analytics, AI and automation, application management and programme leadership.",
       "prerequisites": ["Has worked on an SAP implementation or support project", "Understands SAP configuration, roles and interfaces", "Familiar with project delivery methods"],
       "outcomes": ["Plan S/4HANA transformations", "Design clean-core and integration architectures", "Manage risk, performance and support", "Lead SAP programmes"],
+      "course_outcomes": [
+        {"outcome": "Choose an S/4HANA conversion or implementation approach and justify it", "topics": ["S/4HANA Conversion and Implementation Strategy"]},
+        {"outcome": "Design a clean-core extensibility and integration architecture", "topics": ["Clean Core and Extensibility Architecture", "SAP Integration Architecture"]},
+        {"outcome": "Analyse and fix SAP performance problems", "topics": ["Performance Analysis and Troubleshooting"]},
+        {"outcome": "Set up governance, risk and compliance controls in SAP", "topics": ["Governance, Risk and Compliance in SAP"]},
+        {"outcome": "Plan analytics with SAP Datasphere and SAP Analytics Cloud", "topics": ["Analytics, SAP Datasphere and SAP Analytics Cloud"]},
+        {"outcome": "Identify where AI and automation fit in SAP processes", "topics": ["AI and Automation in SAP"]},
+        {"outcome": "Run application management with continuous improvement", "topics": ["Application Management and Continuous Improvement"]},
+        {"outcome": "Lead an SAP programme and manage its stakeholders", "topics": ["SAP Programme Leadership and Stakeholder Management"]},
+        {"outcome": "Deliver an S/4HANA transformation plan", "topics": ["Advanced Capstone: S/4HANA Transformation Plan"]}
+      ],
       "days": [
         {
           "topic": "S/4HANA Conversion and Implementation Strategy",

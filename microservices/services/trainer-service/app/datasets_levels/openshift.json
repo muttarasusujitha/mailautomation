@@ -164,7 +164,7 @@
           "lab_task": "Install a database operator from OperatorHub, create a database through its custom resource, and change a setting through the custom resource instead of the pods.",
           "deliverable": "Operator-managed database",
           "checks": [["Install", "The operator is installed and healthy", "Installed operators view"], ["Create", "The database is created from a custom resource", "oc get output"], ["Manage", "A setting change goes through the custom resource", "Resource YAML"]],
-          "objectives": ["Use operators", "Manage services with custom resources", "Understand operator lifecycles"]
+          "objectives": ["Use operators", "Manage services with custom resources", "Explain operator lifecycles"]
         },
         {
           "topic": "Logging and Monitoring for Application Teams",
@@ -207,7 +207,7 @@
           "lab_task": "Map the lab cluster's control plane, workers, machine config pools and cluster operators, and apply a safe machine config change to a worker pool.",
           "deliverable": "Cluster architecture map and a machine config change",
           "checks": [["Map", "Nodes, pools and operators are documented", "Architecture map"], ["Change", "The machine config rolls out to the pool", "Pool status"], ["Explain", "The roles of CoreOS and the operator are explained", "Notes"]],
-          "objectives": ["Understand cluster architecture", "Use machine configs", "Read cluster operator status"]
+          "objectives": ["Explain cluster architecture", "Use machine configs", "Read cluster operator status"]
         },
         {
           "topic": "Authentication: Identity Providers, OAuth and Groups",

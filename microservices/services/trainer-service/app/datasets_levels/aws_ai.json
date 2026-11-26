@@ -12,6 +12,23 @@
       "summary": "For developers, analysts and cloud engineers who are new to AI on AWS. Covers the AWS AI service map, account and CLI setup, generative AI concepts, Amazon Bedrock models and the Converse API, prompting, streaming and token usage, multimodal inputs, the managed AI services Amazon Rekognition, Textract, Comprehend, Transcribe, Polly and Translate, Bedrock Knowledge Bases and Guardrails, a first tour of Amazon SageMaker AI, Lambda and API Gateway wiring, IAM least privilege, cost and responsible AI habits, and a document Q&A capstone.",
       "prerequisites": ["Has used a programming language such as Python or JavaScript and can read JSON", "Can use a terminal and has seen the AWS Management Console or the AWS CLI", "Has an AWS account or sandbox with permission to create IAM roles, S3 buckets, Lambda functions and Bedrock requests, plus a billing alert in place"],
       "outcomes": ["Choose the right AWS AI service for text, image, document, speech and prediction tasks", "Call foundation models on Amazon Bedrock with the Converse API and control cost with token limits", "Build a small retrieval-augmented assistant with Knowledge Bases, Guardrails, Lambda and API Gateway", "Apply least-privilege IAM, budgets and responsible AI checks to every AI workload"],
+      "course_outcomes": [
+        {"outcome": "Configure an AWS account and CLI for AI services and explain generative AI concepts", "topics": ["Getting Started: AWS AI Service Map, Account and CLI Configuration", "Generative AI Concepts for AWS Practitioners"]},
+        {"outcome": "Enable model access in the Bedrock console", "topics": ["Amazon Bedrock Console, Model Catalog and Model Access"]},
+        {"outcome": "Call models with the Converse API and prompt Amazon Nova and Claude", "topics": ["Calling Models with the Bedrock Converse API", "Prompting Amazon Nova and Claude Models on Bedrock"]},
+        {"outcome": "Stream responses and tune inference parameters and token usage", "topics": ["Streaming, Inference Parameters and Token Usage"]},
+        {"outcome": "Manage prompts with Bedrock Prompt Management", "topics": ["Bedrock Prompt Management and Playground Workflows"]},
+        {"outcome": "Send images and documents to Bedrock models", "topics": ["Multimodal Inputs: Images and Documents with Bedrock"]},
+        {"outcome": "Analyse images and video with Rekognition and extract forms and tables with Textract", "topics": ["Amazon Rekognition Image and Video Analysis", "Amazon Textract for Documents, Forms and Tables"]},
+        {"outcome": "Analyse text and detect PII with Comprehend", "topics": ["Amazon Comprehend Text Analytics and PII Detection"]},
+        {"outcome": "Convert speech with Transcribe and Polly and translate text with Translate", "topics": ["Amazon Transcribe Speech-to-Text", "Amazon Polly Speech and Amazon Translate"]},
+        {"outcome": "Build a first RAG pipeline with Bedrock Knowledge Bases", "topics": ["Bedrock Knowledge Bases: A First RAG Pipeline"]},
+        {"outcome": "Filter content with Bedrock Guardrails", "topics": ["Bedrock Guardrails: Content Filters and Denied Topics"]},
+        {"outcome": "Explore SageMaker AI Studio and JumpStart", "topics": ["Amazon SageMaker AI Studio and JumpStart Tour"]},
+        {"outcome": "Build serverless AI apps with Lambda and API Gateway and secure them with least-privilege IAM", "topics": ["Serverless AI Apps: Lambda and API Gateway Calling Bedrock", "IAM Least Privilege and Data Handling for AI Services"]},
+        {"outcome": "Track AI costs and apply responsible AI habits", "topics": ["Cost Awareness and Responsible AI Habits"]},
+        {"outcome": "Deliver a document Q&A assistant on AWS", "topics": ["Beginner Capstone: Document Q&A Assistant on AWS"]}
+      ],
       "days": [
         {
           "topic": "Getting Started: AWS AI Service Map, Account and CLI Configuration",
@@ -83,7 +100,7 @@
           "lab_task": "Send a PNG invoice and a 2-page PDF to Amazon Nova Lite through Converse using image and document content blocks. Ask for vendor, invoice number, total and due date as JSON, compare against ground truth for 5 files, and report field-level accuracy and token cost for images versus PDFs.",
           "deliverable": "Extraction script, 5-file accuracy table and notes on failure cases",
           "checks": [["Send an image block with an invoice PNG", "Reply contains vendor and total fields as JSON", "Script output"], ["Send the PDF as a document block", "Fields match the PDF and usage shows more input tokens than the text-only prompt", "Usage log"], ["Compare against ground truth on 5 files", "Field accuracy is reported per field, with at least one error explained", "Accuracy table"]],
-          "objectives": ["Send images and documents to a multimodal model", "Measure extraction accuracy against ground truth", "Know the limits of model-based extraction"]
+          "objectives": ["Send images and documents to a multimodal model", "Measure extraction accuracy against ground truth", "Identify the limits of model-based extraction"]
         },
         {
           "topic": "Amazon Rekognition Image and Video Analysis",
@@ -199,6 +216,23 @@
       "summary": "For developers and cloud engineers who can already call Amazon Bedrock and want to build production-grade AI applications on AWS. Covers model and Region selection with inference profiles, tool use, prompt caching and structured output, batch inference and quotas, Knowledge Bases ingestion and vector stores, retrieval tuning and reranking, Bedrock Data Automation, Bedrock Agents, Flows and Step Functions, Amazon Bedrock AgentCore, deeper Guardrails, Bedrock Evaluations, and SageMaker AI training, pipelines, registry and endpoints, ending in an agentic RAG capstone.",
       "prerequisites": ["Has completed the beginner level or can call Bedrock with the Converse API, build a knowledge base and write a Lambda function", "Is comfortable with Python, JSON, IAM policies and either AWS SAM, CloudFormation or CDK", "Has a sandbox account with budgets in place and quota for at least one ml.g5 or ml.m5 instance type in SageMaker AI"],
       "outcomes": ["Design Bedrock applications with the right model, inference profile, caching and batch strategy", "Build and tune RAG pipelines and agents using Knowledge Bases, Agents, Flows and AgentCore", "Measure quality and safety with Guardrails and Bedrock Evaluations", "Train, register and deploy a model on SageMaker AI with Pipelines and the right endpoint type"],
+      "course_outcomes": [
+        {"outcome": "Choose models, regions and inference profiles, including cross-region inference", "topics": ["Bedrock Application Architecture: Choosing Models, Regions and Inference Profiles", "Cross-Region Inference and Application Inference Profiles"]},
+        {"outcome": "Call tools with the Converse API", "topics": ["Tool Use with Converse: Function Calling"]},
+        {"outcome": "Use prompt caching and structured outputs", "topics": ["Prompt Caching and Structured Outputs with Converse"]},
+        {"outcome": "Run batch inference within throughput quotas", "topics": ["Bedrock Batch Inference and Throughput Quotas"]},
+        {"outcome": "Ingest data into Knowledge Bases with parsing and chunking", "topics": ["Knowledge Base Ingestion: Parsing, Chunking and Data Sources"]},
+        {"outcome": "Choose a vector store: OpenSearch Serverless, Aurora pgvector or S3 Vectors", "topics": ["Vector Stores for Knowledge Bases: OpenSearch Serverless, Aurora pgvector and S3 Vectors"]},
+        {"outcome": "Tune retrieval with metadata filters, hybrid search and reranking", "topics": ["Retrieval Tuning: Metadata Filters, Hybrid Search and Reranking"]},
+        {"outcome": "Process documents with Bedrock Data Automation", "topics": ["Bedrock Data Automation and Document Pipelines"]},
+        {"outcome": "Build Bedrock Agents with action groups, knowledge bases, sessions and return of control", "topics": ["Bedrock Agents: Action Groups and Lambda", "Agents with Knowledge Bases, Sessions and Return of Control"]},
+        {"outcome": "Orchestrate AI workflows with Bedrock Flows and Step Functions", "topics": ["Orchestrating AI Workflows with Bedrock Flows and Step Functions"]},
+        {"outcome": "Run agents on AgentCore Runtime and Gateway with memory, identity and observability", "topics": ["Amazon Bedrock AgentCore: Runtime and Gateway", "AgentCore Memory, Identity and Observability"]},
+        {"outcome": "Apply guardrails for PII and grounding checks with ApplyGuardrail", "topics": ["Guardrails in Depth: PII, Grounding Checks and ApplyGuardrail"]},
+        {"outcome": "Evaluate models and RAG with Bedrock Evaluations", "topics": ["Evaluating Models and RAG with Bedrock Evaluations"]},
+        {"outcome": "Train, register and deploy models with SageMaker AI", "topics": ["SageMaker AI Training Jobs with ModelTrainer, S3 and Spot", "SageMaker AI Pipelines, Experiments and Model Registry", "Deploying SageMaker AI Endpoints: Real-Time, Serverless and Asynchronous"]},
+        {"outcome": "Deliver an agentic RAG support assistant on AWS", "topics": ["Intermediate Capstone: Agentic RAG Support Assistant on AWS"]}
+      ],
       "days": [
         {
           "topic": "Bedrock Application Architecture: Choosing Models, Regions and Inference Profiles",
@@ -324,7 +358,7 @@
           "lab_task": "Create an AgentCore Memory resource with a user-preference strategy, add the memory to your agent, tell it in session 1 that you prefer metric units, then in session 2 ask a question and confirm the preference is used. Enable observability and find the trace for session 2 in CloudWatch.",
           "deliverable": "Agent with long-term memory and a trace walkthrough with latency per step",
           "checks": [["Start session 2 for the same user", "The agent answers in metric units without being told again", "Transcript"], ["List memory records for the user namespace", "A preference record containing metric units exists", "CLI output"], ["Open the session trace", "Spans show model calls and tool calls with durations", "Trace screenshot"]],
-          "objectives": ["Add long-term memory scoped per user", "Understand outbound identity handling", "Trace agent sessions end to end"]
+          "objectives": ["Add long-term memory scoped per user", "Explain outbound identity handling", "Trace agent sessions end to end"]
         },
         {
           "topic": "Guardrails in Depth: PII, Grounding Checks and ApplyGuardrail",
@@ -386,6 +420,23 @@
       "summary": "For senior engineers, architects and platform leads who run AI workloads on AWS at organisation scale. Covers multi-account AI platform design, Bedrock model customization, SageMaker HyperPod and large-scale training, inference optimisation, SageMaker Unified Studio governance, data foundations, security and prompt-injection defence, advanced AgentCore, model monitoring and bias analysis, observability and troubleshooting, FinOps, reliability, responsible AI governance, Amazon Quick and Kiro, service selection and migration, CI/CD for AI, Well-Architected reviews and a governed platform capstone.",
       "prerequisites": ["Has delivered at least one Bedrock or SageMaker AI workload to production or completed the intermediate level", "Knows AWS Organizations, IAM, VPC endpoints, KMS and infrastructure as code with CDK, CloudFormation or Terraform", "Can read model evaluation reports, CloudWatch metrics and Cost Explorer data to support design decisions"],
       "outcomes": ["Design a multi-account, secure and observable AI platform with governed access to models and agents", "Customize, train, optimise and serve models on Bedrock and SageMaker AI with measurable gains", "Operate AI systems with monitoring, reliability, FinOps and incident response practices", "Apply responsible AI governance, Well-Architected reviews and migration planning to enterprise portfolios"],
+      "course_outcomes": [
+        {"outcome": "Design an enterprise AI platform on AWS", "topics": ["Enterprise AI Platform Architecture on AWS"]},
+        {"outcome": "Customise models on Bedrock with fine-tuning, distillation and custom model import", "topics": ["Model Customization on Bedrock: Fine-Tuning, Distillation and Custom Model Import"]},
+        {"outcome": "Train at scale with SageMaker HyperPod and fine-tune and serve open-weight models", "topics": ["SageMaker HyperPod and Large-Scale Training", "Fine-Tuning and Serving Open-Weight Models with JumpStart and Inference Components"]},
+        {"outcome": "Optimise inference with Inferentia, Trainium and latency tuning", "topics": ["Inference Optimisation: Inferentia, Trainium and Latency Tuning"]},
+        {"outcome": "Govern AI work in SageMaker Unified Studio", "topics": ["SageMaker Unified Studio: Domains, Projects and AI Governance"]},
+        {"outcome": "Prepare data for AI with a lakehouse, Lake Formation and vector data", "topics": ["Data Readiness for AI: Lakehouse, Lake Formation and Vector Data"]},
+        {"outcome": "Secure AI workloads and defend against prompt injection, data leakage and agent abuse", "topics": ["AI Security: Identity, Network and Encryption Controls", "Defending Against Prompt Injection, Data Leakage and Agent Abuse"]},
+        {"outcome": "Build multi-agent systems with AgentCore policy and evaluations", "topics": ["Advanced AgentCore: Policy, Evaluations and Multi-Agent Systems"]},
+        {"outcome": "Monitor drift and bias with SageMaker Model Monitor and Clarify", "topics": ["Model Monitoring, Drift and Bias with SageMaker Model Monitor and Clarify"]},
+        {"outcome": "Observe and troubleshoot Bedrock workloads", "topics": ["Observability and Troubleshooting for Bedrock Workloads"]},
+        {"outcome": "Apply FinOps and reliability practices to AI workloads", "topics": ["FinOps for AI on AWS", "Reliability: Throttling, Failover and Capacity for AI Workloads"]},
+        {"outcome": "Govern responsible AI with human review and model cards", "topics": ["Responsible AI Governance: Human Review, Model Cards and Regulation"]},
+        {"outcome": "Choose AI assistants for business and engineering and plan service migrations", "topics": ["Amazon Quick, Amazon Q Developer and Kiro: Assistants for Business and Engineering", "Service Selection, Retirements and Migration Paths"]},
+        {"outcome": "Build CI/CD for AI with evaluation gates and review workloads with the Well-Architected lenses", "topics": ["CI/CD for AI on AWS: CDK, CodePipeline and Evaluation Gates", "AI Workload Reviews with the Well-Architected Generative AI and Responsible AI Lenses"]},
+        {"outcome": "Deliver a governed enterprise AI platform on AWS", "topics": ["Advanced Capstone: Governed Enterprise AI Platform on AWS"]}
+      ],
       "days": [
         {
           "topic": "Enterprise AI Platform Architecture on AWS",

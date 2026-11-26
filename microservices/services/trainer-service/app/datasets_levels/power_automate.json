@@ -74,7 +74,7 @@
           "lab_task": "Get the last 25 emails from the training inbox with Get emails (V3), count those with attachments in a loop and email the count; then build a Do until loop that checks the OneDrive Incoming folder every minute, up to 10 times, for a file named Ready.txt.",
           "deliverable": "Loop flow with evidence for both loops and a note on default loop limits",
           "checks": [["Run against 25 emails of which 7 have attachments", "Summary email reports 7", "Run history and email"], ["Open one Apply to each iteration in the run", "Current item shows that email's subject and attachment flag", "Iteration screenshot"], ["Run the Do until with no Ready.txt in the folder", "Loop stops after 10 checks without failing the run", "Run history"]],
-          "objectives": ["Loop over arrays", "Wait for conditions with Do until", "Know the default loop limits"]
+          "objectives": ["Loop over arrays", "Wait for conditions with Do until", "Identify the default loop limits"]
         },
         {
           "topic": "Variables, Compose and Data Operations",
@@ -538,7 +538,7 @@
           "lab_task": "Run a three-hour incident exercise in which an expired connection stops 14 flows, a machine group loses two machines and a work queue builds up 600 overdue items: triage with Automation Center, restore service, resubmit the failed runs in bulk and write the post-incident review.",
           "deliverable": "Incident timeline, runbooks used, resubmission evidence and the post-incident review",
           "checks": [["Fix the expired connection and resubmit in bulk", "All 14 flows succeed on resubmission", "Run histories"], ["Bring the two machines back online", "Overdue queue items clear within the agreed hour", "Queue chart"], ["Review the post-incident document", "Root cause, timeline and three owned actions are recorded", "Document"]],
-          "objectives": ["Run automation operations", "Handle incidents with runbooks", "Learn from incidents"]
+          "objectives": ["Run automation operations", "Handle incidents with runbooks", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Licensing and Capacity Planning for Automation",

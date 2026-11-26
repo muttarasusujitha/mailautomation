@@ -234,7 +234,7 @@
           "lab_task": "Create object type order_row_t, collection type order_tab_t and a pipelined function parse_orders(p_clob CLOB) that splits delimited lines with PIPE ROW. Query it with SELECT * FROM TABLE(parse_orders(:c)) on a 100,000 line CLOB, then use it in INSERT INTO orders_stage SELECT .... Compare PGA use against a non-pipelined version.",
           "deliverable": "Pipelined parser, load script and memory comparison",
           "checks": [["SELECT COUNT(*) FROM TABLE(parse_orders(:c))", "Returns 100000", "Query result"], ["INSERT INTO orders_stage SELECT * FROM TABLE(parse_orders(:c))", "100000 rows inserted", "SQL feedback"], ["Compare with a non-pipelined table function", "Pipelined version uses less session PGA memory", "V$MYSTAT query"]],
-          "objectives": ["Build a pipelined table function", "Stream rows to SQL consumers", "Know when to use parallel-enabled pipelining"]
+          "objectives": ["Build a pipelined table function", "Stream rows to SQL consumers", "Decide when to use parallel-enabled pipelining"]
         },
         {
           "topic": "Native Dynamic SQL with EXECUTE IMMEDIATE",

@@ -173,7 +173,7 @@
           "lab_task": "Set +schema: marts for the marts folder, observe the resulting schema name main_marts in DuckDB, then override one model with config(alias='fact_orders') and another with enabled=false. Run dbt ls --output json --select fct_orders and show which config source won for materialized and alias.",
           "deliverable": "Config precedence table with commands and observed values",
           "checks": [["Query information_schema.schemata", "A schema named main_marts exists", "Query output"], ["Run dbt ls --select fct_orders --output json", "alias field shows fact_orders", "JSON output"], ["Run dbt ls with a disabled model selected", "The model is absent from the list", "Terminal output"]],
-          "objectives": ["Apply configuration at the right level", "Predict which config wins in a conflict", "Understand custom schema naming"]
+          "objectives": ["Apply configuration at the right level", "Predict which config wins in a conflict", "Explain custom schema naming"]
         },
         {
           "topic": "Troubleshooting Common dbt Errors",

@@ -288,7 +288,7 @@
           "lab_task": "Add middleware for request IDs and timing, a context processor for site settings, a signal that creates profiles for new users, and replace one confusing signal with explicit code.",
           "deliverable": "Middleware, context processor and signal changes",
           "checks": [["Read timing headers", "Each response carries a request ID and duration", "Response headers"], ["Create a user", "Profile created automatically", "Database row"], ["Replace a signal", "Behaviour unchanged with explicit code", "Test output"]],
-          "objectives": ["Understand the request lifecycle", "Write middleware", "Use signals carefully"]
+          "objectives": ["Explain the request lifecycle", "Write middleware", "Use signals carefully"]
         },
         {
           "topic": "Async Django: Async Views and ASGI",
@@ -394,7 +394,7 @@
           "lab_task": "Step through a request from WSGI to the view in the debugger, trace how a QuerySet compiles to SQL, write a custom lookup and explain app loading order problems.",
           "deliverable": "Internals notebook with a custom lookup",
           "checks": [["Trace a request", "Each middleware and handler step identified", "Debugger notes"], ["Write a custom lookup", "Lookup generates the expected SQL", "SQL output"], ["Explain app loading", "Import-time problem diagnosed and fixed", "Fix notes"]],
-          "objectives": ["Understand Django internals", "Extend the ORM", "Diagnose start-up problems"]
+          "objectives": ["Explain Django internals", "Extend the ORM", "Diagnose start-up problems"]
         },
         {
           "topic": "Large Django Codebases: Apps, Boundaries and Service Layers",
@@ -556,7 +556,7 @@
           "lab_task": "Work through four incidents: a missing index after a release, worker memory growth, a stuck Celery queue and connection exhaustion, restore service and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by evidence", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
-          "objectives": ["Troubleshoot Django in production", "Find root causes", "Learn from incidents"]
+          "objectives": ["Troubleshoot Django in production", "Find root causes", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Multi-Tenant SaaS on Django",

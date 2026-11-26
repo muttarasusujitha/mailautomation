@@ -12,6 +12,23 @@
       "summary": "For developers and data engineers who know Python or Java and SQL and are new to Apache Beam. Covers the Beam model (pipelines, PCollections, PTransforms), ParDo and DoFn, grouping and combining, side inputs and tagged outputs, schemas and type hints, event time, windows, triggers and late data, unit testing, the Java SDK basics, running on the DirectRunner, Prism and Dataflow, and a batch log-analytics capstone.",
       "prerequisites": ["Writes working Python 3 functions and classes, or Java 17 classes, and uses a terminal and a virtual environment or Maven", "Reads and writes SQL aggregations with GROUP BY and joins", "Has a laptop that can run Python 3 with pip and, for the Dataflow days, a Google Cloud project with billing enabled and the gcloud CLI installed"],
       "outcomes": ["Explain the Beam model and build batch pipelines in the Python SDK using core transforms, windowing and side inputs", "Write and run unit tests for pipelines with TestPipeline, assert_that and TestStream", "Run the same pipeline on the DirectRunner, Prism and Dataflow by changing pipeline options only", "Deliver a tested batch pipeline that parses logs, aggregates results and writes files"],
+      "course_outcomes": [
+        {"outcome": "Explain the Beam programming model and build pipelines from PCollections and PTransforms", "topics": ["Beam Programming Model and Local Environment", "Pipelines, PCollections and PTransforms in Python"]},
+        {"outcome": "Transform elements with Map, FlatMap, Filter and ParDo", "topics": ["Element-wise Transforms: Map, FlatMap and Filter", "ParDo and the DoFn Lifecycle in Python"]},
+        {"outcome": "Read and write text files in a pipeline", "topics": ["Reading and Writing Text Files with ReadFromText and WriteToText"]},
+        {"outcome": "Group and combine keyed data with GroupByKey and CombinePerKey", "topics": ["Key-Value Pairs and GroupByKey", "Combining Data with CombinePerKey and Built-in Combiners"]},
+        {"outcome": "Merge and split collections with Flatten, Partition and CoGroupByKey", "topics": ["Merging and Splitting: Flatten, Partition and CoGroupByKey"]},
+        {"outcome": "Use side inputs and tagged outputs", "topics": ["Side Inputs and Tagged Outputs"]},
+        {"outcome": "Define schemas with Rows and type hints", "topics": ["Schemas, Rows and Type Hints"]},
+        {"outcome": "Assign event-time timestamps and apply fixed, sliding and session windows", "topics": ["Event Time, Timestamps and the Global Window", "Fixed, Sliding and Session Windows"]},
+        {"outcome": "Handle late data with watermarks and triggers", "topics": ["Watermarks, Triggers and Late Data"]},
+        {"outcome": "Unit test pipelines with TestPipeline and assert_that", "topics": ["Unit Testing Pipelines with TestPipeline and assert_that"]},
+        {"outcome": "Write Java pipelines with core transforms, DoFns and coders", "topics": ["Java SDK: Maven Project and Word Count", "Java Core Transforms, DoFn and Coders"]},
+        {"outcome": "Run pipelines on DirectRunner and Prism with pipeline options", "topics": ["Running on DirectRunner and Prism with Pipeline Options"]},
+        {"outcome": "Manage pipeline dependencies and debug failures", "topics": ["Pipeline Options, Dependencies and Debugging"]},
+        {"outcome": "Run a first batch job on Dataflow", "topics": ["Batch Pipeline on Dataflow: First Managed Job"]},
+        {"outcome": "Deliver a batch log analytics pipeline", "topics": ["Beginner Capstone: Batch Log Analytics Pipeline"]}
+      ],
       "days": [
         {
           "topic": "Beam Programming Model and Local Environment",
@@ -199,6 +216,23 @@
       "summary": "For engineers who can build and test basic Beam pipelines and now need production-grade batch and streaming work. Covers composite transforms, state and timers, custom combiners, streaming triggers, Pub/Sub, BigQuery, file formats, dead-letter handling, TestStream, enrichment, Java annotations and Beam SQL, Dataflow streaming and Flex Templates, the Flink runner, cross-language Kafka I/O, Beam YAML, observability and a streaming capstone.",
       "prerequisites": ["Has completed the beginner material or builds batch Beam pipelines with ParDo, GroupByKey, side inputs and windowing in Python or Java", "Has a Google Cloud project with Pub/Sub, BigQuery, Cloud Storage and Dataflow enabled and the gcloud and bq CLIs configured", "Uses Docker and a Git repository, and can read JSON and Avro schemas"],
       "outcomes": ["Build stateful, timer-driven and streaming pipelines with correct windows, triggers and late-data handling", "Read and write Pub/Sub, BigQuery, files and Kafka reliably, with dead-letter outputs for bad records", "Package and deploy pipelines as Dataflow Flex Templates and run the same code on the Flink runner", "Test, monitor and cost-control streaming pipelines using TestStream, custom metrics and Cloud Monitoring"],
+      "course_outcomes": [
+        {"outcome": "Build composite transforms and reusable pipeline libraries", "topics": ["Composite Transforms, Reusable Libraries and Pipeline Structure"]},
+        {"outcome": "Keep per-key state with stateful DoFns and timers", "topics": ["Stateful DoFns with BagState, CombiningState and ReadModifyWrite", "Event-Time and Processing-Time Timers"]},
+        {"outcome": "Write custom CombineFns and fan out hot keys", "topics": ["Custom CombineFn, Accumulators and Hot-Key Fanout"]},
+        {"outcome": "Control streaming output with triggers, panes and accumulation", "topics": ["Streaming Window Strategies: Triggers, Panes and Accumulation"]},
+        {"outcome": "Connect pipelines to Pub/Sub and BigQuery", "topics": ["Pub/Sub Pipelines: Subscriptions, Attributes and Timestamps", "BigQuery I/O: Read Methods, Write Methods and Schemas"]},
+        {"outcome": "Process Avro, Parquet and compressed files with FileIO", "topics": ["File Formats: FileIO, Avro, Parquet and Compression"]},
+        {"outcome": "Route bad records to dead-letter queues", "topics": ["Error Handling, Dead-Letter Queues and Poison Data"]},
+        {"outcome": "Test streaming pipelines with TestStream", "topics": ["Testing Streaming Pipelines with TestStream and Windows"]},
+        {"outcome": "Enrich streams with refreshing side inputs and stream-to-table joins", "topics": ["Enrichment Patterns: Side Input Refresh and Stream-to-Table Joins"]},
+        {"outcome": "Write Java pipelines with DoFn annotations, PipelineOptions, PAssert and Beam SQL", "topics": ["Java DoFn Annotations, PipelineOptions and PAssert", "Java Schemas, Beam SQL and SqlTransform"]},
+        {"outcome": "Run Dataflow streaming jobs and deploy them with Flex Templates", "topics": ["Dataflow Streaming Jobs: Streaming Engine, Autoscaling and Monitoring", "Dataflow Flex Templates and Deployment Automation"]},
+        {"outcome": "Run Beam on the Flink runner", "topics": ["Running Beam on the Flink Runner: Job Server, Environments and Options"]},
+        {"outcome": "Use cross-language transforms, Kafka I/O, Beam YAML and Beam DataFrames", "topics": ["Cross-Language Transforms and Kafka I/O", "Beam YAML and Beam DataFrames"]},
+        {"outcome": "Observe pipelines with metrics, logs and cost data", "topics": ["Metrics, Logging, Cost and Pipeline Observability"]},
+        {"outcome": "Deliver a streaming clickstream pipeline to BigQuery", "topics": ["Intermediate Capstone: Streaming Clickstream Pipeline to BigQuery"]}
+      ],
       "days": [
         {
           "topic": "Composite Transforms, Reusable Libraries and Pipeline Structure",
@@ -315,7 +349,7 @@
           "lab_task": "Define a Purchase POJO with @DefaultSchema(JavaFieldSchema.class). Compute total per country with Group.byFieldNames('country').aggregateField('amount', Sum.ofLongs(), 'total') and with SqlTransform.query('SELECT country, SUM(amount) AS total FROM PCOLLECTION GROUP BY country'). Add a TUMBLE(ts, INTERVAL '1' MINUTE) query and compare results.",
           "deliverable": "Java project with the Group, SQL and windowed SQL versions and result comparison",
           "checks": [["Run the Group and SQL variants on 12 purchases", "Both produce identical per-country totals", "Printed rows"], ["Run the TUMBLE query over events across 3 minutes", "One row per country and minute window", "Printed rows"], ["Query a column that does not exist", "SqlTransform fails at construction time with a column-not-found error", "Stack trace"]],
-          "objectives": ["Use schema-based transforms in Java", "Run SQL inside a Beam pipeline", "Know where Beam SQL ends and warehouse SQL begins"]
+          "objectives": ["Use schema-based transforms in Java", "Run SQL inside a Beam pipeline", "Identify where Beam SQL ends and warehouse SQL begins"]
         },
         {
           "topic": "Dataflow Streaming Jobs: Streaming Engine, Autoscaling and Monitoring",
@@ -386,6 +420,23 @@
       "summary": "For senior data engineers who run Beam in production on Dataflow and Flink. Covers the portability framework, splittable DoFns, watermark and late-data strategy, exactly-once and idempotent sinks, large-state patterns, fusion and skew tuning, coders and memory, Dataflow troubleshooting, updates, security, Flink runner operations and tuning, custom containers, RunInference, custom connectors, benchmarking with Nexmark, platform governance, upgrades and a multi-runner capstone.",
       "prerequisites": ["Has operated at least one streaming Beam pipeline with state, timers and windows, and uses Dataflow or Flink for real workloads", "Reads Java and Python stack traces and Cloud Logging output and uses Docker, gcloud and IAM confidently", "Understands Pub/Sub or Kafka delivery guarantees and at-least-once versus exactly-once semantics"],
       "outcomes": ["Diagnose and fix performance, skew, memory and stuck-job problems on Dataflow and Flink using metrics and logs", "Build correct connectors, splittable DoFns and idempotent sinks that tolerate retries", "Operate production jobs safely: updates, drains, security hardening, container builds and version upgrades", "Design a governed multi-team Beam platform that runs the same pipelines on Prism, Dataflow and Flink"],
+      "course_outcomes": [
+        {"outcome": "Trace how the Runner API, Fn API and SDK harness run a pipeline", "topics": ["Portability Framework: Runner API, Fn API and SDK Harness"]},
+        {"outcome": "Build custom sources with splittable DoFns and restriction trackers", "topics": ["Splittable DoFns, Restriction Trackers and Custom Sources"]},
+        {"outcome": "Handle idle sources and late data and deliver exactly-once results with idempotent sinks", "topics": ["Watermarks, Idle Sources and Late-Data Strategy", "Exactly-Once Semantics, Deduplication and Idempotent Sinks"]},
+        {"outcome": "Sessionize events and manage large state with timers", "topics": ["Sessionization and Large-State Patterns with Timers"]},
+        {"outcome": "Tune fusion, reshuffles and bundles and fix data skew and hot keys", "topics": ["Fusion, Reshuffle and Bundle-Level Performance", "Data Skew, Hot Keys and Shuffle Cost"]},
+        {"outcome": "Choose coders and manage serialization and memory", "topics": ["Coders, Serialization and Memory Management"]},
+        {"outcome": "Troubleshoot stuck, slow and failing Dataflow jobs", "topics": ["Troubleshooting Stuck, Slow and Failing Dataflow Jobs"]},
+        {"outcome": "Update, drain and replace streaming jobs", "topics": ["Updating, Draining and Replacing Streaming Jobs"]},
+        {"outcome": "Secure Dataflow with service accounts, CMEK and private networking", "topics": ["Dataflow Security: Service Accounts, CMEK and Private Networking"]},
+        {"outcome": "Operate and tune the Flink runner", "topics": ["Flink Runner Operations: Checkpointing, Restarts and State", "Flink Runner Tuning: Parallelism, Bundles and Portable Execution"]},
+        {"outcome": "Build reproducible custom containers and upgrade Beam versions safely", "topics": ["Custom Containers, Dependencies and Reproducible Builds", "Upgrading Beam Versions, Compatibility and Contributing"]},
+        {"outcome": "Run machine learning inference with RunInference", "topics": ["Machine Learning Inference Pipelines with RunInference"]},
+        {"outcome": "Build custom I/O connectors and benchmark pipelines with Nexmark", "topics": ["Building Custom I/O Connectors and Multi-Language Wrappers", "Benchmarking and Load Testing with Nexmark and Synthetic Sources"]},
+        {"outcome": "Design a multi-team pipeline platform with CI/CD and governance", "topics": ["Platform Architecture: Multi-Team Pipelines, CI/CD and Governance"]},
+        {"outcome": "Deliver a multi-runner fraud signal platform", "topics": ["Advanced Capstone: Multi-Runner Fraud Signal Platform"]}
+      ],
       "days": [
         {
           "topic": "Portability Framework: Runner API, Fn API and SDK Harness",

@@ -369,7 +369,7 @@
           "lab_task": "Ship a copy and styling fix to the production channel as an update for 10% of users, raise it to 100% after checking crash-free sessions, then publish a faulty update and roll back to the previous one within 15 minutes.",
           "deliverable": "Update runbook with commands, timings and the rollout and rollback history",
           "checks": [["Add a native module and compare fingerprints", "Fingerprint changes, so the change needs a new build instead of an update", "Fingerprint diff"], ["Publish with --rollout-percentage=10", "Dashboard shows the update rolling out to 10%", "Dashboard screenshot"], ["Roll back after the faulty update", "Test devices run the previous update after their next check", "Update ID log from devices"]],
-          "objectives": ["Publish updates to compatible builds", "Control rollouts and rollbacks", "Know when a store build is required"]
+          "objectives": ["Publish updates to compatible builds", "Control rollouts and rollbacks", "Decide when a store build is required"]
         },
         {
           "topic": "Intermediate Capstone: Community Events App with Offline Tickets",

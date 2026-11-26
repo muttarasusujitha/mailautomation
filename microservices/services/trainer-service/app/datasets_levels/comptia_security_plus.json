@@ -29,7 +29,7 @@
           "lab_task": "Build a small Windows and Linux lab, take a diagnostic practice test and write a study plan that targets your weakest domains.",
           "deliverable": "Lab and study plan",
           "checks": [["Build", "Both lab machines run and reach each other", "Connectivity test"], ["Assess", "A diagnostic practice score is recorded", "Score"], ["Plan", "The study plan targets weak domains", "Plan"]],
-          "objectives": ["Understand the exam", "Build a study lab", "Plan your study"]
+          "objectives": ["Describe the exam format and domains", "Build a study lab", "Plan your study"]
         },
         {
           "topic": "Authentication, Authorisation and Accounting",
@@ -207,7 +207,7 @@
           "lab_task": "Work through ten control scenarios, choose and justify the best control for each and review every miss against the objectives.",
           "deliverable": "Scenario answers with justifications",
           "checks": [["Choose", "The best control is chosen for each scenario", "Answers"], ["Justify", "Each choice has a clear reason", "Justifications"], ["Review", "Misses are mapped to objectives", "Review notes"]],
-          "objectives": ["Apply controls to scenarios", "Justify control choices", "Learn from misses"]
+          "objectives": ["Apply controls to scenarios", "Justify control choices", "Record the cause and a follow-up action for each miss"]
         },
         {
           "topic": "Threat Intelligence and Indicators",
@@ -369,7 +369,7 @@
           "lab_task": "Complete five performance-based practice tasks covering log analysis, configuration and matching, and review each against the correct answer.",
           "deliverable": "Performance-based practice results",
           "checks": [["Complete", "All five tasks are attempted", "Results"], ["Analyse", "Log analysis tasks are correct", "Answers"], ["Review", "Misses are reviewed and understood", "Review notes"]],
-          "objectives": ["Practise performance-based questions", "Manage time", "Learn from misses"]
+          "objectives": ["Practise performance-based questions", "Manage time", "Record the cause and a follow-up action for each miss"]
         },
         {
           "topic": "Intermediate Capstone: Scenario-Based Security Plan and Exam Readiness",

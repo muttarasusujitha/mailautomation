@@ -74,7 +74,7 @@
           "lab_task": "Style the company pages with an external stylesheet using class selectors and combinators, solve five specificity puzzles and use DevTools to explain why each winning rule wins.",
           "deliverable": "Stylesheet and specificity puzzle answers",
           "checks": [["Solve the puzzles", "Winning rule predicted correctly in all five puzzles", "Puzzle answers"], ["Trace a rule", "DevTools shows the overridden and winning declarations", "Screenshot"], ["Avoid IDs for styling", "Stylesheet uses classes instead of ID selectors", "Code review"]],
-          "objectives": ["Write CSS selectors", "Understand specificity and the cascade", "Debug styles in DevTools"]
+          "objectives": ["Write CSS selectors", "Explain specificity and the cascade", "Debug styles in DevTools"]
         },
         {
           "topic": "The Box Model, Spacing and Sizing",
@@ -128,7 +128,7 @@
           "lab_task": "Add a sticky header, a notification badge on an icon, a full-screen overlay and a sticky table header, then fix a dropdown hidden behind content by finding the stacking context.",
           "deliverable": "Positioned components with notes on stacking",
           "checks": [["Scroll the page", "Header stays at the top without covering content", "Screen recording"], ["Fix the hidden dropdown", "Dropdown appears above content after the fix", "Screenshot"], ["Explain the bug", "Stacking context that caused it identified", "Notes"]],
-          "objectives": ["Use CSS positioning", "Understand stacking contexts", "Fix layering bugs"]
+          "objectives": ["Use CSS positioning", "Explain stacking contexts", "Fix layering bugs"]
         },
         {
           "topic": "Backgrounds, Borders, Shadows and Gradients",

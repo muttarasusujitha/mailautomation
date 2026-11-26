@@ -401,6 +401,41 @@ def select_level_days(course, level, duration):
     return deepcopy(picked), used
 
 
+def level_outcomes(track, days):
+    """The outcomes a ToC built from ``days`` can promise for one level, in the order they are taught.
+
+    A ToC never promises what it leaves out:
+    - A level with ``course_outcomes`` maps each "can do" outcome to the day topics that teach
+      it. An outcome is listed only when all of its topics are in the ToC; a ToC day that no
+      listed outcome covers adds its own first objective instead.
+    - A level without that mapping keeps its summary ``outcomes`` when the ToC teaches the whole
+      level, and otherwise lists the first objective of each day it teaches.
+    """
+    def key(value):
+        return str(value or "").strip().lower()
+
+    level_days = [day for day in track.get("days") or [] if isinstance(day, dict)]
+    level_topics = {key(day.get("topic")) for day in level_days}
+    # The course file's own objectives per topic; selected days may carry expanded copies.
+    own_objectives = {key(day.get("topic")): day.get("objectives") or day.get("learning_objectives") or []
+                      for day in level_days}
+    taught = [day for day in days or [] if isinstance(day, dict) and key(day.get("topic")) in level_topics]
+    taught_topics = {key(day.get("topic")) for day in taught}
+    mapped = [item for item in track.get("course_outcomes") or []
+              if isinstance(item, dict) and str(item.get("outcome") or "").strip() and item.get("topics")]
+    if not mapped and level_topics and level_topics <= taught_topics:
+        return list(track.get("outcomes") or [])
+    full = [item for item in mapped if all(key(topic) in taught_topics for topic in item["topics"])]
+    outcomes = []
+    for day in taught:
+        own = [item["outcome"] for item in full if key(day.get("topic")) in {key(t) for t in item["topics"]}]
+        if not own:
+            own = [str(objective).strip() for objective in own_objectives.get(key(day.get("topic")), [])[:1]
+                   if str(objective).strip()]
+        outcomes += [outcome for outcome in own if outcome not in outcomes]
+    return outcomes or list(track.get("outcomes") or [])
+
+
 def level_programme(domain_name, duration, level):
     """Days, prerequisites and outcomes for the requested level, or None to use the old dataset."""
     course = get_level_course(domain_name)
@@ -426,8 +461,15 @@ def level_programme(domain_name, duration, level):
     first = "beginner" if level == "mixed" else used[0] if used[0] != level else level
     prerequisites = list(course["levels"][first].get("prerequisites") or [])
     outcomes = []
+    taught = {str(day.get("topic") or "").strip().lower() for day in days if isinstance(day, dict)}
     for name in used:
-        for outcome in course["levels"][name].get("outcomes") or []:
+        track = course["levels"][name]
+        # A multi-level ToC keeps only the last level's capstone, so compare the teaching days.
+        complete = {str(day.get("topic") or "").strip().lower() for day in _split(track)[0]} <= taught
+        # A ToC spanning several levels summarises each level it teaches in full, so the list stays short.
+        level_list = (list(track.get("outcomes") or []) if len(used) > 1 and complete
+                      else level_outcomes(track, days))
+        for outcome in level_list:
             if outcome not in outcomes:
                 outcomes.append(outcome)
     return {
@@ -443,6 +485,8 @@ def level_programme(domain_name, duration, level):
         "category": course.get("category") or "",
         "prerequisites": prerequisites,
         "outcomes": outcomes,
+        # Official references for reviewers and the course overview; never invented.
+        "sources": [dict(item) for item in course.get("sources") or [] if isinstance(item, dict) and item.get("url")],
         "review_warning": REVIEW_WARNING,
     }
 

@@ -7,11 +7,32 @@
   "certifications": ["Microsoft Azure AI Engineer Associate (AI-102)", "AWS Certified AI Practitioner (AIF-C01)", "Google Cloud Generative AI Leader"],
   "tools": ["Python 3.12", "OpenAI or Azure OpenAI API", "Ollama", "Jupyter", "VS Code"],
   "review_status": "unreviewed",
+  "sources": [
+    {"title": "Gemini API documentation", "url": "https://ai.google.dev/gemini-api/docs", "checked": "Found in a web search on 2026-11-24; page not opened"},
+    {"title": "NIST AI Risk Management Framework", "url": "https://www.nist.gov/itl/ai-risk-management-framework", "checked": "Found in a web search on 2026-11-24; page not opened"},
+    {"title": "NIST AI 600-1: Generative AI Profile", "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf", "checked": "Found in a web search on 2026-11-24; page not opened"}
+  ],
   "levels": {
     "beginner": {
       "summary": "For technical and business participants new to generative AI. Covers how large language models work, writing good prompts, using chat assistants safely at work, calling a model API from Python and building a first small AI application.",
       "prerequisites": ["Comfortable using a computer and web applications", "Basic Python is helpful for the API days but not required for the first week", "Access to a chat assistant and an API key or a local Ollama install"],
       "outcomes": ["Explain how LLMs generate text and where they fail", "Write prompts that give reliable, structured answers", "Use generative AI safely for documents, data and code", "Build a small Python application that calls an LLM API"],
+      "course_outcomes": [
+        {"outcome": "Explain how a large language model turns a prompt into tokens and predicts text, and name the failures that follow from it", "topics": ["Generative AI Overview and Course Setup", "How Large Language Models Work: Tokens, Training and Prediction"]},
+        {"outcome": "Write prompts with a role, context, constraints and an output format that give consistent answers on a test set", "topics": ["Prompt Writing Essentials", "Prompt Patterns for Reasoning and Reliable Answers"]},
+        {"outcome": "Use generative AI to draft documents, summarise meetings and analyse spreadsheet data, checking each output against its source", "topics": ["Generative AI for Documents, Email and Meetings", "Generative AI for Data Analysis and Spreadsheets"]},
+        {"outcome": "Generate, explain and review code with an AI assistant, and catch an error it introduces", "topics": ["Generative AI for Code"]},
+        {"outcome": "Create images and transcripts with multimodal models and state where their output needs human checking", "topics": ["Image, Audio and Multimodal Generation"]},
+        {"outcome": "Apply company policy, privacy rules and responsible AI checks before sharing data with an AI tool", "topics": ["Responsible AI, Privacy and Company Policy"]},
+        {"outcome": "Call an LLM API from Python and return validated JSON output", "topics": ["Calling an LLM API from Python", "Structured Output and JSON from LLMs"]},
+        {"outcome": "Build a chat application that keeps conversation memory within the model's context limit", "topics": ["Building a Chat Application with Conversation Memory"]},
+        {"outcome": "Answer questions from company documents with embeddings and retrieval-augmented generation, citing the source passages", "topics": ["Embeddings and Semantic Search", "Grounding Answers with Retrieval-Augmented Generation"]},
+        {"outcome": "Let a model call a tool in a simple agent loop with limits on what it may do", "topics": ["Tool Calling and Simple Agents"]},
+        {"outcome": "Evaluate AI outputs against a scored test set and test them for prompt injection and data leaks", "topics": ["Evaluating Generative AI Outputs", "AI Safety Risks: Prompt Injection, Data Leaks and Jailbreaks"]},
+        {"outcome": "Choose between hosted, open-weight and small models for a use case on cost, privacy and quality", "topics": ["Choosing Models: Hosted, Open-Weight and Small Models"]},
+        {"outcome": "Write a business case for a generative AI use case with a measurable benefit", "topics": ["Generative AI Use Cases and Business Value"]},
+        {"outcome": "Deliver a working AI assistant for a business team with grounding, evaluation and safety checks", "topics": ["Beginner Capstone: AI Assistant for a Business Team"]}
+      ],
       "days": [
         {
           "topic": "Generative AI Overview and Course Setup",
@@ -201,6 +222,22 @@
       "summary": "For developers who have called an LLM API. Covers production application design: provider abstraction, advanced prompting, structured output, RAG, tool use, evaluation, guardrails, observability, cost control and deployment of generative AI services.",
       "prerequisites": ["Writes Python confidently, including APIs and packages", "Has called an LLM API and built a small prompt-based script", "Knows basic web APIs and JSON"],
       "outcomes": ["Design and build production-style LLM applications", "Measure quality with automated evaluation", "Add guardrails, monitoring and cost controls", "Deploy a generative AI service as an API"],
+      "course_outcomes": [
+        {"outcome": "Design an LLM application with separate model, retrieval, tool and safety layers", "topics": ["Generative AI Application Architecture"]},
+        {"outcome": "Write versioned developer prompts and extract structured data reliably with function schemas", "topics": ["Advanced Prompt Engineering for Developers", "Structured Outputs, Function Schemas and Data Extraction at Scale"]},
+        {"outcome": "Build a production RAG pipeline that ingests PDFs, Office files and web pages and uses chunking, hybrid search and reranking", "topics": ["Production RAG: Chunking, Hybrid Search and Reranking", "Document Ingestion Pipelines: PDFs, Office Files and Web Pages"]},
+        {"outcome": "Build LLM workflows with LangChain or LlamaIndex and connect assistants to tools and data through the Model Context Protocol", "topics": ["LLM Frameworks in Practice: LangChain and LlamaIndex", "Model Context Protocol: Connecting Assistants to Tools and Data"]},
+        {"outcome": "Integrate an assistant with business systems through function calling, with input validation and error handling", "topics": ["Function Calling and Tool Integration with Business Systems"]},
+        {"outcome": "Run an automated evaluation pipeline that scores answers before each release", "topics": ["Automated Evaluation Pipelines for LLM Applications"]},
+        {"outcome": "Add guardrails and content-safety checks that block unsafe inputs and outputs", "topics": ["Guardrails and Content Safety"]},
+        {"outcome": "Trace LLM calls and reduce cost and latency with caching, model routing and token limits", "topics": ["Observability and Tracing for LLM Applications", "Cost and Latency Optimisation"]},
+        {"outcome": "Build a multimodal application that handles documents, images and speech", "topics": ["Multimodal Applications: Documents, Images and Speech"]},
+        {"outcome": "Run an open-weight model locally and decide when fine-tuning is worth more than prompting and retrieval", "topics": ["Working with Open-Weight Models and Local Inference", "Fine-Tuning Essentials: When and How"]},
+        {"outcome": "Serve a generative AI feature as a FastAPI service and deploy it to the cloud", "topics": ["Building Generative AI APIs with FastAPI", "Deploying Generative AI Services on the Cloud"]},
+        {"outcome": "Apply data privacy, security and compliance controls to an LLM system", "topics": ["Data Privacy, Security and Compliance for LLM Systems"]},
+        {"outcome": "Plan a pilot-to-production rollout with success measures", "topics": ["Generative AI Product Delivery: Pilots to Production"]},
+        {"outcome": "Deliver a production customer support assistant with evaluation, guardrails and monitoring", "topics": ["Intermediate Capstone: Production Customer Support Assistant"]}
+      ],
       "days": [
         {
           "topic": "Generative AI Application Architecture",
@@ -418,6 +455,22 @@
       "summary": "For engineers who build LLM applications in production. Covers model internals, training and alignment, serving at scale, advanced retrieval and agents, evaluation science, security, governance, LLMOps platforms and the economics of generative AI.",
       "prerequisites": ["Has shipped an LLM application with RAG or tools", "Writes Python and works with cloud services", "Understands evaluation and basic machine learning ideas"],
       "outcomes": ["Explain transformer internals and make informed model choices", "Fine-tune, align and serve models efficiently", "Build and govern enterprise generative AI platforms", "Evaluate, secure and run LLM systems at scale"],
+      "course_outcomes": [
+        {"outcome": "Explain transformer internals, including attention, and use them to justify a model choice", "topics": ["Transformer Architecture in Depth"]},
+        {"outcome": "Explain how pre-training, instruction tuning and alignment shape a model's behaviour", "topics": ["Pre-Training, Instruction Tuning and Alignment"]},
+        {"outcome": "Fine-tune a model with parameter-efficient methods on curated and synthetic data and compare it with the base model", "topics": ["Parameter-Efficient Fine-Tuning at Scale", "Synthetic Data Generation and Data Curation"]},
+        {"outcome": "Serve models at high throughput and measure latency and cost per request", "topics": ["High-Throughput Model Serving and Inference Optimisation"]},
+        {"outcome": "Build advanced retrieval with GraphRAG, agentic retrieval or long context and choose between them on measured results", "topics": ["Advanced Retrieval: GraphRAG, Agentic Retrieval and Long Context"]},
+        {"outcome": "Design production agent architectures with bounded tools, state and human approval steps", "topics": ["Agent Architectures for Production"]},
+        {"outcome": "Design sound evaluations and red-team an LLM system for adversarial failures", "topics": ["Evaluation Science for LLM Systems", "Red Teaming and Adversarial Testing of LLMs"]},
+        {"outcome": "Design an enterprise generative AI platform with a model gateway and LLMOps pipelines for prompts, models and data", "topics": ["Enterprise Generative AI Platform and Gateway Design", "LLMOps: CI/CD for Prompts, Models and Data"]},
+        {"outcome": "Apply responsible AI governance and regulation, with privacy-preserving or on-premises deployment where data requires it", "topics": ["Responsible AI Governance and Regulation", "Privacy-Preserving and On-Premises Generative AI"]},
+        {"outcome": "Run multimodal, speech and small-model systems at scale or on edge devices", "topics": ["Multimodal and Speech Systems at Scale", "Small Language Models and Edge Deployment"]},
+        {"outcome": "Assess content provenance, watermarking and copyright risks in generated content", "topics": ["Content Provenance, Watermarking and Copyright"]},
+        {"outcome": "Build a cost model for a generative AI service and manage its production incidents", "topics": ["Economics of Generative AI", "Generative AI Incident Management and Production Troubleshooting"]},
+        {"outcome": "Lead an architecture review that sets a generative AI strategy", "topics": ["Generative AI Strategy and Architecture Reviews"]},
+        {"outcome": "Deliver an enterprise generative AI platform design with governance, evaluation and operations", "topics": ["Advanced Capstone: Enterprise Generative AI Platform"]}
+      ],
       "days": [
         {
           "topic": "Transformer Architecture in Depth",
@@ -562,7 +615,7 @@
           "lab_task": "Add C2PA content credentials to generated marketing images, test two AI-text detectors on 40 human and AI texts, and write a publishing policy based on the results.",
           "deliverable": "Signed images, detector test results and a publishing policy",
           "checks": [["Inspect a signed image with a C2PA verifier", "Credentials show the generator and edits", "Verifier output"], ["Run both detectors on the 40 texts", "Error rates recorded", "Test results"], ["Review the publishing policy", "Matches the detector limits found", "Policy document"]],
-          "objectives": ["Track the origin of generated content", "Understand copyright and licence risks", "Set publishing rules"]
+          "objectives": ["Track the origin of generated content", "Explain copyright and licence risks", "Set publishing rules"]
         },
         {
           "topic": "Economics of Generative AI",

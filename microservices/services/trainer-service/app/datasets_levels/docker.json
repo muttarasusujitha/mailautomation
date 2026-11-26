@@ -24,6 +24,23 @@
         "Connect containers with networks and keep data with volumes",
         "Run multi-container applications with Docker Compose"
       ],
+      "course_outcomes": [
+        {"outcome": "Explain how containers differ from virtual machines and set up Docker", "topics": ["Containers versus Virtual Machines and Docker Setup"]},
+        {"outcome": "Work with images, layers and registries", "topics": ["Images, Layers and Registries"]},
+        {"outcome": "Write Dockerfiles and shrink images with multi-stage builds", "topics": ["Writing Dockerfiles", "Multi-Stage Builds and Smaller Images"]},
+        {"outcome": "Connect containers on networks and keep data in volumes", "topics": ["Container Networking", "Volumes and Persistent Data"]},
+        {"outcome": "Run multi-container applications with Docker Compose", "topics": ["Docker Compose for Multi-Container Apps"]},
+        {"outcome": "Pass configuration and secrets to containers safely", "topics": ["Runtime Configuration and Secrets for Containers"]},
+        {"outcome": "Apply basic container security", "topics": ["Container Security Basics"]},
+        {"outcome": "Debug failing containers and add resource limits and health checks", "topics": ["Debugging and Troubleshooting Containers", "Resource Limits and Container Health Checks"]},
+        {"outcome": "Version images and publish them to a private registry", "topics": ["Private Registries and Image Versioning"]},
+        {"outcome": "Containerise an existing application and build images in a CI pipeline", "topics": ["Containerising Existing Applications", "Docker in CI Pipelines"]},
+        {"outcome": "Develop and monitor applications in containers", "topics": ["Development Workflows with Containers", "Monitoring Containers"]},
+        {"outcome": "Explain when to move from Docker Swarm to an orchestrator", "topics": ["Docker Swarm and Moving to Orchestration"]},
+        {"outcome": "Back up container data", "topics": ["Container Storage and Backup Strategies"]},
+        {"outcome": "Containerise a three-tier application end to end", "topics": ["Containerising a Three-Tier Application End to End"]},
+        {"outcome": "Deliver a containerised application", "topics": ["Beginner Capstone: Containerised Application Delivery"]}
+      ],
       "days": [
         {
           "topic": "Containers versus Virtual Machines and Docker Setup",
@@ -220,6 +237,22 @@
         "Harden images and runtimes and secure the image supply chain",
         "Prepare containerised applications for production orchestration"
       ],
+      "course_outcomes": [
+        {"outcome": "Build images with BuildKit and publish multi-platform images for ARM and x86", "topics": ["BuildKit and Advanced Build Techniques", "Multi-Platform Images for ARM and x86"]},
+        {"outcome": "Explain container runtime and networking internals", "topics": ["Container Runtime Internals", "Container Networking Internals"]},
+        {"outcome": "Harden container runtimes and secure the image supply chain", "topics": ["Hardening Container Runtimes", "Image Supply Chain Security"]},
+        {"outcome": "Run registries at scale and manage image life cycles", "topics": ["Registries at Scale", "Image Lifecycle Management in Organisations"]},
+        {"outcome": "Run complex environments with Compose", "topics": ["Compose for Complex Environments"]},
+        {"outcome": "Tune container performance and add logging and observability", "topics": ["Performance Tuning for Containers", "Logging and Observability for Containerised Apps"]},
+        {"outcome": "Run Windows containers", "topics": ["Windows Containers"]},
+        {"outcome": "Prepare containers for Kubernetes and test them", "topics": ["Preparing Containers for Kubernetes", "Container Testing Strategies"]},
+        {"outcome": "Run containers on Fargate, Cloud Run or Container Apps", "topics": ["Serverless Containers: Fargate, Cloud Run and Container Apps"]},
+        {"outcome": "Respond to container security incidents", "topics": ["Container Incident Response"]},
+        {"outcome": "Run containers at the edge and on IoT devices", "topics": ["Edge and IoT Containers"]},
+        {"outcome": "Cut container host costs", "topics": ["Cost and Resource Efficiency for Container Hosts"]},
+        {"outcome": "Plan the migration of an application portfolio to containers", "topics": ["Migrating a Portfolio to Containers"]},
+        {"outcome": "Deliver a secure container platform", "topics": ["Intermediate Capstone: Secure Container Platform for a Product Team"]}
+      ],
       "days": [
         {
           "topic": "BuildKit and Advanced Build Techniques",
@@ -415,6 +448,22 @@
         "Design sandboxed and multi-tenant container runtimes",
         "Run organisation-wide image supply chain and build platforms",
         "Set container platform strategy with cost, security and reliability evidence"
+      ],
+      "course_outcomes": [
+        {"outcome": "Explain the kernel features behind containers and choose a sandboxed runtime", "topics": ["Linux Kernel Features Behind Containers", "Sandboxed Runtimes: gVisor, Kata Containers and Firecracker"]},
+        {"outcome": "Use eBPF for container networking and observability", "topics": ["eBPF Networking and Observability for Containers"]},
+        {"outcome": "Secure the software supply chain across an organisation", "topics": ["Organisation-Wide Supply Chain Security"]},
+        {"outcome": "Run build platforms at scale and engineer container performance", "topics": ["Build Platforms at Scale", "Container Performance Engineering at Scale"]},
+        {"outcome": "Design multi-tenant platforms and run a container security operations programme", "topics": ["Multi-Tenant Container Platforms", "Container Security Operations Programme"]},
+        {"outcome": "Engineer container platform reliability", "topics": ["Container Platform Reliability Engineering"]},
+        {"outcome": "Assess WebAssembly as a packaging option", "topics": ["WebAssembly and the Future of Workload Packaging"]},
+        {"outcome": "Design networking and storage for containers at scale", "topics": ["Container Networking at Scale", "Storage for Containers at Scale"]},
+        {"outcome": "Produce compliance and audit evidence for container platforms", "topics": ["Compliance and Audit for Container Platforms"]},
+        {"outcome": "Control container platform costs", "topics": ["Cost Engineering for Container Platforms"]},
+        {"outcome": "Plan containers for legacy modernisation and AI and GPU workloads", "topics": ["Container Strategy for Legacy Modernisation", "Running AI and GPU Workloads in Containers"]},
+        {"outcome": "Record container platform architecture decisions and set a roadmap with governance", "topics": ["Container Platform Architecture Decisions", "Container Platform Roadmap and Governance"]},
+        {"outcome": "Troubleshoot container hosts", "topics": ["Advanced Troubleshooting of Container Hosts"]},
+        {"outcome": "Deliver an enterprise container platform design", "topics": ["Advanced Capstone: Enterprise Container Platform Design"]}
       ],
       "days": [
         {

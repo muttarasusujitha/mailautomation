@@ -430,7 +430,7 @@
           "lab_task": "Run OBI against an uninstrumented Go or Rust HTTP service, selecting it by open port, and export OTLP to the Collector. Send 500 requests and compare spans and http.server.request.duration with an SDK-instrumented copy. Then run OBI on an SDK-instrumented service and record whether duplicate SERVER spans appear and how you prevent them.",
           "deliverable": "OBI deployment manifest, comparison table and a duplicate-span finding",
           "checks": [["Send 500 requests to the uninstrumented service", "500 SERVER spans arrive with http.route or url.path populated", "Backend span count"], ["Run OBI without the required capabilities", "OBI fails to load eBPF programs and logs a permission error", "Container log"], ["Compare metric counts with the SDK copy", "Request counts match within 1%", "Prometheus query"]],
-          "objectives": ["Deploy eBPF-based zero-code instrumentation", "Know the limits of eBPF context propagation", "Avoid double instrumentation"]
+          "objectives": ["Deploy eBPF-based zero-code instrumentation", "Identify the limits of eBPF context propagation", "Avoid double instrumentation"]
         },
         {
           "topic": "Profiles Signal and Continuous Profiling with the eBPF Profiler",
@@ -475,7 +475,7 @@
           "lab_task": "Write a declarative configuration file for the Java agent defining resource attributes, a parentbased_traceidratio 0.2 sampler, a batch span processor with OTLP HTTP exporter using ${OTEL_EXPORTER_OTLP_ENDPOINT}, and a periodic metric reader. Start the agent with it, verify sampling, then add an invalid key and record the startup failure.",
           "deliverable": "Configuration file, startup logs and sampling verification",
           "checks": [["Start the agent with the file", "Agent starts and traces arrive with the configured resource attributes", "Agent log and trace"], ["Send 1,000 requests", "About 200 traces are stored", "Backend trace count"], ["Add an unknown sampler type", "Agent reports a configuration parse error at startup", "Agent log"]],
-          "objectives": ["Configure SDKs with a single file", "Use substitution for secrets and endpoints", "Know current language support"]
+          "objectives": ["Configure SDKs with a single file", "Use substitution for secrets and endpoints", "Identify current language support"]
         },
         {
           "topic": "Managing Collector Fleets with OpAMP",

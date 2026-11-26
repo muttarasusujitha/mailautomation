@@ -547,7 +547,7 @@
           "lab_task": "Diagnose four seeded enterprise problems, an app failure, a visibility puzzle, an automation loop and a data inconsistency, raise one support request and write a review.",
           "deliverable": "Diagnoses, support request and review",
           "checks": [["Diagnose", "Each problem's cause is shown with evidence", "Analysis"], ["Raise", "The support request has all needed details", "Support request"], ["Review", "The review lists actions", "Review document"]],
-          "objectives": ["Troubleshoot Jira at scale", "Work with Atlassian Support", "Learn from platform problems"]
+          "objectives": ["Troubleshoot Jira at scale", "Work with Atlassian Support", "Record the root cause and a preventive action for each platform problem"]
         },
         {
           "topic": "Jira for Regulated Teams: Validation, Traceability and Audit Trails",

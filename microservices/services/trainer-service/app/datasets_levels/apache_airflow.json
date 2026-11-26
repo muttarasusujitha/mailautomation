@@ -12,6 +12,23 @@
       "summary": "For data engineers and analysts new to orchestration. Covers Airflow concepts and architecture, local set-up, DAGs and tasks, operators, scheduling and data intervals, the TaskFlow API, XComs, connections and hooks, variables, sensors, dependencies and branching, retries and alerts, templating, the UI and CLI, dynamic task mapping, task groups, datasets, testing DAGs, simple ELT pipelines and good DAG design.",
       "prerequisites": ["Writes Python functions and uses pip or uv", "Knows basic SQL", "Comfortable with Docker and the command line"],
       "outcomes": ["Write, schedule and monitor DAGs with operators and the TaskFlow API", "Connect to databases and APIs safely with connections and hooks", "Handle retries, branching, sensors and dynamic tasks", "Test DAGs and build a reliable ELT pipeline"],
+      "course_outcomes": [
+        {"outcome": "Explain Airflow architecture and run it locally", "topics": ["Apache Airflow Overview, Architecture and Local Setup"]},
+        {"outcome": "Write DAGs with tasks and operators", "topics": ["DAGs, Tasks and Operators"]},
+        {"outcome": "Schedule DAGs with data intervals and catchup", "topics": ["Scheduling, Data Intervals and Catchup"]},
+        {"outcome": "Write pipelines with the TaskFlow API and pass data safely with XComs", "topics": ["The TaskFlow API", "XComs and Passing Data Safely"]},
+        {"outcome": "Manage connections, hooks, secrets and run parameters", "topics": ["Connections, Hooks and Secrets", "Airflow Params, Settings and Run Configuration"]},
+        {"outcome": "Wait for conditions with sensors and deferrable operators", "topics": ["Sensors and Deferrable Operators"]},
+        {"outcome": "Control task flow with dependencies, branching and trigger rules", "topics": ["Dependencies, Branching and Trigger Rules"]},
+        {"outcome": "Handle failures with retries, timeouts, SLAs and alerts", "topics": ["Retries, Timeouts, SLAs and Alerts"]},
+        {"outcome": "Template tasks with Jinja and macros and operate DAGs from the UI and CLI", "topics": ["Templating with Jinja and Macros", "Using the Airflow UI and CLI"]},
+        {"outcome": "Generate tasks with dynamic task mapping and organise DAGs with task groups", "topics": ["Dynamic Task Mapping", "Task Groups and DAG Organisation"]},
+        {"outcome": "Trigger DAGs from dataset and asset updates", "topics": ["Data-Aware Scheduling with Datasets and Assets"]},
+        {"outcome": "Test DAGs and add data quality checks", "topics": ["Testing DAGs", "Data Quality Checks in Airflow"]},
+        {"outcome": "Build an ELT pipeline with Airflow and dbt", "topics": ["Building an ELT Pipeline with Airflow and dbt"]},
+        {"outcome": "Apply DAG design good practices", "topics": ["DAG Design Good Practices"]},
+        {"outcome": "Deliver a daily sales data pipeline", "topics": ["Beginner Capstone: Daily Sales Data Pipeline"]}
+      ],
       "days": [
         {
           "topic": "Apache Airflow Overview, Architecture and Local Setup",
@@ -38,7 +55,7 @@
           "lab_task": "Schedule the sales DAG daily, show how data intervals map to runs, run a backfill for the past week and fix a DAG that runs too often because of a wrong start date.",
           "deliverable": "Schedules, backfill log and notes",
           "checks": [["Run a backfill", "One run per day of the week", "Grid view"], ["Read the data interval", "Interval matches the processed day", "Task log"], ["Fix the start date", "Expected number of runs", "Grid view"]],
-          "objectives": ["Schedule DAGs", "Understand data intervals", "Backfill safely"]
+          "objectives": ["Schedule DAGs", "Explain data intervals", "Backfill safely"]
         },
         {
           "topic": "The TaskFlow API",
@@ -199,6 +216,23 @@
       "summary": "For engineers who run Airflow in production. Covers executors, the Celery and Kubernetes executors, KubernetesPodOperator, scaling the scheduler, the metadata database, custom operators and hooks, providers, plugins, listeners, logging and monitoring, deployment, CI/CD, Airflow on AWS, GCP and Azure, orchestrating Spark and Databricks, event-driven DAGs, multi-tenancy, security and upgrading to Airflow 3.",
       "prerequisites": ["Writes DAGs with operators, TaskFlow and connections", "Tests DAGs in CI", "Knows Docker and Kubernetes basics"],
       "outcomes": ["Run and scale Airflow with the right executor", "Extend Airflow with custom operators, providers and listeners", "Deploy, monitor and secure Airflow on Kubernetes or managed services", "Orchestrate cloud data platforms and upgrade to Airflow 3"],
+      "course_outcomes": [
+        {"outcome": "Choose an executor and scale Celery workers", "topics": ["Executors and Choosing an Execution Model", "CeleryExecutor and Worker Scaling"]},
+        {"outcome": "Run tasks on Kubernetes with the KubernetesExecutor and KubernetesPodOperator", "topics": ["KubernetesExecutor and KubernetesPodOperator"]},
+        {"outcome": "Tune scheduler performance and maintain the metadata database", "topics": ["Scheduler Performance and Scaling", "The Metadata Database"]},
+        {"outcome": "Write custom operators, hooks and sensors", "topics": ["Writing Custom Operators, Hooks and Sensors"]},
+        {"outcome": "Extend Airflow with providers, plugins and listeners", "topics": ["Providers, Plugins and Listeners"]},
+        {"outcome": "Monitor Airflow with logs and metrics", "topics": ["Logging, Metrics and Monitoring Airflow"]},
+        {"outcome": "Deploy Airflow with images, Helm and GitOps and build CI/CD for Airflow projects", "topics": ["Deploying Airflow: Images, Helm and GitOps", "CI/CD for Airflow Projects"]},
+        {"outcome": "Run Airflow on Amazon MWAA and Cloud Composer", "topics": ["Airflow on AWS: Amazon MWAA", "Airflow on Google Cloud: Cloud Composer"]},
+        {"outcome": "Orchestrate Azure data services, Spark and Databricks from Airflow", "topics": ["Orchestrating Azure Data Services with Airflow", "Orchestrating Spark and Databricks"]},
+        {"outcome": "Trigger DAGs from events and external systems", "topics": ["Event-Driven DAGs and External Triggers"]},
+        {"outcome": "Share Airflow between teams with ownership, pools and permissions", "topics": ["Multi-Team Airflow: Ownership, Pools and Permissions"]},
+        {"outcome": "Run backfills and reprocessing at scale", "topics": ["Backfills and Reprocessing at Scale"]},
+        {"outcome": "Secure an Airflow deployment", "topics": ["Securing Airflow"]},
+        {"outcome": "Upgrade a deployment to Airflow 3", "topics": ["Upgrading to Airflow 3"]},
+        {"outcome": "Deliver a production Airflow platform on Kubernetes", "topics": ["Intermediate Capstone: Production Airflow Platform on Kubernetes"]}
+      ],
       "days": [
         {
           "topic": "Executors and Choosing an Execution Model",
@@ -207,7 +241,7 @@
           "lab_task": "Run the same workload on the Local, Celery and Kubernetes executors, measure throughput and task start-up time and write a recommendation.",
           "deliverable": "Benchmark results and recommendation",
           "checks": [["Compare throughput", "Tasks per minute for each executor", "Benchmark table"], ["Compare start-up time", "Pod start-up cost shown for Kubernetes", "Benchmark table"], ["Write the recommendation", "Executor chosen with reasons", "Recommendation"]],
-          "objectives": ["Understand executors", "Measure trade-offs", "Choose an executor"]
+          "objectives": ["Explain executors", "Measure trade-offs", "Choose an executor"]
         },
         {
           "topic": "CeleryExecutor and Worker Scaling",
@@ -234,7 +268,7 @@
           "lab_task": "Load 500 generated DAGs, measure scheduling delay, tune parsing and concurrency settings, add a second scheduler and measure again.",
           "deliverable": "Tuning log and metrics before and after",
           "checks": [["Measure scheduling delay", "Delay recorded before tuning", "Metrics"], ["Add a second scheduler", "Delay reduced", "Metrics"], ["Use pools", "Database tasks limited to the pool size", "Pool view"]],
-          "objectives": ["Understand the scheduler", "Tune for scale", "Use pools"]
+          "objectives": ["Explain the scheduler", "Tune for scale", "Use pools"]
         },
         {
           "topic": "The Metadata Database",
@@ -386,6 +420,23 @@
       "summary": "For data platform engineers and architects. Covers Airflow internals, high availability, scaling to thousands of DAGs, DAG generation and factories, orchestration architecture, data contracts in pipelines, lineage and observability, reliability engineering, cost, multi-region, Airflow as a platform, migrating from other schedulers, orchestrating ML and LLM pipelines, alternatives such as Dagster and Prefect, compliance, contributing to Airflow, production troubleshooting and orchestration strategy.",
       "prerequisites": ["Runs Airflow in production with CI/CD and monitoring", "Writes custom operators", "Knows Kubernetes and cloud data services"],
       "outcomes": ["Design and run Airflow at very large scale with high availability", "Build DAG factories, contracts and lineage into pipelines", "Migrate and choose orchestrators deliberately", "Lead orchestration strategy and incident response"],
+      "course_outcomes": [
+        {"outcome": "Trace the scheduler loop, DAG processing and task lifecycle", "topics": ["Airflow Internals: Scheduler Loop, DAG Processing and Task Lifecycle"]},
+        {"outcome": "Design high availability and disaster recovery for Airflow", "topics": ["High Availability and Disaster Recovery for Airflow"]},
+        {"outcome": "Scale to thousands of DAGs with DAG factories and generated pipelines", "topics": ["Scaling to Thousands of DAGs and Tasks", "DAG Factories and Generated Pipelines"]},
+        {"outcome": "Design orchestration architecture for data platforms", "topics": ["Orchestration Architecture for Data Platforms"]},
+        {"outcome": "Enforce data contracts and quality gates and track lineage with OpenLineage", "topics": ["Data Contracts and Quality Gates in Pipelines", "Lineage, Metadata and Observability with OpenLineage"]},
+        {"outcome": "Apply reliability engineering and cost management to pipelines", "topics": ["Reliability Engineering for Data Pipelines", "Cost Management for Orchestration"]},
+        {"outcome": "Orchestrate across regions and clouds", "topics": ["Multi-Region and Multi-Cloud Orchestration"]},
+        {"outcome": "Run Airflow as an internal platform", "topics": ["Airflow as an Internal Platform"]},
+        {"outcome": "Migrate to Airflow from other schedulers and compare it with Dagster, Prefect and cloud orchestrators", "topics": ["Migrating to Airflow from Other Schedulers", "Airflow Compared with Dagster, Prefect and Cloud Orchestrators"]},
+        {"outcome": "Orchestrate ML and LLM pipelines with Airflow", "topics": ["Orchestrating ML and LLM Pipelines with Airflow"]},
+        {"outcome": "Apply compliance, auditing and change control to pipelines", "topics": ["Compliance, Auditing and Change Control for Pipelines"]},
+        {"outcome": "Set orchestration strategy and team practices, including contributing to Apache Airflow", "topics": ["Contributing to Apache Airflow", "Orchestration Strategy and Team Practices"]},
+        {"outcome": "Set a testing strategy for large Airflow codebases", "topics": ["Testing Strategy for Large Airflow Codebases"]},
+        {"outcome": "Troubleshoot production Airflow incidents", "topics": ["Troubleshooting Production Airflow Incidents"]},
+        {"outcome": "Deliver an enterprise orchestration platform", "topics": ["Advanced Capstone: Enterprise Orchestration Platform"]}
+      ],
       "days": [
         {
           "topic": "Airflow Internals: Scheduler Loop, DAG Processing and Task Lifecycle",
@@ -394,7 +445,7 @@
           "lab_task": "Trace a task from scheduled to success through database records and logs, create a zombie task and explain how Airflow detects and handles it.",
           "deliverable": "Annotated trace and zombie analysis",
           "checks": [["Trace state changes", "Each state recorded with times", "Database query"], ["Create a zombie", "Detected and failed or retried", "Scheduler log"], ["Explain serialised DAGs", "Role in the webserver described", "Written note"]],
-          "objectives": ["Understand internals", "Trace task lifecycles", "Handle zombies"]
+          "objectives": ["Explain internals", "Trace task lifecycles", "Handle zombies"]
         },
         {
           "topic": "High Availability and Disaster Recovery for Airflow",
@@ -511,7 +562,7 @@
           "lab_task": "Build the same small pipeline in Airflow, Dagster and Prefect, compare authoring, testing, observability and operations and recommend one for three scenarios.",
           "deliverable": "Three implementations and recommendation",
           "checks": [["Build all three", "Same outputs from each", "Comparison"], ["Compare testing", "Effort recorded for each", "Comparison table"], ["Write the recommendation", "Tool chosen per scenario with reasons", "Recommendation"]],
-          "objectives": ["Compare orchestrators", "Know their strengths", "Choose deliberately"]
+          "objectives": ["Compare orchestrators", "Compare their strengths", "Choose deliberately"]
         },
         {
           "topic": "Compliance, Auditing and Change Control for Pipelines",
@@ -529,7 +580,7 @@
           "lab_task": "Set up Breeze, run a provider's tests, reproduce a reported issue and prepare a documentation fix or small pull request.",
           "deliverable": "Environment, test run and pull request draft",
           "checks": [["Start Breeze", "Development environment running", "Terminal output"], ["Run provider tests", "Tests pass", "Test output"], ["Prepare the contribution", "Change with tests or docs ready", "Pull request draft"]],
-          "objectives": ["Understand the project", "Run Airflow tests", "Contribute"]
+          "objectives": ["Describe the project's structure and contribution process", "Run Airflow tests", "Contribute"]
         },
         {
           "topic": "Testing Strategy for Large Airflow Codebases",
@@ -547,7 +598,7 @@
           "lab_task": "Diagnose five injected incidents (tasks stuck in queued, a database lock, a memory leak in a worker, a broken image and a slow scheduler), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix stuck queued tasks", "Cause found and tasks run", "Grid view"], ["Fix the database lock", "Blocking query found and cleared", "Database query"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose Airflow incidents", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose Airflow incidents", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Orchestration Strategy and Team Practices",

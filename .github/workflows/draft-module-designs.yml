@@ -6,7 +6,8 @@ name: Draft module designs
 #
 # Drafting needs its own key in the DESIGN_GEMINI_API_KEY secret, so it never uses
 # the live application's Gemini quota; without it the run stops before any model
-# call. A daily quota error stops the run, and a re-run continues where it stopped.
+# call. Running out of every model's daily quota ends a job normally (not as a
+# failure); the drafts are kept and the next run continues where it stopped.
 #
 # Designs are written to trainer-service/app/module_designs/<course>.json; course
 # files never change. Courses are split into groups drafted in parallel jobs.
@@ -14,12 +15,19 @@ name: Draft module designs
 # finished; a final job validates and commits everything. Re-running the same
 # branch continues with the modules that still have no design.
 #
+# - Daily (schedule): drafts every course with one job, after Gemini's free-tier
+#   daily quota resets at midnight Pacific time. When one model's daily quota is
+#   used up the job moves to the next Flash model, and stops normally once all are.
+#   Drafts collect on the design-drafts/daily branch, which continues from its own
+#   earlier drafts plus main, with one open pull request into main.
 # - Manual run (Actions tab): pick the course set; results go to a new
-#   design-drafts/run-<id> branch with a pull request.
+#   design-drafts/run-<id> branch, with a pull request when run from main.
 # - Push to a design-drafts/** branch: the branch name picks the set:
 #   "...rest..." = every course except the 15 most-requested, "...all..." =
 #   every course, otherwise the 15 most-requested; "...sample..." = 2 per course.
 on:
+  schedule:
+    - cron: "30 8 * * *"
   workflow_dispatch:
     inputs:
       select:
@@ -35,6 +43,14 @@ on:
         description: "Max modules per course (0 = all)"
         required: false
         default: "0"
+      groups:
+        description: "Parallel jobs (1 on the free tier: every job spends requests probing models; up to 24 with billing)"
+        required: false
+        default: "1"
+      batch_size:
+        description: "Modules per model request (the free tier limits requests, not modules)"
+        required: false
+        default: "6"
   push:
     branches:
       - "design-drafts/**"
@@ -48,10 +64,13 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  SELECT: ${{ github.event_name == 'workflow_dispatch' && inputs.select || (contains(github.ref_name, 'rest') && 'rest' || (contains(github.ref_name, 'all') && 'all' || 'top')) }}
+  SELECT: ${{ github.event_name == 'workflow_dispatch' && inputs.select || (github.event_name == 'schedule' && 'all' || (contains(github.ref_name, 'rest') && 'rest' || (contains(github.ref_name, 'all') && 'all' || 'top'))) }}
   COURSES: ${{ github.event_name == 'workflow_dispatch' && inputs.courses || '' }}
   PER_COURSE: ${{ github.event_name == 'workflow_dispatch' && inputs.per_course || (contains(github.ref_name, 'sample') && '2' || '0') }}
-  TARGET_BRANCH: ${{ github.event_name == 'workflow_dispatch' && format('design-drafts/run-{0}', github.run_id) || github.ref_name }}
+  GROUPS: ${{ github.event_name == 'workflow_dispatch' && inputs.groups || (github.event_name == 'schedule' && '1' || '24') }}
+  BATCH_SIZE: ${{ github.event_name == 'workflow_dispatch' && inputs.batch_size || '6' }}
+  TARGET_BRANCH: ${{ github.event_name == 'workflow_dispatch' && format('design-drafts/run-{0}', github.run_id) || (github.event_name == 'schedule' && 'design-drafts/daily' || github.ref_name) }}
+  DAILY_BRANCH: design-drafts/daily
   PYTHONPATH: ${{ github.workspace }}/microservices/services/trainer-service:${{ github.workspace }}/microservices
 
 jobs:
@@ -61,6 +80,20 @@ jobs:
       groups: ${{ steps.plan.outputs.groups }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Daily runs merge main into the drafts branch, which needs the history.
+          fetch-depth: ${{ github.event_name != 'schedule' && 1 || 0 }}
+      - name: Continue from the daily drafts branch
+        if: github.event_name == 'schedule'
+        run: |
+          if git ls-remote --exit-code --heads origin "$DAILY_BRANCH" >/dev/null; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git fetch --no-tags origin "$DAILY_BRANCH"
+            git checkout -B "$DAILY_BRANCH" FETCH_HEAD
+            git merge --no-edit "$GITHUB_SHA"
+          fi
+          git log --oneline -1
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -81,7 +114,7 @@ jobs:
         id: plan
         working-directory: microservices/services/trainer-service
         run: |
-          args="--plan --groups 24 --select $SELECT"
+          args="--plan --groups $GROUPS --select $SELECT"
           if [ -n "$COURSES" ]; then args="$args --course $COURSES"; fi
           groups=$(python -m app.draft_module_designs $args)
           echo "groups=$groups" >> "$GITHUB_OUTPUT"
@@ -99,6 +132,20 @@ jobs:
         courses: ${{ fromJSON(needs.plan.outputs.groups) }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Daily runs merge main into the drafts branch, which needs the history.
+          fetch-depth: ${{ github.event_name != 'schedule' && 1 || 0 }}
+      - name: Continue from the daily drafts branch
+        if: github.event_name == 'schedule'
+        run: |
+          if git ls-remote --exit-code --heads origin "$DAILY_BRANCH" >/dev/null; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git fetch --no-tags origin "$DAILY_BRANCH"
+            git checkout -B "$DAILY_BRANCH" FETCH_HEAD
+            git merge --no-edit "$GITHUB_SHA"
+          fi
+          git log --oneline -1
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -120,7 +167,7 @@ jobs:
           LIVE_GEMINI_MODEL: gemini-2.5-flash
         run: >
           python -m app.draft_module_designs --run --course "${{ matrix.courses }}"
-          --per-course "$PER_COURSE" --concurrency 2 --max-minutes 300
+          --per-course "$PER_COURSE" --batch-size "$BATCH_SIZE" --concurrency 2 --max-minutes 300
           --summary "$RUNNER_TEMP/out/summary-${{ strategy.job-index }}.json"
       - name: Collect the design files
         if: always()
@@ -143,6 +190,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Daily runs merge main into the drafts branch, which needs the history.
+          fetch-depth: ${{ github.event_name != 'schedule' && 1 || 0 }}
+      - name: Continue from the daily drafts branch
+        if: github.event_name == 'schedule'
+        run: |
+          if git ls-remote --exit-code --heads origin "$DAILY_BRANCH" >/dev/null; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git fetch --no-tags origin "$DAILY_BRANCH"
+            git checkout -B "$DAILY_BRANCH" FETCH_HEAD
+            git merge --no-edit "$GITHUB_SHA"
+          fi
+          git log --oneline -1
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -161,7 +222,7 @@ jobs:
           totals = {"accepted": 0, "rejected": [], "modules": 0, "days_updated": 0, "skipped": 0, "errors": [], "models": set(), "stopped": 0}
           for path in glob.glob(os.path.join(os.environ["RUNNER_TEMP"], "artifacts", "*", "summary-*.json")):
               s = json.loads(Path(path).read_text(encoding="utf-8"))
-              totals["models"] |= {s.get("model")} - {None}
+              totals["models"] |= ({s.get("model")} | set(s.get("models") or [])) - {None}
               for key in ("accepted", "modules", "days_updated"):
                   totals[key] += s.get(key) or 0
               totals["skipped"] += s.get("placeholder_modules_skipped") or 0
@@ -201,15 +262,22 @@ jobs:
           git commit -m "Draft module designs with Gemini (model draft, pending technical review)"
           git push origin "HEAD:$TARGET_BRANCH"
       - name: Open a pull request
-        if: github.event_name == 'workflow_dispatch'
+        # Runs from another branch (a feature branch under test) do not open their own pull request.
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.ref_name == github.event.repository.default_branch)
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           git ls-remote --exit-code --heads origin "$TARGET_BRANCH" >/dev/null || exit 0
-          gh pr create --base main --head "$TARGET_BRANCH" \
-            --title "Draft module designs (model draft, pending review)" \
-            --body "Model-drafted module designs from run ${{ github.run_id }}. Every design passed the module rules; content is unreviewed and needs a technical review before client delivery."
+          open=$(gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&head=$GITHUB_REPOSITORY_OWNER:$TARGET_BRANCH" --jq length)
+          if [ "$open" != "0" ]; then
+            echo "A pull request from $TARGET_BRANCH is already open; today's drafts were added to it."
+            exit 0
+          fi
+          gh api "repos/$GITHUB_REPOSITORY/pulls" -f base=main -f head="$TARGET_BRANCH" \
+            -f title="Draft module designs (model draft, pending review)" \
+            -f body="Model-drafted module designs from run $GITHUB_RUN_ID. Every design passed the module rules; content is unreviewed and needs a technical review before client delivery. Daily runs add to this pull request until it is merged." \
+            --jq .html_url
       - name: Summary
         if: always()
         run: |
