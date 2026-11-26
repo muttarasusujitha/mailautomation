@@ -436,6 +436,16 @@ function trainerLocation(t) {
   )
 }
 
+function trainerPhone(t) {
+  return displayText(t.phone || t.mobile || t.mobile_number || t.phone_number || t.contact_number)
+}
+
+function trainerCommercial(t) {
+  const value = t.day_rate ?? t.expected_day_rate ?? t.commercial_amount ?? t.commercial_rate ?? t.rate_per_day ?? t.per_day_rate
+  const amount = numericValue(value)
+  return amount ? `INR ${amount.toLocaleString('en-IN')} / day` : displayText(t.commercials || t.commercial_text || t.commercial_details)
+}
+
 function inferredProfileScore(t) {
   const skills = allTrainerSkills(t)
   const certs = asArray(t.certifications)
@@ -1063,11 +1073,11 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
                     </div>
                   </div>
                   <p><strong>Email:</strong> {textValue(t.email)}</p>
-                  <p><strong>Phone:</strong> {textValue(t.phone)}</p>
+                  <p><strong>Mobile:</strong> {trainerPhone(t) || 'Not available'}</p>
                   <p><strong>Teams:</strong> {textValue(t.teams_email || t.microsoft_teams_email || t.teams_upn)}</p>
                   <p><strong>LinkedIn:</strong> {displayText(t.linkedin) ? <a className="text-blue-600 hover:underline" href={t.linkedin} target="_blank" rel="noreferrer">Open profile</a> : 'Not available'}</p>
                   <p><strong>Trainings:</strong> {textValue(t.training_count)}</p>
-                  <p><strong>Day rate:</strong> {dayRateText(t.day_rate)}</p>
+                  <p><strong>Trainer commercial:</strong> {trainerCommercial(t) || 'Not available'}</p>
                 </div>
               </DetailSection>
 
@@ -1270,7 +1280,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
               <span className="truncate">{displayText(t.teams_email || t.microsoft_teams_email || t.teams_upn)}</span>
             </span>
           )}
-          {displayText(t.phone) && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {displayText(t.phone)}</span>}
+          {trainerPhone(t) && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {trainerPhone(t)}</span>}
         </div>
 
         {skills.length > 0 && (
@@ -1389,6 +1399,8 @@ export default function Trainers() {
   const [category, setCategory] = useState('')
   const [industry, setIndustry] = useState('')
   const [locationFilter, setLocationFilter] = useState('')
+  const [certificationFilter, setCertificationFilter] = useState('')
+  const [commercialMax, setCommercialMax] = useState('')
   const [experience, setExperience] = useState('')
   const [categories, setCategories] = useState([])
   const [domains, setDomains] = useState([])
@@ -1460,6 +1472,8 @@ export default function Trainers() {
         category: category || undefined,
         industry: industry || undefined,
         location: locationFilter || undefined,
+        certification: certificationFilter.trim() || undefined,
+        commercial_max: commercialMax === '' ? undefined : Number(commercialMax),
         experience: experience || undefined,
       }, { signal: request.signal })
       if (!request.isCurrent()) return
@@ -1474,7 +1488,7 @@ export default function Trainers() {
     } finally {
       if (request.isCurrent()) { setLoading(false); request.finish() }
     }
-  }, [page, search, status, domain, category, industry, locationFilter, experience])
+  }, [page, search, status, domain, category, industry, locationFilter, certificationFilter, commercialMax, experience])
 
   const stopPolling = useCallback(() => {
     if (pollRef.current) clearTimeout(pollRef.current)
@@ -1552,8 +1566,12 @@ export default function Trainers() {
   const handleSemanticSearch = async (e) => {
     e.preventDefault()
     const query = semanticQuery.trim()
-    if (!query) {
-      toast.error('Type a natural-language trainer search')
+    if (query.length < 2) {
+      setSemanticMode(false)
+      setSemanticIntent(null)
+      setSearch(query)
+      setSearchInput(query)
+      setPage(1)
       return
     }
     setLoading(true)
@@ -1563,6 +1581,9 @@ export default function Trainers() {
         limit: 15,
         domain: domain || undefined,
         location: locationFilter.trim() || undefined,
+        certification: certificationFilter.trim() || undefined,
+        commercial_max: commercialMax === '' ? undefined : Number(commercialMax),
+        experience: experience || undefined,
       })
       setTrainers(res.data.items || [])
       setTotal(res.data.total || 0)
@@ -1589,6 +1610,8 @@ export default function Trainers() {
     setCategory('')
     setIndustry('')
     setLocationFilter('')
+    setCertificationFilter('')
+    setCommercialMax('')
     setExperience('')
     setPage(1)
   }
@@ -2158,21 +2181,36 @@ export default function Trainers() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-700 shadow-sm">
                 <Sparkles className="h-3.5 w-3.5" />
-                Semantic Trainer Search with RAG
+                Trainer shortlist search
               </div>
-              <h2 className="mt-3 text-xl font-black text-slate-950">Ask for trainers in natural language</h2>
-              <p className="mt-1 text-sm text-slate-600">Search resumes, skills, domains, experience, location, and availability signals with ranked explanations.</p>
+              <h2 className="mt-3 text-xl font-black text-slate-950">Find trainers for your requirement</h2>
+              <p className="mt-1 text-sm text-slate-600">Filter by location, experience, domain, certifications, and daily commercials.</p>
             </div>
-            <form onSubmit={handleSemanticSearch} className="flex min-w-0 flex-1 flex-col gap-2 xl:max-w-3xl">
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <form onSubmit={handleSemanticSearch} className="flex min-w-0 flex-1 flex-col gap-2 xl:max-w-4xl">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                <label className="relative block sm:col-span-2 xl:col-span-1">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-500" />
+                  <span className="sr-only">Search trainer, skill, or designation</span>
+                  <input className="input h-11 pl-9" value={semanticQuery} onChange={e => setSemanticQuery(e.target.value)} placeholder="Skill, keyword, or designation" />
+                </label>
                 <label className="relative block">
                   <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-500" />
                   <span className="sr-only">Filter by location</span>
                   <input
                     className="input h-11 pl-9"
                     value={locationFilter}
-                    onChange={e => { setLocationFilter(e.target.value); setPage(1); setSemanticMode(false); setSemanticIntent(null) }}
+                    onChange={e => setLocationFilter(e.target.value)}
                     placeholder="Any location"
+                  />
+                </label>
+                <label className="relative block">
+                  <Award className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-500" />
+                  <span className="sr-only">Filter by certification</span>
+                  <input
+                    className="input h-11 pl-9"
+                    value={certificationFilter}
+                    onChange={e => setCertificationFilter(e.target.value)}
+                    placeholder="Certification"
                   />
                 </label>
                 <label className="relative block">
@@ -2180,26 +2218,32 @@ export default function Trainers() {
                   <select
                     className="input h-11"
                     value={domain}
-                    onChange={e => { setDomain(e.target.value); setPage(1); setSemanticMode(false); setSemanticIntent(null) }}
+                    onChange={e => setDomain(e.target.value)}
                   >
                     <option value="">Any domain</option>
                     {domainOptions.map(item => <option key={item} value={item}>{item}</option>)}
                   </select>
                 </label>
+                <label className="relative block">
+                  <span className="sr-only">Filter by experience</span>
+                  <select
+                    className="input h-11"
+                    value={experience}
+                    onChange={e => setExperience(e.target.value)}
+                  >
+                    {EXPERIENCE_OPTIONS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
+                  </select>
+                </label>
+                <label className="relative block">
+                  <span className="sr-only">Maximum daily commercial in INR</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-sky-500">₹</span>
+                  <input className="input h-11 pl-8" type="number" min="0" step="500" value={commercialMax} onChange={e => setCommercialMax(e.target.value)} placeholder="Max commercial / day" />
+                </label>
               </div>
-              <div className="flex min-w-0 gap-2">
-                <div className="relative min-w-0 flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-500" />
-                  <input
-                    className="input h-12 pl-9"
-                    value={semanticQuery}
-                    onChange={e => setSemanticQuery(e.target.value)}
-                    placeholder="Find a Python trainer with 5+ years experience available next week"
-                  />
-                </div>
-                <button type="submit" disabled={loading} className="btn-primary h-12 px-4 disabled:opacity-60">
-                  {loading && semanticMode ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                  Search
+              <div className="flex justify-end">
+                <button type="submit" disabled={loading} className="btn-primary h-11 px-5 disabled:opacity-60">
+                  {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                  Search trainers
                 </button>
               </div>
             </form>
@@ -2221,7 +2265,7 @@ export default function Trainers() {
           <Filter className="w-4 h-4 text-slate-400" />
           Trainer filters
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
           <form onSubmit={handleSearch} className="md:col-span-2 xl:col-span-2 flex gap-2">
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -2245,9 +2289,6 @@ export default function Trainers() {
             {industryOptions.map(item => <option key={item} value={item}>{item}</option>)}
           </select>
 
-          <select className="input" value={experience} onChange={e => { setExperience(e.target.value); setPage(1) }}>
-            {EXPERIENCE_OPTIONS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
-          </select>
         </div>
 
         <div className="flex flex-wrap gap-2">

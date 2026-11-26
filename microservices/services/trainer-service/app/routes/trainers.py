@@ -658,6 +658,8 @@ async def list_trainers(
     domain: Optional[str] = None,
     industry: Optional[str] = None,
     location: Optional[str] = None,
+    certification: Optional[str] = None,
+    commercial_max: Optional[float] = Query(None, ge=0),
     strict_location: bool = Query(False),
     experience: Optional[str] = None,
     status: Optional[str] = None,
@@ -683,6 +685,16 @@ async def list_trainers(
         ])
     if location:
         _append_or(query, _strict_location_search_clauses(location) if strict_location else _location_search_clauses(location))
+    if certification:
+        _append_or(query, [
+            _regex_clause(field, certification)
+            for field in ("certifications", "resume", "extracted_text", "summary", "bio")
+        ])
+    if commercial_max is not None:
+        _append_or(query, [
+            {field: {"$lte": commercial_max}}
+            for field in ("day_rate", "expected_day_rate", "commercial_amount", "commercial_rate", "rate_per_day", "per_day_rate")
+        ])
     exp_query = _experience_range(experience or "")
     if exp_query:
         query["experience_years"] = exp_query
@@ -764,6 +776,9 @@ async def semantic_trainer_search(
     limit: int = Query(10, ge=1, le=50),
     domain: Optional[str] = None,
     location: Optional[str] = None,
+    certification: Optional[str] = None,
+    commercial_max: Optional[float] = Query(None, ge=0),
+    experience: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     intent = _semantic_query_intent(q)
@@ -785,6 +800,19 @@ async def semantic_trainer_search(
         _append_or(candidate_query, await _domain_search_clauses(db, domain))
     if location:
         _append_or(candidate_query, _location_search_clauses(location))
+    if certification:
+        _append_or(candidate_query, [
+            _regex_clause(field, certification)
+            for field in ("certifications", "resume", "extracted_text", "summary", "bio")
+        ])
+    if commercial_max is not None:
+        _append_or(candidate_query, [
+            {field: {"$lte": commercial_max}}
+            for field in ("day_rate", "expected_day_rate", "commercial_amount", "commercial_rate", "rate_per_day", "per_day_rate")
+        ])
+    experience_query = _experience_range(experience or "")
+    if experience_query:
+        candidate_query["experience_years"] = experience_query
 
     projection = {"combined_text": 0}
     cursor = db.trainers.find(candidate_query, projection).sort([("profile_score", -1), ("resume_rank_score", -1), ("created_at", -1)]).limit(500)
