@@ -96,11 +96,20 @@ async def configure_naukri(payload: NaukriBotSettings, db=Depends(get_db)):
     domains = list(dict.fromkeys(d.strip()[:120] for d in payload.domains if d.strip()))
     if payload.enabled and not domains:
         raise HTTPException(422, 'Enter at least one skill or domain')
+    now = datetime.utcnow()
+    existing = await db['lead_bots'].find_one({'_id': 'naukri'}, {'enabled': 1, 'next_run': 1})
+    was_enabled = bool(existing and existing.get('enabled'))
+    if payload.enabled and not was_enabled:
+        next_run = now
+    elif payload.enabled:
+        next_run = now + timedelta(minutes=payload.interval_minutes)
+    else:
+        next_run = (existing or {}).get('next_run') or now + timedelta(minutes=payload.interval_minutes)
     await db['lead_bots'].update_one({'_id': 'naukri'}, {'$set': {
         **payload.model_dump(),
         'domains': domains,
         'location': payload.location.strip()[:120] or 'India',
-        'next_run': datetime.utcnow(),
+        'next_run': next_run,
     }}, upsert=True)
     return await naukri_status(db)
 
