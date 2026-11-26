@@ -659,7 +659,7 @@ async def list_trainers(
     industry: Optional[str] = None,
     location: Optional[str] = None,
     certification: Optional[str] = None,
-    commercial_max: Optional[float] = Query(None, ge=0),
+    commercial_max: Optional[float] = None,
     strict_location: bool = Query(False),
     experience: Optional[str] = None,
     status: Optional[str] = None,
@@ -691,6 +691,8 @@ async def list_trainers(
             for field in ("certifications", "resume", "extracted_text", "summary", "bio")
         ])
     if commercial_max is not None:
+        if commercial_max < 0:
+            raise HTTPException(422, "commercial_max must be non-negative")
         _append_or(query, [
             {field: {"$lte": commercial_max}}
             for field in ("day_rate", "expected_day_rate", "commercial_amount", "commercial_rate", "rate_per_day", "per_day_rate")
@@ -777,7 +779,7 @@ async def semantic_trainer_search(
     domain: Optional[str] = None,
     location: Optional[str] = None,
     certification: Optional[str] = None,
-    commercial_max: Optional[float] = Query(None, ge=0),
+    commercial_max: Optional[float] = None,
     experience: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
@@ -806,6 +808,8 @@ async def semantic_trainer_search(
             for field in ("certifications", "resume", "extracted_text", "summary", "bio")
         ])
     if commercial_max is not None:
+        if commercial_max < 0:
+            raise HTTPException(422, "commercial_max must be non-negative")
         _append_or(candidate_query, [
             {field: {"$lte": commercial_max}}
             for field in ("day_rate", "expected_day_rate", "commercial_amount", "commercial_rate", "rate_per_day", "per_day_rate")
