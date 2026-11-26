@@ -43,6 +43,7 @@ async def _ensure_indexes(db) -> None:
         ("requirements", [("requirement_id", 1)], {}),
         ("requirements", [("technology_needed", 1), ("status", 1)], {}),
         ("requirements", [("domain", 1), ("status", 1)], {}),
+        ("toc_generations", [("toc_reuse_key", 1), ("generation_mode", 1), ("toc.quality.status", 1), ("created_at", -1)], {}),
         ("shortlists", [("requirement_id", 1)], {}),
         ("shortlists", [("top_trainers.trainer_id", 1)], {}),
         ("shortlists", [("updated_at", -1)], {}),

@@ -1,9 +1,11 @@
 """Training Table of Contents (TOC) generation endpoint."""
 import asyncio
+import hashlib
 import json
 import logging
 import re
 import uuid
+from copy import deepcopy
 from datetime import datetime
 from math import ceil
 from typing import Any, Dict, List, Optional, Literal
@@ -678,6 +680,80 @@ def _topic_outline(payload: TocRequest) -> Dict[str, Any]:
     }
 
 
+def _toc_reuse_key(payload: TocRequest) -> str:
+    """Fingerprint only inputs that can change the generated curriculum."""
+    request = payload.model_dump(exclude={
+        "toc_id", "requirement_id", "client_email", "trainer_id", "trainer_name",
+        "trainer_email", "excel_layout",
+    })
+    request.pop("technology", None)
+    request["domain"] = str(request.get("domain") or "").strip().casefold()
+    canonical = json.dumps(request, sort_keys=True, ensure_ascii=False, separators=(",", ":"), default=str)
+    return "toc-v1:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+async def _find_reusable_ai_toc(
+    db: AsyncIOMotorDatabase, payload: TocRequest, reuse_key: str,
+) -> Optional[dict]:
+    """Return only an exact-input, previously approved AI curriculum."""
+    try:
+        collection = db["toc_generations"]
+        cached = await collection.find_one(
+            {
+                "toc_reuse_key": reuse_key,
+                "generation_mode": "ai",
+                "toc.quality.status": "approved",
+                "topic_only": {"$ne": True},
+            },
+            {"_id": 0, "toc_id": 1, "toc": 1},
+            sort=[("created_at", -1)],
+        )
+        if cached:
+            return cached
+
+        # Existing approved TOCs predate the fingerprint field. Reuse those
+        # only for simple requests whose full generation inputs were persisted.
+        if payload.notes or payload.cloud_provider or payload.cloud_region or payload.lab_type or payload.allow_ai_enrichment:
+            return None
+        legacy = await collection.find_one(
+            {
+                "domain": payload.domain,
+                "duration_days": int(payload.duration_days or 0),
+                "audience_level": payload.audience_level,
+                "training_dates": payload.training_dates,
+                "timing": payload.timing,
+                "generation_mode": "ai",
+                "toc_type": payload.toc_type,
+                "custom_topics": payload.custom_topics,
+                "client_notes": payload.client_notes,
+                "client_context": payload.client_context or {},
+                "toc.quality.status": "approved",
+                "topic_only": {"$ne": True},
+            },
+            {"_id": 0, "toc_id": 1, "technology_allocations": 1, "toc": 1},
+            sort=[("created_at", -1)],
+        )
+        if not legacy or not isinstance(legacy.get("toc"), dict):
+            return None
+        prior = legacy["toc"]
+        expected_allocations = (
+            [item.model_dump() for item in payload.technology_allocations]
+            if prior.get("planning_method") else _inferred_technology_allocations(payload)
+        )
+        if (
+            str(prior.get("level") or "").casefold() != str(payload.level or "").casefold()
+            or str(prior.get("mode") or "").casefold() != str(payload.mode or "").casefold()
+            or prior.get("hours_per_day") != payload.hours_per_day
+            or prior.get("participant_count") != payload.participant_count
+            or (legacy.get("technology_allocations") or []) != expected_allocations
+        ):
+            return None
+        return legacy
+    except Exception:
+        logger.warning("Could not look up a reusable AI TOC; continuing with generation", exc_info=True)
+        return None
+
+
 @router.post("/generate")
 async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     """
@@ -740,12 +816,18 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     # AI planning is sized for programmes up to 30 days; longer ones are planned
     # from the datasets by the template generator.
     ai_too_long = requested_mode == "ai" and int(payload.duration_days or 0) > 30
-    toc = await _generate_ai_toc(payload) if requested_mode == "ai" and not ai_too_long else None
+    reuse_key = _toc_reuse_key(payload) if requested_mode == "ai" and not ai_too_long else None
+    reusable = await _find_reusable_ai_toc(db, payload, reuse_key) if reuse_key else None
+    toc_reused = bool(reusable and isinstance(reusable.get("toc"), dict))
+    toc_reused_from = str(reusable.get("toc_id") or "") if toc_reused else ""
+    toc = deepcopy(reusable["toc"]) if toc_reused else (
+        await _generate_ai_toc(payload) if requested_mode == "ai" and not ai_too_long else None
+    )
     # A skipped AI call is not an AI failure; it gets its own mode and message.
     ai_unavailable = requested_mode == "ai" and not toc and not ai_too_long
     if toc:
         used_generation_mode = "ai"
-        if "ai_enriched_days" in toc and toc["ai_enriched_days"] < len(toc.get("days") or []):
+        if not toc_reused and "ai_enriched_days" in toc and toc["ai_enriched_days"] < len(toc.get("days") or []):
             used_generation_mode = "ai_partial"
             toc["generation_warning"] = "Some days retained reference content because AI enrichment failed. Review before sharing."
         # AI-planned days get the same module detail as dataset ToCs when they teach a dataset module.
@@ -836,7 +918,7 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
             quality["status"] = "requires_review"
         quality.setdefault("review_warnings", []).append("AI requirement planning unavailable; this template draft is not verified against the client proposal")
 
-    if used_generation_mode != "ai":
+    if used_generation_mode != "ai" and not toc_reused:
         from app.offline_programme import complete_offline_programme
         toc = complete_offline_programme(toc, payload)
 
@@ -907,11 +989,19 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         "client_notes": payload.client_notes,
         "client_context": payload.client_context,
         "technology_allocations": toc.get("technology_allocations") or [],
+        "toc_reuse_key": reuse_key,
+        "reused_from_toc_id": toc_reused_from or None,
         "toc": toc,
         "created_at": datetime.utcnow(),
     })
 
-    return {"success": True, "toc_id": toc_id, "toc_data": toc}
+    return {
+        "success": True,
+        "toc_id": toc_id,
+        "toc_data": toc,
+        "reused": toc_reused,
+        "reused_from_toc_id": toc_reused_from or None,
+    }
 
 
 def _apply_requirement_quality(toc: dict, payload: TocRequest) -> None:
