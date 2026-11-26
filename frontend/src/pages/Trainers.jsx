@@ -6,9 +6,6 @@ import {
   getTrainer,
   semanticTrainerSearch,
   deleteTrainer,
-  getTrainerCategories,
-  getTrainerDomains,
-  getTrainerIndustries,
   categoriseTrainer,
   categoriseAllTrainers,
   getCategoriseJob,
@@ -72,63 +69,6 @@ function trainerStatusClass(value = '') {
   return STATUS_COLORS[value] || 'badge-slate'
 }
 
-const STATUSES = ['', 'new', 'contacted', 'interested', 'declined', 'pending_review']
-const SOFTWARE_DOMAINS = [
-  'Software Development',
-  'Frontend Development',
-  'Backend Development',
-  'Full Stack',
-  'Programming Languages',
-  'Cloud',
-  'DevOps',
-  'SRE',
-  'Data Engineering',
-  'Data Analytics',
-  'Data Science',
-  'Business Intelligence',
-  'AI',
-  'Gen AI',
-  'Agentic AI',
-  'Machine Learning',
-  'MLOps',
-  'LLMOps',
-  'AIOps',
-  'Cybersecurity',
-  'Blockchain',
-  'Database',
-  'QA and Testing',
-  'Automation Testing',
-  'Enterprise Software',
-  'ERP Software',
-  'CRM Software',
-  'Salesforce',
-  'ServiceNow',
-  'SAP Technical',
-  'Mobile Development',
-  'Game Development',
-  'AR and VR',
-  'IoT',
-  'Embedded Systems',
-  'Robotics',
-  'Quantum Computing',
-]
-const NON_SOFTWARE_DOMAINS = new Set([
-  'business',
-  'finance',
-  'financial',
-  'creative',
-  'healthcare',
-  'manufacturing',
-  'language',
-  'languages',
-  'non-software training',
-])
-const EXPERIENCE_OPTIONS = [
-  { value: '', label: 'Any Experience' },
-  { value: '0-3', label: '0-3 years' },
-  { value: '3-7', label: '3-7 years' },
-  { value: '7+', label: '7+ years' },
-]
 const PIPELINE_MAIL_TEMPLATES = [
   { value: 'mail1', label: 'Mail 1 - First Contact' },
   { value: 'mail2', label: 'Mail 2 - Details Request' },
@@ -277,16 +217,6 @@ function hasSkillAlias(text, alias) {
 function isUsefulCategory(value) {
   const text = displayText(value)
   return Boolean(text && !EMPTY_CATEGORY_VALUES.has(text.toLowerCase()))
-}
-
-function uniqueSorted(values) {
-  return [...new Set(values.map(item => displayText(item)).filter(Boolean))].sort((a, b) => a.localeCompare(b))
-}
-
-function softwareDomainsOnly(values) {
-  return values
-    .map(domain => displayText(domain))
-    .filter(domain => domain && !NON_SOFTWARE_DOMAINS.has(domain.toLowerCase()))
 }
 
 function searchableTrainerText(t) {
@@ -1279,7 +1209,8 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
               <span className="truncate">{displayText(t.teams_email || t.microsoft_teams_email || t.teams_upn)}</span>
             </span>
           )}
-          {trainerPhone(t) && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {trainerPhone(t)}</span>}
+          {trainerPhone(t) && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> Mobile: {trainerPhone(t)}</span>}
+          {trainerCommercial(t) && <span className="flex items-center gap-1 text-emerald-700"><BriefcaseBusiness className="w-3.5 h-3.5" /> Commercial: {trainerCommercial(t)}</span>}
         </div>
 
         {skills.length > 0 && (
@@ -1393,17 +1324,10 @@ export default function Trainers() {
   const [pages, setPages] = useState(1)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
-  const [status, setStatus] = useState('')
-  const [domain, setDomain] = useState('')
-  const [category, setCategory] = useState('')
-  const [industry, setIndustry] = useState('')
   const [locationFilter, setLocationFilter] = useState('')
   const [certificationFilter, setCertificationFilter] = useState('')
   const [commercialMax, setCommercialMax] = useState('')
   const [experience, setExperience] = useState('')
-  const [categories, setCategories] = useState([])
-  const [domains, setDomains] = useState([])
-  const [industries, setIndustries] = useState([])
   const [loading, setLoading] = useState(false)
   const [semanticQuery, setSemanticQuery] = useState('')
   const [semanticIntent, setSemanticIntent] = useState(null)
@@ -1441,21 +1365,6 @@ export default function Trainers() {
   const [categoryJob, setCategoryJob] = useState(null)
   const pollRef = useRef(null)
 
-  const loadMeta = useCallback(async () => {
-    try {
-      const [catRes, domainRes, industryRes] = await Promise.all([
-        getTrainerCategories(),
-        getTrainerDomains(),
-        getTrainerIndustries(),
-      ])
-      setCategories(catRes.data.categories || [])
-      setDomains(domainRes.data.domains || [])
-      setIndustries(industryRes.data.industries || [])
-    } catch {
-      // Filter metadata is helpful, but the trainer list can still render without it.
-    }
-  }, [])
-
   const listRequestGate = useRef(createRequestGate())
   const load = useCallback(async (targetPage = page) => {
     const request = listRequestGate.current.start()
@@ -1465,10 +1374,6 @@ export default function Trainers() {
         page: targetPage,
         limit: 15,
         search: search || undefined,
-        status: status || undefined,
-        domain: domain || undefined,
-        category: category || undefined,
-        industry: industry || undefined,
         location: locationFilter || undefined,
         certification: certificationFilter.trim() || undefined,
         commercial_max: commercialMax === '' ? undefined : Number(commercialMax),
@@ -1478,15 +1383,12 @@ export default function Trainers() {
       setTrainers(res.data.items || [])
       setTotal(res.data.total || 0)
       setPages(res.data.pages || 1)
-      if (res.data.categories) setCategories(res.data.categories)
-      if (res.data.domains) setDomains(res.data.domains)
-      if (res.data.industries) setIndustries(res.data.industries)
     } catch (error) {
       if (request.isCurrent()) toast.error(error.message)
     } finally {
       if (request.isCurrent()) { setLoading(false); request.finish() }
     }
-  }, [page, search, status, domain, category, industry, locationFilter, certificationFilter, commercialMax, experience])
+  }, [page, search, locationFilter, certificationFilter, commercialMax, experience])
 
   const stopPolling = useCallback(() => {
     if (pollRef.current) clearTimeout(pollRef.current)
@@ -1505,7 +1407,6 @@ export default function Trainers() {
           toast.success(`${job.succeeded || 0} trainers categorised`)
           setPage(1)
           load(1)
-          loadMeta()
           return
         }
         if (job.status === 'failed') {
@@ -1520,12 +1421,7 @@ export default function Trainers() {
       }
     }
     pollRef.current = setTimeout(tick, 1200)
-  }, [load, loadMeta, stopPolling])
-
-  useEffect(() => {
-    loadMeta()
-    return stopPolling
-  }, [loadMeta, stopPolling])
+  }, [load, stopPolling])
 
   useEffect(() => {
     load(page)
@@ -1575,14 +1471,10 @@ export default function Trainers() {
       const res = await semanticTrainerSearch({
         q: query,
         limit: 15,
-        domain: domain || undefined,
         location: locationFilter.trim() || undefined,
         certification: certificationFilter.trim() || undefined,
         commercial_max: commercialMax === '' ? undefined : Number(commercialMax),
         experience: experience || undefined,
-        category: category || undefined,
-        industry: industry || undefined,
-        status: status || undefined,
       })
       setTrainers(res.data.items || [])
       setTotal(res.data.total || 0)
@@ -1620,7 +1512,6 @@ export default function Trainers() {
       toast.success(`${trainer.name} deleted`)
       setConfirmDelete(null)
       load(page)
-      loadMeta()
     } catch (error) {
       toast.error(error.message)
     }
@@ -1635,7 +1526,6 @@ export default function Trainers() {
       setTrainers(prev => prev.map(item => trainerRecordId(item) === trainerId ? updated : item))
       setSelectedTrainer(current => trainerRecordId(current) === trainerId ? updated : current)
       toast.success(`${trainer.name} categorised`)
-      loadMeta()
     } catch (error) {
       toast.error(error.message)
     } finally {
@@ -1657,7 +1547,7 @@ export default function Trainers() {
       return
     }
     setResumeRequestTrainer(trainer)
-    setResumeRequestDomain(domain || category || trainer.primary_category || trainer.technology_category || trainer.domain || '')
+    setResumeRequestDomain(trainer.primary_category || trainer.technology_category || trainer.domain || '')
   }
 
   const closeResumeRequest = () => {
@@ -1733,7 +1623,7 @@ export default function Trainers() {
     }
     const clientEmail = overrides.client_email || trainer.last_automation_client_email || trainer.client_email || ''
     if (!clientEmail) {
-      const defaultDomain = domain || category || trainer.primary_category || trainer.technology_category || trainer.domain || ''
+      const defaultDomain = trainer.primary_category || trainer.technology_category || trainer.domain || ''
       setAutomationMode('auto_start')
       setAutomationMailTrainer(trainer)
       setAutomationForm(prev => ({
@@ -1848,9 +1738,6 @@ export default function Trainers() {
     }
   }
 
-  const domainOptions = uniqueSorted(softwareDomainsOnly([...SOFTWARE_DOMAINS, ...domains]))
-  const categoryOptions = uniqueSorted(categories)
-  const industryOptions = uniqueSorted(industries)
 
   return (
     <>
@@ -2160,12 +2047,12 @@ export default function Trainers() {
 
         <div className="rounded-2xl border border-sky-200 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-2 shadow-sm 2xl:rounded-full">
           <div className="block">
-            <form onSubmit={handleSemanticSearch} className="grid w-full min-w-0 grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1.2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_auto]">
+            <form onSubmit={handleSemanticSearch} className="grid w-full min-w-0 grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-[1.3fr_1fr_1fr_1.1fr_1.1fr_auto]">
               <div className="contents">
                 <label className="relative flex min-w-0 items-center border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-500" />
                   <span className="sr-only">Search trainer, skill, or designation</span>
-                  <input className="h-12 w-full min-w-0 border-0 bg-transparent pl-9 pr-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0" value={semanticQuery} onChange={e => setSemanticQuery(e.target.value)} placeholder="Skill or designation" />
+                  <input className="h-12 w-full min-w-0 border-0 bg-transparent pl-9 pr-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0" value={semanticQuery} onChange={e => setSemanticQuery(e.target.value)} placeholder="Skill, domain, or designation" />
                 </label>
                 <label className="relative flex min-w-0 items-center border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
                   <MapPin className="h-4 w-4 flex-shrink-0 text-sky-500" />
@@ -2177,52 +2064,14 @@ export default function Trainers() {
                   <span className="sr-only">Filter by certification</span>
                   <input className="h-12 w-full min-w-0 border-0 bg-transparent pl-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0" value={certificationFilter} onChange={updateFinderFilter(setCertificationFilter)} placeholder="Certification" />
                 </label>
-                <label className="relative min-w-0 border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
-                  <span className="sr-only">Filter by domain</span>
-                  <select
-                    className="h-12 w-full min-w-0 border-0 bg-transparent text-sm text-slate-800 focus:outline-none focus:ring-0"
-                    value={domain}
-                    onChange={updateFinderFilter(setDomain)}
-                  >
-                    <option value="">Any domain</option>
-                    {domainOptions.map(item => <option key={item} value={item}>{item}</option>)}
-                  </select>
-                </label>
                 <label className="min-w-0 border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
-                  <span className="sr-only">Filter by experience</span>
-                  <select
-                    className="h-12 w-full min-w-0 border-0 bg-transparent text-sm text-slate-800 focus:outline-none focus:ring-0"
-                    value={experience}
-                    onChange={updateFinderFilter(setExperience)}
-                  >
-                    {EXPERIENCE_OPTIONS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
-                  </select>
+                  <span className="sr-only">Minimum experience in years</span>
+                  <input className="h-12 w-full min-w-0 border-0 bg-transparent text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0" type="number" min="0" step="1" value={experience} onChange={updateFinderFilter(setExperience)} placeholder="Min experience (years)" />
                 </label>
                 <label className="relative min-w-0 border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
                   <span className="sr-only">Maximum daily commercial in INR</span>
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-sky-500">INR</span>
                   <input className="h-12 w-full min-w-0 border-0 bg-transparent pl-8 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0" type="number" min="0" step="500" value={commercialMax} onChange={updateFinderFilter(setCommercialMax)} placeholder="Max INR / day" />
-                </label>
-                <label className="min-w-0 border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
-                  <span className="sr-only">Filter by category</span>
-                  <select className="h-12 w-full min-w-0 border-0 bg-transparent text-sm text-slate-800 focus:outline-none focus:ring-0" value={category} onChange={updateFinderFilter(setCategory)}>
-                    <option value="">All categories</option>
-                    {categoryOptions.map(item => <option key={item} value={item}>{item}</option>)}
-                  </select>
-                </label>
-                <label className="min-w-0 border-b border-slate-200 px-3 2xl:border-b-0 2xl:border-r">
-                  <span className="sr-only">Filter by industry</span>
-                  <select className="h-12 w-full min-w-0 border-0 bg-transparent text-sm text-slate-800 focus:outline-none focus:ring-0" value={industry} onChange={updateFinderFilter(setIndustry)}>
-                    <option value="">All industries</option>
-                    {industryOptions.map(item => <option key={item} value={item}>{item}</option>)}
-                  </select>
-                </label>
-                <label className="min-w-0 px-3">
-                  <span className="sr-only">Filter by trainer status</span>
-                  <select className="h-12 w-full min-w-0 border-0 bg-transparent text-sm text-slate-800 focus:outline-none focus:ring-0" value={status} onChange={updateFinderFilter(setStatus)}>
-                    <option value="">All statuses</option>
-                    {STATUSES.filter(Boolean).map(item => <option key={item} value={item}>{item.replace('_', ' ')}</option>)}
-                  </select>
                 </label>
               </div>
               <button type="submit" disabled={loading} className="btn-primary h-12 justify-center rounded-full px-5 disabled:opacity-60">

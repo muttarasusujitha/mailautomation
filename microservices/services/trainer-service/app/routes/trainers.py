@@ -234,7 +234,10 @@ def _experience_range(value: str) -> Optional[Dict[str, Any]]:
             return {"$gte": float(text[:-1])}
         except ValueError:
             return None
-    return None
+    try:
+        return {"$gte": float(text)}
+    except ValueError:
+        return None
 
 
 def _clean_text(value: Any) -> str:
